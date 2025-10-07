@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sistema de Notas - Demo</title>
+  <style>
+    :root{--bg:#f4f7fb;--card:#fff;--accent:#2563eb;--muted:#6b7280}
+    *{box-sizing:border-box;font-family:Inter,Segoe UI,Arial,Helvetica,sans-serif}
+    body{margin:0;background:var(--bg);color:#111;padding:24px}
+    .container{max-width:1100px;margin:0 auto}
+    .card{background:var(--card);padding:20px;border-radius:12px;box-shadow:0 6px 18px rgba(16,24,40,0.06)}
+
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    h1{margin:0;font-size:20px}
+    .muted{color:var(--muted);font-size:13px}
+
+    /* Login */
+    .login-wrap{max-width:420px;margin:40px auto}
+    label{display:block;margin-top:10px;font-size:13px}
+    input[type=text],input[type=password]{width:100%;padding:10px;border-radius:8px;border:1px solid #e5e7eb;margin-top:6px}
+    button{background:var(--accent);color:white;padding:10px 14px;border:0;border-radius:8px;cursor:pointer}
+
+    /* App */
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .controls > *{padding:8px 10px;border-radius:8px;border:1px solid #e5e7eb;background:white}
+    .controls input[type=file]{padding:6px}
+
+    .table-wrap{overflow:auto;border-radius:8px;border:1px solid #e5e7eb}
+    table{border-collapse:separate;border-spacing:0;width:100%;min-width:700px}
+    th,td{padding:10px 12px;border-right:1px solid #eef2ff;border-bottom:1px solid #eef2ff;text-align:center}
+    th:first-child,td:first-child{text-align:left;background:#f9fafb;position:sticky;left:0;z-index:2}
+    th{background:#eef2ff;font-weight:600}
+
+    .danger{color:#dc2626}
+    .ok{color:#059669}
+    footer{margin-top:12px;display:flex;justify-content:space-between;align-items:center}
+
+    .small{font-size:12px}
+
+    /* responsive */
+    @media(max-width:700px){th,td{padding:8px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Sistema de Notas (demo)</h1>
+        <div class="muted">Acceso con usuario y contraseña. Datos guardados en el navegador (localStorage).</div>
+      </div>
+      <div class="muted small">Demo — no usar para datos sensibles</div>
+    </header>
+
+    <main>
+      <!-- LOGIN -->
+      <section id="loginSection" class="card login-wrap">
+        <h2>Iniciar sesión</h2>
+        <p class="muted">Credenciales por defecto: <strong>usuario:</strong> <code>admin</code> / <strong>clave:</strong> <code>1234</code>. Puedes cambiar estas credenciales en ajustes.</p>
+        <label for="user">Usuario</label>
+        <input id="user" type="text" value="" placeholder="usuario..." />
+        <label for="pass">Contraseña</label>
+        <input id="pass" type="password" placeholder="contraseña..." />
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button id="loginBtn">Entrar</button>
+          <button id="resetBtn" style="background:#ef4444">Borrar datos</button>
+        </div>
+        <p id="loginMsg" class="muted small" style="margin-top:10px"></p>
+      </section>
+
+      <!-- APP -->
+      <section id="appSection" class="card" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <h2 style="margin:0">Panel de notas</h2>
+            <div class="muted small">Tabla horizontal: materias/actividades en filas y estudiantes en columnas.</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button id="logoutBtn" style="background:#ef4444">Cerrar sesión</button>
+            <button id="credBtn" style="background:#10b981">Ajustes</button>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+        <div class="controls">
+          <button id="addStudentBtn">Agregar alumno (columna)</button>
+          <button id="addRowBtn">Agregar materia/actividad (fila)</button>
+          <label style="display:inline-flex;align-items:center;gap:8px">Subir CSV<input id="csvInput" type="file" accept="text/csv"/></label>
+          <button id="exportBtn">Exportar CSV</button>
+        </div>
+
+        <div id="tableWrap" class="table-wrap">
+          <table id="gradesTable">
+            <thead id="thead"></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+
+        <footer>
+          <div class="small muted">Reglas: números decimales permitidos. Nota mínima aceptada: 2. (Validación al guardar.)</div>
+          <div>
+            <button id="saveBtn">Guardar cambios</button>
+          </div>
+        </footer>
+      </section>
+
+      <!-- SETTINGS MODAL (simple) -->
+      <div id="settings" style="display:none;position:fixed;inset:0;background:rgba(2,6,23,0.5);align-items:center;justify-content:center;padding:24px">
+        <div class="card" style="max-width:480px;width:100%">
+          <h3>Ajustes de cuenta</h3>
+          <label>Usuario actual (para demo)</label>
+          <input id="setUser" type="text" />
+          <label>Contraseña</label>
+          <input id="setPass" type="password" />
+          <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+            <button id="closeSettings">Cancelar</button>
+            <button id="saveSettings" style="background:var(--accent)">Guardar</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    /* ---------- Estado y util ---------- */
+    const STORAGE_KEY = 'sistema_notas_demo_data';
+    const CRED_KEY = 'sistema_notas_demo_cred';
+
+    let state = {
+      students: ['Raúl','Aurora'], // columnas (ejemplo)
+      rows: [
+        {name:'Parcial 1', grades:[8.5,9.25]},
+        {name:'Parcial 2', grades:[7.5,8.0]}
+      ]
+    };
+
+    function loadState(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        try{state = JSON.parse(raw);}catch(e){console.warn('error parse local',e)}
+      } else { saveState(); }
+    }
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadCreds(){
+      const raw = localStorage.getItem(CRED_KEY);
+      if(raw) return JSON.parse(raw);
+      const defaults = {user:'admin',pass:'1234'};
+      localStorage.setItem(CRED_KEY, JSON.stringify(defaults));
+      return defaults;
+    }
+
+    /* ---------- Login ---------- */
+    const loginSection = document.getElementById('loginSection');
+    const appSection = document.getElementById('appSection');
+    const loginMsg = document.getElementById('loginMsg');
+
+    document.getElementById('loginBtn').addEventListener('click',()=>{
+      const u=document.getElementById('user').value.trim();
+      const p=document.getElementById('pass').value;
+      const cred = loadCreds();
+      if(u===cred.user && p===cred.pass){
+        loginMsg.textContent='Acceso correcto.'; loginMsg.className='muted small';
+        showApp();
+      } else { loginMsg.textContent='Usuario o contraseña incorrectos.'; loginMsg.className='danger small'; }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click',()=>{
+      if(confirm('Esto borrará todas las notas guardadas en este navegador. ¿Continuar?')){
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(CRED_KEY);
+        location.reload();
+      }
+    });
+
+    function showApp(){
+      loginSection.style.display='none';
+      appSection.style.display='block';
+      loadState();
+      renderTable();
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click',()=>{
+      location.reload();
+    });
+
+    /* ---------- Table rendering & actions ---------- */
+    const thead = document.getElementById('thead');
+    const tbody = document.getElementById('tbody');
+
+    function renderTable(){
+      // head
+      thead.innerHTML=''; tbody.innerHTML='';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<th>MATERIA / ACTIVIDAD</th>` + state.students.map(s=>`<th>${escapeHtml(s)}</th>`).join('');
+      thead.appendChild(tr);
+
+      // rows
+      state.rows.forEach((r,rowIdx)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td contenteditable="true" data-row="${rowIdx}" data-col="-1">${escapeHtml(r.name)}</td>` +
+          r.grades.map((g,colIdx)=>`<td contenteditable="true" data-row="${rowIdx}" data-col="${colIdx}">${g}</td>`).join('');
+        tbody.appendChild(tr);
+      });
+
+      // attach listeners to editable cells
+      document.querySelectorAll('[contenteditable=true]').forEach(cell=>{
+        cell.addEventListener('blur',onCellBlur);
+      });
+    }
+
+    function onCellBlur(e){
+      const el = e.target; const row = parseInt(el.dataset.row,10); const col = parseInt(el.dataset.col,10);
+      const val = el.textContent.trim();
+      if(col===-1){ // name change for row
+        state.rows[row].name = val || 'Sin nombre'; saveState(); return;
+      }
+      // validate grade
+      if(val==='') { state.rows[row].grades[col] = ''; saveState(); return; }
+      const num = Number(val.replace(',','.'));
+      if(isNaN(num) || num < 0){ alert('Valor no numérico'); el.classList.add('danger'); return; }
+      if(num < 2){ alert('La nota debe ser al menos 2'); el.classList.add('danger'); return; }
+      state.rows[row].grades[col] = Number((Math.round(num*100)/100).toFixed(2));
+      saveState(); renderTable();
+    }
+
+    document.getElementById('addStudentBtn').addEventListener('click',()=>{
+      const name = prompt('Nombre del alumno (ej. María):','Nuevo Alumno');
+      if(!name) return;
+      state.students.push(name);
+      // add empty grade for each row
+      state.rows.forEach(r=>r.grades.push(''));
+      saveState(); renderTable();
+    });
+
+    document.getElementById('addRowBtn').addEventListener('click',()=>{
+      const name = prompt('Nombre de la materia/actividad (ej. Tarea 1):','Actividad');
+      if(!name) return;
+      const grades = state.students.map(()=>'');
+      state.rows.push({name,grades});
+      saveState(); renderTable();
+    });
+
+    /* ---------- CSV import/export ---------- */
+    document.getElementById('csvInput').addEventListener('change',async (ev)=>{
+      const f = ev.target.files[0]; if(!f) return;
+      const text = await f.text(); parseCSV(text);
+      ev.target.value='';
+    });
+
+    function parseCSV(text){
+      // simple CSV parse (coma separador). First row: header: Subject,Student1,Student2...
+      const lines = text.split(/\r?\n/).filter(Boolean);
+      if(lines.length<2){ alert('CSV inválido: se necesita encabezado y al menos una fila.'); return; }
+      const header = lines[0].split(',').map(s=>s.trim());
+      const studentNames = header.slice(1);
+      const rows = lines.slice(1).map(l=>{
+        const parts = l.split(',').map(p=>p.trim());
+        const name = parts[0] || 'Sin nombre';
+        const grades = studentNames.map((_,i)=>{
+          const raw = parts[i+1]; if(!raw) return ''; const num = Number(raw.replace(',','.')); return isNaN(num)?raw:num;
+        });
+        return {name,grades};
+      });
+      state.students = studentNames.length?studentNames:state.students;
+      state.rows = rows.length?rows:state.rows;
+      saveState(); renderTable();
+      alert('CSV importado correctamente. Revisa y guarda.');
+    }
+
+    document.getElementById('exportBtn').addEventListener('click',()=>{
+      // build CSV
+      const h = ['Materia'].concat(state.students).join(',') + '\n';
+      const body = state.rows.map(r=> [r.name].concat(r.grades.map(g=>g===undefined?'':g)).join(',')).join('\n');
+      const csv = h + body;
+      const blob = new Blob([csv],{type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='notas_export.csv'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    /* ---------- Save button ---------- */
+    document.getElementById('saveBtn').addEventListener('click',()=>{ 
+      // final validation: all numerical grades must be >=2
+      for(const r of state.rows){
+        for(const g of r.grades){
+          if(g==='' || g===null) continue;
+          const num = Number(g);
+          if(isNaN(num) || num < 2){ alert('Hay notas inválidas (vacías o < 2). Revisa antes de guardar.'); return; }
+        }
+      }
+      saveState(); alert('Cambios guardados.');
+    });
+
+    /* ---------- Settings modal ---------- */
+    const settings = document.getElementById('settings');
+    document.getElementById('credBtn').addEventListener('click',()=>{
+      const cred = loadCreds(); document.getElementById('setUser').value = cred.user; document.getElementById('setPass').value = cred.pass; settings.style.display='flex';
+    });
+    document.getElementById('closeSettings').addEventListener('click',()=>settings.style.display='none');
+    document.getElementById('saveSettings').addEventListener('click',()=>{
+      const u = document.getElementById('setUser').value.trim(); const p = document.getElementById('setPass').value;
+      if(!u||!p){ alert('Usuario y contraseña deben tener valor'); return; }
+      localStorage.setItem(CRED_KEY, JSON.stringify({user:u,pass:p})); settings.style.display='none'; alert('Credenciales actualizadas.');
+    });
+
+    /* ---------- Utilities ---------- */
+    function escapeHtml(str){ return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // init: load state but show login
+    loadState();
+  </script>
+</body>
+</html>
