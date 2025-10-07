@@ -1,136 +1,169 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Notas</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Notas</title>
+<style>
+  body { font-family: "Poppins", sans-serif; background: #f3f6ff; color: #0f172a; padding: 40px; }
+  .hidden { display: none; }
+  .login-card { max-width: 350px; margin: 100px auto; background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+  .login-card h2 { text-align: center; margin-bottom: 16px; color: #1d4ed8; }
+  .login-card label { font-size: 13px; color: #475569; }
+  .login-card input { width: 100%; padding: 10px; margin: 6px 0 12px; border: 1px solid #cbd5e1; border-radius: 8px; }
+  .btn-primary { background: #2563eb; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; }
+  .btn-primary:hover { background: #1e40af; }
+  .error { color: #dc2626; text-align: center; margin-top: 10px; }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .btn-danger { background: #dc2626; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+  .btn-danger:hover { background: #b91c1c; }
+  table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 6px 20px rgba(0,0,0,0.05); }
+  th, td { padding: 10px 14px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+  th { background: #eff6ff; color: #1e3a8a; }
+  td[contenteditable] { background: #fffefc; }
+  td[contenteditable]:focus { outline: 2px dashed #3b82f6; }
+  tfoot th { background: #e0e7ff; }
+</style>
 </head>
 <body>
-  <div id="login-section" class="login-card">
-    <h2>Sistema de Notas</h2>
-    <label for="user">Usuario:</label>
-    <input type="text" id="user" placeholder="Usuario">
-    <label for="pass">Contraseña:</label>
-    <input type="password" id="pass" placeholder="Contraseña">
-    <button id="login-btn" class="btn-primary">Entrar</button>
-    <p id="login-error" class="error"></p>
-  </div>
 
-  <div id="main-section" class="hidden">
-    <header>
-      <h1>Sistema de Notas</h1>
-      <button id="logout-btn" class="btn-danger">Cerrar sesión</button>
-    </header>
+<div id="login-section" class="login-card">
+  <h2>Sistema de Notas</h2>
+  <label for="user">Usuario:</label>
+  <input type="text" id="user" placeholder="Usuario">
+  <label for="pass">Contraseña:</label>
+  <input type="password" id="pass" placeholder="Contraseña">
+  <button id="login-btn" class="btn-primary">Entrar</button>
+  <p id="login-error" class="error"></p>
+</div>
 
-    <table id="tablaNotas">
-      <thead>
-        <tr>
-          <th>Materia</th>
-          <th>Cotidiana (35%)</th>
-          <th>Integradora (35%)</th>
-          <th>Examen (30%)</th>
-          <th>Nota Final</th>
-        </tr>
-      </thead>
-      <tbody id="tablaBody">
-        <tr>
-          <td>Matemáticas</td>
-          <td contenteditable="true"></td>
-          <td contenteditable="true"></td>
-          <td contenteditable="true"></td>
-          <td class="resultado"></td>
-        </tr>
-        <tr>
-          <td>Ciencias</td>
-          <td contenteditable="true"></td>
-          <td contenteditable="true"></td>
-          <td contenteditable="true"></td>
-          <td class="resultado"></td>
-        </tr>
-        <tr>
-          <td>Lenguaje</td>
-          <td contenteditable="true"></td>
-          <td contenteditable="true"></td>
-          <td contenteditable="true"></td>
-          <td class="resultado"></td>
-        </tr>
-        <tr>
-          <td>Sociales</td>
-          <td contenteditable="true"></td>
-          <td contenteditable="true"></td>
-          <td contenteditable="true"></td>
-          <td class="resultado"></td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <th colspan="4">Promedio General</th>
-          <th id="promedioGeneral">0.00</th>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
+<div id="main-section" class="hidden">
+  <header>
+    <h1>Sistema de Notas</h1>
+    <button id="logout-btn" class="btn-danger">Cerrar sesión</button>
+  </header>
 
-  <script>
-    // --- Inicio de sesión ---
-    const loginBtn = document.getElementById("login-btn");
-    const userInput = document.getElementById("user");
-    const passInput = document.getElementById("pass");
-    const errorMsg = document.getElementById("login-error");
-    const loginSection = document.getElementById("login-section");
-    const mainSection = document.getElementById("main-section");
-    const logoutBtn = document.getElementById("logout-btn");
+  <table id="tablaNotas">
+    <thead>
+      <tr>
+        <th>Materia</th>
+        <th>Cotidiana</th>
+        <th>Integradora</th>
+        <th>Examen</th>
+        <th>Nota Final</th>
+      </tr>
+    </thead>
+    <tbody id="tablaBody">
+      <tr><td>Lenguaje</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+      <tr><td>Matemáticas</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+      <tr><td>Estudios Sociales</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+      <tr><td>Inglés</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+      <tr><td>Informática</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+      <tr><td>Orientación Para La Vida</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+      <tr><td>Educación Física</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+      <tr><td>Seminario</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+      <tr><td>Moral Urbanidad y Cívica</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+      <tr><td>Biología</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+      <tr><td>Física Química</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+      <tr><td>Reading and Writing</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+      <tr><td>Conversation</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="resultado"></td></tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <th colspan="4">Promedio General</th>
+        <th id="promedioGeneral">0.00</th>
+      </tr>
+    </tfoot>
+  </table>
+</div>
 
-    loginBtn.addEventListener("click", () => {
-      const usuario = userInput.value.trim();
-      const contrasena = passInput.value.trim();
+<script>
+  const loginBtn = document.getElementById("login-btn");
+  const userInput = document.getElementById("user");
+  const passInput = document.getElementById("pass");
+  const errorMsg = document.getElementById("login-error");
+  const loginSection = document.getElementById("login-section");
+  const mainSection = document.getElementById("main-section");
+  const logoutBtn = document.getElementById("logout-btn");
+  const tablaBody = document.getElementById("tablaBody");
+  const promedioGeneral = document.getElementById("promedioGeneral");
 
-      if (usuario === "JFlores" && contrasena === "Notas2025.") {
-        loginSection.classList.add("hidden");
-        mainSection.classList.remove("hidden");
-      } else {
-        errorMsg.textContent = "Usuario o contraseña incorrectos.";
+  // --- Inicio de sesión ---
+  loginBtn.addEventListener("click", () => {
+    const usuario = userInput.value.trim();
+    const contrasena = passInput.value.trim();
+    if(usuario === "JFlores" && contrasena === "Notas2025"){
+      loginSection.classList.add("hidden");
+      mainSection.classList.remove("hidden");
+      cargarNotas();
+    } else {
+      errorMsg.textContent = "Usuario o contraseña incorrectos.";
+    }
+  });
+
+  logoutBtn.addEventListener("click", () => {
+    mainSection.classList.add("hidden");
+    loginSection.classList.remove("hidden");
+    userInput.value = "";
+    passInput.value = "";
+    errorMsg.textContent = "";
+  });
+
+  // --- Guardar y calcular notas ---
+  tablaBody.addEventListener("input", () => {
+    let total = 0;
+    let filas = 0;
+    const notas = {};
+
+    document.querySelectorAll("#tablaBody tr").forEach((fila, i) => {
+      const materia = fila.children[0].textContent;
+      let coti = parseFloat(fila.children[1].textContent) || 0;
+      let inte = parseFloat(fila.children[2].textContent) || 0;
+      let exam = parseFloat(fila.children[3].textContent) || 0;
+
+      // Validar límites 0-10
+      coti = Math.min(Math.max(coti,0),10);
+      inte = Math.min(Math.max(inte,0),10);
+      exam = Math.min(Math.max(exam,0),10);
+      fila.children[1].textContent = coti;
+      fila.children[2].textContent = inte;
+      fila.children[3].textContent = exam;
+
+      const notaFinal = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
+      fila.querySelector(".resultado").textContent = notaFinal;
+      notas[materia] = { coti, inte, exam, notaFinal };
+
+      total += parseFloat(notaFinal);
+      filas++;
+    });
+
+    promedioGeneral.textContent = (total/filas || 0).toFixed(2);
+    localStorage.setItem("notas", JSON.stringify(notas));
+  });
+
+  // --- Cargar notas guardadas ---
+  function cargarNotas(){
+    const notasGuardadas = JSON.parse(localStorage.getItem("notas") || "{}");
+    document.querySelectorAll("#tablaBody tr").forEach(fila => {
+      const materia = fila.children[0].textContent;
+      if(notasGuardadas[materia]){
+        fila.children[1].textContent = notasGuardadas[materia].coti;
+        fila.children[2].textContent = notasGuardadas[materia].inte;
+        fila.children[3].textContent = notasGuardadas[materia].exam;
+        fila.querySelector(".resultado").textContent = notasGuardadas[materia].notaFinal;
       }
     });
 
-    logoutBtn.addEventListener("click", () => {
-      mainSection.classList.add("hidden");
-      loginSection.classList.remove("hidden");
-      userInput.value = "";
-      passInput.value = "";
-      errorMsg.textContent = "";
+    // recalcular promedio
+    let total = 0;
+    let filas = 0;
+    document.querySelectorAll("#tablaBody tr").forEach(fila => {
+      const notaFinal = parseFloat(fila.querySelector(".resultado").textContent) || 0;
+      total += notaFinal;
+      filas++;
     });
-
-    // --- Cálculo de notas ---
-    const tabla = document.getElementById("tablaNotas");
-    const promedioGeneral = document.getElementById("promedioGeneral");
-
-    tabla.addEventListener("input", () => {
-      let total = 0;
-      let filas = 0;
-
-      document.querySelectorAll("#tablaBody tr").forEach(fila => {
-        const coti = parseFloat(fila.children[1].textContent) || 0;
-        const inte = parseFloat(fila.children[2].textContent) || 0;
-        const exam = parseFloat(fila.children[3].textContent) || 0;
-
-        // Validar límites 0–10
-        if (coti > 10) fila.children[1].textContent = 10;
-        if (inte > 10) fila.children[2].textContent = 10;
-        if (exam > 10) fila.children[3].textContent = 10;
-        if (coti < 0) fila.children[1].textContent = 0;
-        if (inte < 0) fila.children[2].textContent = 0;
-        if (exam < 0) fila.children[3].textContent = 0;
-
-        const notaFinal = (coti * 0.35 + inte * 0.35 + exam * 0.30).toFixed(2);
-        fila.querySelector(".resultado").textContent = notaFinal;
-        total += parseFloat(notaFinal);
-        filas++;
-      });
-
-      promedioGeneral.textContent = (total / filas || 0).toFixed(2);
-    });
-  </script>
+    promedioGeneral.textContent = (total/filas || 0).toFixed(2);
+  }
+</script>
 </body>
 </html>
