@@ -3,55 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sistema de Notas — Versión CSS</title>
-  <style>
-    /* Reset suave */
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%}
-    body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background: linear-gradient(135deg,#f3f6ff 0%,#ffffff 100%); color:#0f172a; padding:28px}
-
-    .wrap{max-width:1000px;margin:0 auto}
-    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-    h1{font-size:20px}
-    p.lead{color:#475569}
-
-    /* Card */
-    .card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 8px 28px rgba(2,6,23,0.06)}
-
-    /* Layout */
-    .grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
-
-    /* Login */
-    .login-box{display:flex;flex-direction:column;gap:10px}
-    label{font-size:13px;color:#374151}
-    input[type=text],input[type=password]{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eef8;background:#fbfdff}
-    .btn{display:inline-block;padding:10px 12px;border-radius:10px;border:0;cursor:pointer}
-    .btn-primary{background:#2563eb;color:white}
-    .btn-danger{background:#ef4444;color:white}
-    .muted{color:#64748b;font-size:13px}
-
-    /* Panel */
-    .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-    .controls{display:flex;gap:8px;flex-wrap:wrap}
-    .controls .btn{background:#f8fafc;border:1px solid #e6eef8;color:#0f172a}
-
-    /* Table horizontal */
-    .table-wrap{overflow:auto;border-radius:10px;border:1px solid #eef2ff}
-    table{border-collapse:separate;border-spacing:0;width:100%;min-width:640px}
-    th,td{padding:10px 12px;border-right:1px solid #eef2ff;border-bottom:1px solid #eef2ff;text-align:center}
-    th:first-child,td:first-child{text-align:left;background:#fbfdff;position:sticky;left:0;z-index:3}
-    th{background:linear-gradient(180deg,#eef2ff,#f8fbff);font-weight:700;color:#0f172a}
-    td[contenteditable]{background:#fffefb}
-
-    /* Small */
-    .small{font-size:12px;color:#475569}
-
-    /* Modal simple */
-    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,0.4);}
-    .modal .card{max-width:420px;width:100%}
-
-    @media(max-width:880px){.grid{grid-template-columns:1fr;}}
-  </style>
+  <title>Sistema de Notas — Versión CSS (linked)</title>
+  <link rel="stylesheet" href="SistemaNotas_v2.css">
 </head>
 <body>
   <div class="wrap">
