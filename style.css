@@ -1,0 +1,110 @@
+/* Estilo general */
+body {
+  font-family: "Poppins", sans-serif;
+  background: linear-gradient(135deg, #eef2ff, #ffffff);
+  color: #0f172a;
+  padding: 40px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Login */
+.login-card {
+  max-width: 350px;
+  margin: 100px auto;
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.login-card h2 {
+  text-align: center;
+  margin-bottom: 16px;
+  color: #1d4ed8;
+}
+
+.login-card label {
+  font-size: 13px;
+  color: #475569;
+}
+
+.login-card input {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #1e40af;
+}
+
+.error {
+  color: #dc2626;
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Panel principal */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.btn-danger {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+/* Tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
+
+th, td {
+  padding: 10px 14px;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+
+td[contenteditable] {
+  background: #fffefc;
+}
+
+tfoot th {
+  background: #e0e7ff;
+}
