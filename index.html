@@ -193,7 +193,7 @@
       <table id="tabla">
         <thead>
           <tr>
-            <th>Materia</th>
+            <th>Materias</th>
             <th>Cotidiana</th>
             <th>Integradora</th>
             <th>Examen</th>
@@ -207,13 +207,13 @@
           <tr><td>Inglés</td><td></td><td></td><td></td><td></td></tr>
           <tr><td>Informática</td><td></td><td></td><td></td><td></td></tr>
           <tr><td>Orientación Para La Vida</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Reading and Writing</td><td></td><td></td><td></td><td></td></tr>
           <tr><td>Educación Física</td><td></td><td></td><td></td><td></td></tr>
           <tr><td>Seminario</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Biología</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Reading and Writing</td><td></td><td></td><td></td><td></td></tr>
           <tr><td>Conversation</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td></td></tr>
+           <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Biología</td><td></td><td></td><td></td><td></td></tr>
         </tbody>
         <tfoot>
           <tr class="final-row">
@@ -255,17 +255,23 @@
         if(celdas[1].textContent||celdas[2].textContent||celdas[3].textContent){
           const final = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
           celdas[4].textContent = final;
+
+          // Para JFlores: nota final roja si <7
+          if(currentUser==="JFlores"){
+            if(parseFloat(final)<7) celdas[4].classList.add("menor-siete");
+            else celdas[4].classList.remove("menor-siete");
+          }
         } else {
           celdas[4].textContent = "";
         }
 
-        // Colorear en rojo solo para 20210012
+        // Para 20210012: notas <7 rojas
         if(currentUser==="20210012"){
           for(let i=1;i<=4;i++){
             if(parseFloat(celdas[i].textContent)<7) celdas[i].classList.add("menor-siete");
             else celdas[i].classList.remove("menor-siete");
           }
-        } else {
+        } else if(currentUser!=="JFlores"){
           for(let i=1;i<=4;i++) celdas[i].classList.remove("menor-siete");
         }
 
@@ -273,6 +279,12 @@
         count++;
       });
       promedio.textContent = total>0 ? (total/count).toFixed(2) : "";
+      // Promedio rojo si JFlores y <7
+      if(currentUser==="JFlores" && promedio.textContent && parseFloat(promedio.textContent)<7){
+        promedio.classList.add("menor-siete");
+      } else {
+        promedio.classList.remove("menor-siete");
+      }
     }
 
     function extraerNotas(){
@@ -305,10 +317,17 @@
           celdas[i].contentEditable = estado;
           celdas[i].addEventListener("input",(e)=>{
             // Solo números y decimales
-            e.target.textContent=e.target.textContent.replace(/[^0-9.]/g,'');
+            e.target.textContent = e.target.textContent.replace(/[^0-9.]/g,'');
+
             if(currentUser==="JFlores" && e.target.textContent!==""){
-              // No aceptar menores que 2
-              if(parseFloat(e.target.textContent)<2) e.target.textContent="2";
+              let valor = parseFloat(e.target.textContent);
+              if(valor < 2){
+                alert("No se puede poner un número menor a 2");
+                e.target.textContent = "";
+              } else if(valor > 10){
+                alert("No se puede poner un número mayor a 10");
+                e.target.textContent = "";
+              }
             }
           });
         }
@@ -327,7 +346,7 @@
       const notas=JSON.parse(localStorage.getItem("notas"))||{};
       currentUser=user;
 
-      if(user==="JFlores" && pass==="Notas2025."){
+      if(user==="JFlores" && pass==="Notas2025"){
         loginDiv.classList.add("hidden");
         sistemaDiv.classList.remove("hidden");
         welcome.textContent="Bienvenido Jorge Flores";
