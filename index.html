@@ -1,397 +1,276 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Notas</title>
-  <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      background: #f3f6fa;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Notas</title>
+<style>
+  body {
+    font-family: "Poppins", sans-serif;
+    background: #f3f6fa;
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+  header {
+    background: linear-gradient(to right, #0033a0, #d52b1e);
+    color: white;
+    padding: 15px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header h1 { margin:0; font-size:1.2rem; }
+  #welcome {
+    background:white; color:#0033a0;
+    padding:5px 10px; border-radius:8px;
+    font-weight:bold; transition: opacity 0.5s ease;
+    margin-top:5px;
+  }
+  #logout {
+    background:white; color:#d52b1e;
+    border:none; padding:5px 10px; border-radius:8px;
+    cursor:pointer; font-weight:bold; margin-top:5px;
+  }
+  section {
+    margin:20px auto; width:95%;
+    background:white; border-radius:15px;
+    padding:15px; box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    overflow-x:auto;
+  }
+  table { width:100%; border-collapse:collapse; text-align:center; font-size:0.9rem; }
+  th, td { padding:10px 5px; border:1px solid #ccc; }
+  th { background: linear-gradient(to right, #0033a0, #d52b1e); color:white; }
+  tbody tr:nth-child(even) { background:#f9f9f9; }
+  td.menor-siete { color:red; font-weight:bold; }
+  .final-row { background:#eaf0fb; font-weight:bold; font-size:1rem; }
+  .button-container { display:flex; justify-content:center; gap:10px; flex-wrap:wrap; }
+  #save { background:#0033a0; color:white; border:none; padding:8px 15px; border-radius:12px; cursor:pointer; font-size:1rem; }
+  #save:hover { background:#002070; }
+  footer { text-align:center; background:#f1f1f1; padding:10px; color:#555; font-size:14px; border-top:2px solid #0033a0; }
+  .card {
+    width:90%; max-width:350px; margin:80px auto;
+    background:white; padding:20px; border-radius:15px;
+    text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  }
+  .card input { display:block; margin:10px auto; padding:10px; width:80%; border:1px solid #ccc; border-radius:8px; font-size:1rem; }
+  .card button { background:#0033a0; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-size:1rem; }
+  .card button:hover { background:#002070; }
+  #error-msg { color:#d52b1e; font-weight:bold; font-size:0.9rem; }
+  .hidden { display:none; }
+  .year-line { margin-top:10px; padding-top:10px; border-top:3px solid #0033a0; color:#0033a0; font-weight:bold; font-size:14px; text-align:center; }
 
-    header {
-      background: linear-gradient(to right, #0033a0, #d52b1e);
-      color: white;
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    header h1 {
-      margin: 0;
-    }
-
-    #welcome {
-      background-color: white;
-      color: #0033a0;
-      padding: 5px 15px;
-      border-radius: 8px;
-      font-weight: bold;
-      transition: opacity 0.5s ease;
-    }
-
-    #logout {
-      background: white;
-      color: #d52b1e;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    section {
-      margin: 30px auto;
-      width: 90%;
-      background: white;
-      border-radius: 15px;
-      padding: 25px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    th, td {
-      padding: 12px 8px;
-      border: 1px solid #ccc;
-    }
-
-    th {
-      background: linear-gradient(to right, #0033a0, #d52b1e);
-      color: white;
-      font-size: 16px;
-    }
-
-    tbody tr:nth-child(even) {
-      background: #f9f9f9;
-    }
-
-    td.menor-siete {
-      color: red;
-      font-weight: bold;
-    }
-
-    .final-row {
-      background-color: #eaf0fb;
-      font-weight: bold;
-      font-size: 16px;
-    }
-
-    .button-container {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-    }
-
-    #save {
-      background-color: #0033a0;
-      color: white;
-      border: none;
-      padding: 10px 25px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    #save:hover {
-      background-color: #002070;
-    }
-
-    footer {
-      text-align: center;
-      background: #f1f1f1;
-      padding: 10px;
-      color: #555;
-      font-size: 14px;
-      border-top: 2px solid #0033a0;
-    }
-
-    .card {
-      width: 320px;
-      margin: 100px auto;
-      background: white;
-      padding: 25px;
-      border-radius: 15px;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      position: relative;
-    }
-
-    .card input {
-      display: block;
-      margin: 10px auto;
-      padding: 10px;
-      width: 80%;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-
-    .card button {
-      background-color: #0033a0;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .card button:hover {
-      background-color: #002070;
-    }
-
-    #error-msg {
-      color: #d52b1e;
-      font-weight: bold;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .year-line {
-      margin-top: 15px;
-      padding-top: 10px;
-      border-top: 3px solid #0033a0;
-      color: #0033a0;
-      font-weight: bold;
-      font-size: 16px;
-      text-align:center;
-    }
-  </style>
+  @media (max-width:600px){
+    th, td { padding:6px 3px; font-size:0.8rem; }
+    #welcome, #logout { font-size:0.8rem; padding:3px 6px; }
+    #save { padding:6px 10px; font-size:0.9rem; }
+  }
+</style>
 </head>
 <body>
-  <!-- LOGIN -->
-  <div id="login" class="card">
-    <h2>Sistema de Notas</h2>
-    <input type="text" id="usuario" placeholder="Usuario">
-    <input type="password" id="contrasena" placeholder="Contraseña">
-    <button id="login-btn">Entrar</button>
-    <p id="error-msg"></p>
-    <p class="year-line">© 2025 Sistema de Notas</p>
-  </div>
 
-  <!-- SISTEMA DE NOTAS -->
-  <div id="sistema" class="hidden">
-    <header>
-      <h1>Sistema de Notas</h1>
-      <span id="welcome"></span>
-      <button id="logout">Cerrar sesión</button>
-    </header>
+<div id="login" class="card">
+  <h2>Sistema de Notas</h2>
+  <input type="text" id="usuario" placeholder="Usuario">
+  <input type="password" id="contrasena" placeholder="Contraseña">
+  <button id="login-btn">Entrar</button>
+  <p id="error-msg"></p>
+  <p class="year-line">© 2025 Sistema de Notas</p>
+</div>
 
-    <section>
-      <table id="tabla">
-        <thead>
-          <tr>
-            <th>Materia</th>
-            <th>Cotidiana</th>
-            <th>Integradora</th>
-            <th>Examen</th>
-            <th>Nota Final</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Lenguaje</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Matemáticas</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Inglés</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Informática</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Orientación Para La Vida</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Reading and Writing</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Educación Física</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Seminario</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Conversation</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Biología</td><td></td><td></td><td></td><td></td></tr>
-        </tbody>
-        <tfoot>
-          <tr class="final-row">
-            <td colspan="4">Promedio General</td>
-            <td id="promedio"></td>
-          </tr>
-        </tfoot>
-      </table>
-      <div class="button-container">
-        <button id="save">Guardar Notas</button>
-      </div>
-    </section>
-    <footer>© 2025 Sistema de Notas</footer>
-  </div>
+<div id="sistema" class="hidden">
+  <header>
+    <h1>Sistema de Notas</h1>
+    <span id="welcome"></span>
+    <button id="logout">Cerrar sesión</button>
+  </header>
 
-  <script>
-    const loginDiv = document.getElementById("login");
-    const sistemaDiv = document.getElementById("sistema");
-    const usuario = document.getElementById("usuario");
-    const contrasena = document.getElementById("contrasena");
-    const errorMsg = document.getElementById("error-msg");
-    const welcome = document.getElementById("welcome");
-    const logout = document.getElementById("logout");
-    const tabla = document.getElementById("tabla");
-    const promedio = document.getElementById("promedio");
-    const saveBtn = document.getElementById("save");
-    const materias = Array.from(tabla.querySelectorAll("tbody tr"));
-    let currentUser = "";
+  <section>
+    <table id="tabla">
+      <thead>
+        <tr>
+          <th>Materia</th>
+          <th>Cotidiana</th>
+          <th>Integradora</th>
+          <th>Examen</th>
+          <th>Nota Final</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Lenguaje</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Matemáticas</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Inglés</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Informática</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Orientación Para La Vida</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Reading and Writing</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Educación Física</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Seminario</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Conversation</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
+        <tr><td>Biología</td><td></td><td></td><td></td><td></td></tr>
+      </tbody>
+      <tfoot>
+        <tr class="final-row">
+          <td colspan="4">Promedio General</td>
+          <td id="promedio"></td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="button-container">
+      <button id="save">Guardar Notas</button>
+    </div>
+  </section>
+  <footer>© 2025 Sistema de Notas</footer>
+</div>
 
-    function mostrarMensaje(msg){
-      if(!document.getElementById("alerta-msg")){
-        const p = document.createElement("p");
-        p.id = "alerta-msg";
-        p.style.color = "#d52b1e";
-        p.style.fontWeight = "bold";
-        p.style.textAlign = "center";
-        p.style.marginTop = "10px";
-        document.querySelector("section").prepend(p);
-        p.textContent = msg;
-        setTimeout(()=>p.remove(), 3000);
+<script>
+const loginDiv = document.getElementById("login");
+const sistemaDiv = document.getElementById("sistema");
+const usuario = document.getElementById("usuario");
+const contrasena = document.getElementById("contrasena");
+const errorMsg = document.getElementById("error-msg");
+const welcome = document.getElementById("welcome");
+const logout = document.getElementById("logout");
+const tabla = document.getElementById("tabla");
+const promedio = document.getElementById("promedio");
+const saveBtn = document.getElementById("save");
+const materias = Array.from(tabla.querySelectorAll("tbody tr"));
+let currentUser = "";
+
+function mostrarMensaje(msg){
+  if(!document.getElementById("alerta-msg")){
+    const p = document.createElement("p");
+    p.id="alerta-msg";
+    p.style.color="#d52b1e"; p.style.fontWeight="bold"; p.style.textAlign="center";
+    p.style.marginTop="10px";
+    document.querySelector("section").prepend(p);
+    p.textContent = msg;
+    setTimeout(()=>p.remove(),3000);
+  }
+}
+
+function actualizarTabla(){
+  let total=0, count=0;
+  materias.forEach(fila=>{
+    const celdas = fila.querySelectorAll("td");
+    const coti = parseFloat(celdas[1].textContent)||0;
+    const inte = parseFloat(celdas[2].textContent)||0;
+    const exam = parseFloat(celdas[3].textContent)||0;
+
+    if(celdas[1].textContent||celdas[2].textContent||celdas[3].textContent){
+      const final = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
+      celdas[4].textContent = final;
+      if(currentUser==="JFlores"){
+        celdas[4].classList.toggle("menor-siete", parseFloat(final)<7);
       }
+    } else {
+      celdas[4].textContent="";
     }
 
-    function actualizarTabla() {
-      let total = 0, count = 0;
-      materias.forEach(fila=>{
-        const celdas = fila.querySelectorAll("td");
-        const coti = parseFloat(celdas[1].textContent)||0;
-        const inte = parseFloat(celdas[2].textContent)||0;
-        const exam = parseFloat(celdas[3].textContent)||0;
+    if(celdas[4].textContent) total+=parseFloat(celdas[4].textContent);
+    count++;
+  });
+  promedio.textContent = total>0 ? (total/count).toFixed(2) : "";
+  if(currentUser==="JFlores" && promedio.textContent)
+    promedio.classList.toggle("menor-siete", parseFloat(promedio.textContent)<7);
+}
 
-        if(celdas[1].textContent||celdas[2].textContent||celdas[3].textContent){
-          const final = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
-          celdas[4].textContent = final;
+function extraerNotas(){
+  const datos={};
+  materias.forEach(fila=>{
+    const celdas=fila.querySelectorAll("td");
+    datos[celdas[0].textContent]=[celdas[1].textContent,celdas[2].textContent,celdas[3].textContent,celdas[4].textContent];
+  });
+  return datos;
+}
 
-          // Para JFlores: nota final roja si <7
-          if(currentUser==="JFlores"){
-            if(parseFloat(final) < 7){
-              celdas[4].classList.add("menor-siete");
-            } else {
-              celdas[4].classList.remove("menor-siete");
-            }
-          }
-        } else {
-          celdas[4].textContent = "";
+function cargarNotas(datos){
+  materias.forEach(fila=>{
+    const celdas=fila.querySelectorAll("td");
+    const mat=celdas[0].textContent;
+    if(datos[mat]){
+      celdas[1].textContent=datos[mat][0];
+      celdas[2].textContent=datos[mat][1];
+      celdas[3].textContent=datos[mat][2];
+      celdas[4].textContent=datos[mat][3];
+    }
+  });
+  actualizarTabla();
+}
+
+function habilitarEdicion(estado){
+  materias.forEach(fila=>{
+    const celdas=fila.querySelectorAll("td");
+    for(let i=1;i<=3;i++){
+      celdas[i].contentEditable=estado;
+      celdas[i].addEventListener("input",(e)=>{
+        e.target.textContent=e.target.textContent.replace(/[^0-9.]/g,'');
+        if(currentUser==="JFlores" && e.target.textContent!==""){
+          let valor=parseFloat(e.target.textContent);
+          if(valor<2) mostrarMensaje("No se puede poner un número menor a 2");
+          else if(valor>10.1) mostrarMensaje("No se puede poner un número mayor a 10.1");
         }
-
-        if(celdas[4].textContent) total += parseFloat(celdas[4].textContent);
-        count++;
+        actualizarTabla();
       });
-      promedio.textContent = total>0 ? (total/count).toFixed(2) : "";
-
-      if(currentUser==="JFlores" && promedio.textContent && parseFloat(promedio.textContent)<7){
-        promedio.classList.add("menor-siete");
-      } else {
-        promedio.classList.remove("menor-siete");
-      }
     }
+  });
+  saveBtn.style.display=estado?"block":"none";
+}
 
-    function extraerNotas(){
-      const datos={};
-      materias.forEach(fila=>{
-        const celdas=fila.querySelectorAll("td");
-        datos[celdas[0].textContent]=[celdas[1].textContent,celdas[2].textContent,celdas[3].textContent,celdas[4].textContent];
-      });
-      return datos;
-    }
+saveBtn.addEventListener("click",()=>{
+  const notas=extraerNotas();
+  localStorage.setItem("notas",JSON.stringify(notas));
+  alert("Notas guardadas correctamente ✅");
+});
 
-    function cargarNotas(datos){
-      materias.forEach(fila=>{
-        const celdas=fila.querySelectorAll("td");
-        const mat=celdas[0].textContent;
-        if(datos[mat]){
-          celdas[1].textContent=datos[mat][0];
-          celdas[2].textContent=datos[mat][1];
-          celdas[3].textContent=datos[mat][2];
-          celdas[4].textContent=datos[mat][3];
-        }
-      });
-      actualizarTabla();
-    }
+document.getElementById("login-btn").addEventListener("click",()=>{
+  const user=usuario.value.trim();
+  const pass=contrasena.value.trim();
+  const notas=JSON.parse(localStorage.getItem("notas"))||{};
+  currentUser=user;
 
-    function habilitarEdicion(estado){
-      materias.forEach(fila=>{
-        const celdas=fila.querySelectorAll("td");
-        for(let i=1;i<=3;i++){
-          celdas[i].contentEditable = estado;
-          celdas[i].addEventListener("input",(e)=>{
-            e.target.textContent = e.target.textContent.replace(/[^0-9.]/g,'');
-
-            if(currentUser==="JFlores" && e.target.textContent!==""){
-              let valor = parseFloat(e.target.textContent);
-              if(valor < 2){
-                mostrarMensaje("No se puede poner un número menor a 2");
-              } else if(valor > 10.1){
-                mostrarMensaje("No se puede poner un número mayor a 10.1");
-              }
-            }
-
-            actualizarTabla();
-          });
-        }
-      });
-      saveBtn.style.display = estado?"block":"none";
-    }
-
-    saveBtn.addEventListener("click",()=>{
-      localStorage.setItem("notas",JSON.stringify(extraerNotas()));
-      alert("Notas guardadas correctamente ✅");
-    });
-
-    document.getElementById("login-btn").addEventListener("click",()=>{
-      const user=usuario.value.trim();
-      const pass=contrasena.value.trim();
-      const notas=JSON.parse(localStorage.getItem("notas"))||{};
-      currentUser=user;
-
-      if(user==="JFlores" && pass==="Notas2025."){
-        loginDiv.classList.add("hidden");
-        sistemaDiv.classList.remove("hidden");
-        welcome.textContent="Bienvenido Jorge Flores";
-        habilitarEdicion(true);
-        cargarNotas(notas);
-        setTimeout(()=>{welcome.style.opacity="0";},10000);
-      } else if(user==="20210012" && pass==="Mined2025."){
-        loginDiv.classList.add("hidden");
-        sistemaDiv.classList.remove("hidden");
-        welcome.textContent="Bienvenida Montserrath Benítez";
-        habilitarEdicion(false);
-        cargarNotas(notas);
-
-        window.addEventListener('storage',(e)=>{
-          if(e.key==="notas"){
-            const datosActualizados=JSON.parse(e.newValue)||{};
-            cargarNotas(datosActualizados);
-          }
-        });
-
-        setTimeout(()=>{welcome.style.opacity="0";},10000);
-      } else {
-        errorMsg.textContent="Usuario o contraseña incorrectos.";
+  if(user==="JFlores" && pass==="Notas2025."){
+    loginDiv.classList.add("hidden");
+    sistemaDiv.classList.remove("hidden");
+    welcome.textContent="Bienvenido Jorge Flores";
+    habilitarEdicion(true);
+    cargarNotas(notas);
+    setTimeout(()=>{welcome.style.opacity="0";},10000);
+  } else if(user==="20210012" && pass==="Mined2025."){
+    loginDiv.classList.add("hidden");
+    sistemaDiv.classList.remove("hidden");
+    welcome.textContent="Bienvenida Montserrath Benítez";
+    habilitarEdicion(false);
+    cargarNotas(notas);
+    // Escuchar cambios en localStorage para reflejar notas en tiempo real
+    window.addEventListener("storage",(e)=>{
+      if(e.key==="notas"){
+        cargarNotas(JSON.parse(e.newValue));
       }
     });
+    setTimeout(()=>{welcome.style.opacity="0";},10000);
+  } else {
+    errorMsg.textContent="Usuario o contraseña incorrectos.";
+  }
+});
 
-    logout.addEventListener("click",()=>{
-      sistemaDiv.classList.add("hidden");
-      loginDiv.classList.remove("hidden");
-      usuario.value="";
-      contrasena.value="";
-      errorMsg.textContent="";
-      welcome.style.opacity="1";
-    });
+logout.addEventListener("click",()=>{
+  sistemaDiv.classList.add("hidden");
+  loginDiv.classList.remove("hidden");
+  usuario.value="";
+  contrasena.value="";
+  errorMsg.textContent="";
+  welcome.style.opacity="1";
+});
 
-    tabla.addEventListener("input", actualizarTabla);
-    window.onload=()=>{
-      const notas=JSON.parse(localStorage.getItem("notas"))||{};
-      cargarNotas(notas);
-    };
-  </script>
+tabla.addEventListener("input", actualizarTabla);
+window.onload=()=>{
+  const notas=JSON.parse(localStorage.getItem("notas"))||{};
+  cargarNotas(notas);
+};
+</script>
 </body>
 </html>
