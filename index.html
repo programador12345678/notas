@@ -1,336 +1,389 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Notas</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      background: #f3f6fa;
-      margin: 0;
-      padding: 0;
-      color: #333;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Notas</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f3f6fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
 
-    header {
-      background: linear-gradient(to right, #0033a0, #d52b1e);
-      color: white;
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+    header {
+      background: linear-gradient(to right, #0033a0, #d52b1e);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-    header h1 {
-      margin: 0;
-    }
+    header h1 {
+      margin: 0;
+    }
 
-    #welcome {
-      background-color: white;
-      color: #0033a0;
-      padding: 5px 15px;
-      border-radius: 8px;
-      font-weight: bold;
-    }
+    #welcome {
+      background-color: white;
+      color: #0033a0;
+      padding: 5px 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      /* Estilos para el mensaje de bienvenida */
+      transition: opacity 0.5s ease-in-out;
+      opacity: 1; /* Por defecto visible */
+    }
 
-    #logout {
-      background: white;
-      color: #d52b1e;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
+    .welcome-hidden {
+      opacity: 0 !important;
+      width: 0;
+      height: 0;
+      padding: 0 !important;
+      margin: 0 !important;
+      overflow: hidden;
+    }
 
-    section {
-      margin: 30px auto;
-      width: 90%;
-      background: white;
-      border-radius: 15px;
-      padding: 25px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
+    #logout {
+      background: white;
+      color: #d52b1e;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      border-radius: 10px;
-      overflow: hidden;
-      text-align: center;
-      margin-bottom: 20px;
-    }
+    section {
+      margin: 30px auto;
+      width: 90%;
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
 
-    th, td {
-      padding: 12px 8px;
-      border-bottom: 1px solid #ccc;
-    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      text-align: center;
+      margin-bottom: 20px;
+    }
 
-    th {
-      background: linear-gradient(to right, #0033a0, #d52b1e);
-      color: white;
-      font-size: 16px;
-    }
+    th, td {
+      padding: 12px 8px;
+      border-bottom: 1px solid #ccc;
+    }
 
-    tbody tr:nth-child(even) {
-      background: #f9f9f9;
-    }
+    th {
+      background: linear-gradient(to right, #0033a0, #d52b1e);
+      color: white;
+      font-size: 16px;
+    }
 
-    td.menor-siete {
-      color: red;
-      font-weight: bold;
-    }
+    tbody tr:nth-child(even) {
+      background: #f9f9f9;
+    }
 
-    .final-row {
-      background-color: #eaf0fb;
-      font-weight: bold;
-      font-size: 16px;
-    }
+    td.menor-siete {
+      color: red;
+      font-weight: bold;
+    }
 
-    .button-container {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-    }
+    .final-row {
+      background-color: #eaf0fb;
+      font-weight: bold;
+      font-size: 16px;
+    }
 
-    #save {
-      background-color: #0033a0;
-      color: white;
-      border: none;
-      padding: 10px 25px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 16px;
-    }
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
 
-    #save:hover {
-      background-color: #002070;
-    }
+    #save {
+      background-color: #0033a0;
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 16px;
+    }
 
-    footer {
-      text-align: center;
-      background: #f1f1f1;
-      padding: 10px;
-      color: #555;
-      font-size: 14px;
-      border-top: 2px solid #0033a0;
-    }
+    #save:hover {
+      background-color: #002070;
+    }
 
-    .card {
-      width: 320px;
-      margin: 100px auto;
-      background: white;
-      padding: 25px;
-      border-radius: 15px;
-      text-align: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+    footer {
+      text-align: center;
+      background: #f1f1f1;
+      padding: 10px;
+      color: #555;
+      font-size: 14px;
+      border-top: 2px solid #0033a0;
+    }
 
-    .card input {
-      display: block;
-      margin: 10px auto;
-      padding: 10px;
-      width: 80%;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
+    /* === Estilos modificados para el panel de login === */
+    .card {
+      width: 350px; /* Ancho ajustado para el logo */
+      margin: 80px auto; /* Margen superior ajustado */
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
 
-    .card button {
-      background-color: #0033a0;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-    }
+    .card .logo {
+      margin-bottom: 20px;
+      width: 100%; /* Asegura que el logo ocupe el ancho */
+    }
+    
+    .card .logo img {
+      max-width: 90%;
+      height: auto;
+    }
 
-    .card button:hover {
-      background-color: #002070;
-    }
+    .card h2 {
+      color: #0033a0;
+      margin-top: 0;
+    }
 
-    #error-msg {
-      color: #d52b1e;
-      font-weight: bold;
-    }
+    .card input {
+      display: block;
+      margin: 15px auto; /* Margen ajustado */
+      padding: 12px; /* Relleno ajustado */
+      width: 85%; /* Ancho ajustado */
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box; /* Incluir padding y borde en el ancho */
+    }
 
-    .hidden {
-      display: none;
-    }
-  </style>
+    .card button {
+      background-color: #4CAF50; /* Botón verde como el de la imagen de referencia */
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    .card button:hover {
+      background-color: #45a049;
+    }
+
+    #error-msg {
+      color: #d52b1e;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <!-- LOGIN -->
-  <div id="login" class="card">
-    <h2>Iniciar Sesión</h2>
-    <input type="text" id="usuario" placeholder="Usuario">
-    <input type="password" id="contrasena" placeholder="Contraseña">
-    <button id="login-btn">Entrar</button>
-    <p id="error-msg"></p>
-    <p style="text-align:center; margin-top:10px; color:#555;">© 2025 Sistema de Notas</p>
-  </div>
+    <div id="login" class="card">
+        <div class="logo">
+      <img src="logo_ccsa.png" alt="Centro Cultural Salvadoreño Americano Logo"> 
+    </div>
+    
+    <h2>Sistema de Notas</h2>
+    <input type="text" id="usuario" placeholder="Usuario">
+    <input type="password" id="contrasena" placeholder="Contraseña">
+    <button id="login-btn">Entrar</button>
+    <p id="error-msg"></p>
+    <p style="text-align:center; margin-top:20px; color:#555; font-size: 14px;">© CCSA - 2025</p>
+  </div>
 
-  <!-- SISTEMA DE NOTAS -->
-  <div id="sistema" class="hidden">
-    <header>
-      <h1>Sistema de Notas</h1>
-      <span id="welcome"></span>
-      <button id="logout">Cerrar sesión</button>
-    </header>
+    <div id="sistema" class="hidden">
+    <header>
+      <h1>Sistema de Notas</h1>
+      <span id="welcome"></span>
+      <button id="logout">Cerrar sesión</button>
+    </header>
 
-    <section>
-      <table id="tabla">
-        <thead>
-          <tr id="encabezado">
-            <th>Materia</th>
-            <th>Cotidiana</th>
-            <th>Integradora</th>
-            <th>Examen</th>
-            <th>Nota Final</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Lenguaje</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Matemáticas</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Inglés</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Informática</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Orientación Para La Vida</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Educación Física</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Seminario</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Biología</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Reading and Writing</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Conversation</td><td></td><td></td><td></td><td></td></tr>
-        </tbody>
-        <tfoot>
-          <tr class="final-row">
-            <td colspan="4">Promedio General</td>
-            <td id="promedio">0.00</td>
-          </tr>
-        </tfoot>
-      </table>
-      <div class="button-container">
-        <button id="save">Guardar Notas</button>
-      </div>
-    </section>
-    <footer>© 2025 Sistema de Notas</footer>
-  </div>
+    <section>
+      <table id="tabla">
+        <thead>
+          <tr id="encabezado">
+            <th>Materia</th>
+            <th>Cotidiana</th>
+            <th>Integradora</th>
+            <th>Examen</th>
+            <th>Nota Final</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Lenguaje</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Matemáticas</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Inglés</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Informática</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Orientación Para La Vida</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Educación Física</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Seminario</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Biología</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Reading and Writing</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Conversation</td><td></td><td></td><td></td><td></td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="final-row">
+            <td colspan="4">Promedio General</td>
+            <td id="promedio">0.00</td>
+          </tr>
+        </tfoot>
+      </table>
+      <div class="button-container">
+        <button id="save">Guardar Notas</button>
+      </div>
+    </section>
+    <footer>© 2025 Sistema de Notas</footer>
+  </div>
 
-  <script>
-    const loginDiv = document.getElementById("login");
-    const sistemaDiv = document.getElementById("sistema");
-    const usuario = document.getElementById("usuario");
-    const contrasena = document.getElementById("contrasena");
-    const errorMsg = document.getElementById("error-msg");
-    const welcome = document.getElementById("welcome");
-    const logout = document.getElementById("logout");
-    const tabla = document.getElementById("tabla");
-    const promedio = document.getElementById("promedio");
-    const saveBtn = document.getElementById("save");
-    const materias = Array.from(tabla.querySelectorAll("tbody tr"));
+  <script>
+    const loginDiv = document.getElementById("login");
+    const sistemaDiv = document.getElementById("sistema");
+    const usuario = document.getElementById("usuario");
+    const contrasena = document.getElementById("contrasena");
+    const errorMsg = document.getElementById("error-msg");
+    const welcome = document.getElementById("welcome");
+    const logout = document.getElementById("logout");
+    const tabla = document.getElementById("tabla");
+    const promedio = document.getElementById("promedio");
+    const saveBtn = document.getElementById("save");
+    const materias = Array.from(tabla.querySelectorAll("tbody tr"));
 
-    function actualizarTabla() {
-      let total = 0, count = 0;
-      materias.forEach(fila => {
-        const celdas = fila.querySelectorAll("td");
-        const coti = parseFloat(celdas[1].textContent)||0;
-        const inte = parseFloat(celdas[2].textContent)||0;
-        const exam = parseFloat(celdas[3].textContent)||0;
-        const final = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
-        celdas[4].textContent = final;
-        if(final<7) celdas[4].classList.add("menor-siete");
-        else celdas[4].classList.remove("menor-siete");
-        total += parseFloat(final);
-        count++;
-      });
-      promedio.textContent = (total/count).toFixed(2);
-    }
+    function actualizarTabla() {
+      let total = 0, count = 0;
+      materias.forEach(fila => {
+        const celdas = fila.querySelectorAll("td");
+        const coti = parseFloat(celdas[1].textContent)||0;
+        const inte = parseFloat(celdas[2].textContent)||0;
+        const exam = parseFloat(celdas[3].textContent)||0;
+        const final = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
+        celdas[4].textContent = final;
+        if(final<7) celdas[4].classList.add("menor-siete");
+        else celdas[4].classList.remove("menor-siete");
+        total += parseFloat(final);
+        count++;
+      });
+      promedio.textContent = (total/count).toFixed(2);
+    }
 
-    function extraerNotas() {
-      const datos = {};
-      materias.forEach(fila => {
-        const celdas = fila.querySelectorAll("td");
-        datos[celdas[0].textContent] = [celdas[1].textContent,celdas[2].textContent,celdas[3].textContent,celdas[4].textContent];
-      });
-      return datos;
-    }
+    function extraerNotas() {
+      const datos = {};
+      materias.forEach(fila => {
+        const celdas = fila.querySelectorAll("td");
+        datos[celdas[0].textContent] = [celdas[1].textContent,celdas[2].textContent,celdas[3].textContent,celdas[4].textContent];
+      });
+      return datos;
+    }
 
-    function cargarNotas(datos) {
-      materias.forEach(fila => {
-        const celdas = fila.querySelectorAll("td");
-        const mat = celdas[0].textContent;
-        if(datos[mat]){
-          celdas[1].textContent = datos[mat][0];
-          celdas[2].textContent = datos[mat][1];
-          celdas[3].textContent = datos[mat][2];
-          celdas[4].textContent = datos[mat][3];
-        }
-      });
-      actualizarTabla();
-    }
+    function cargarNotas(datos) {
+      materias.forEach(fila => {
+        const celdas = fila.querySelectorAll("td");
+        const mat = celdas[0].textContent;
+        if(datos[mat]){
+          celdas[1].textContent = datos[mat][0];
+          celdas[2].textContent = datos[mat][1];
+          celdas[3].textContent = datos[mat][2];
+          celdas[4].textContent = datos[mat][3];
+        }
+      });
+      actualizarTabla();
+    }
 
-    function habilitarEdicion(estado) {
-      materias.forEach(fila => {
-        const celdas = fila.querySelectorAll("td");
-        for(let i=1;i<=3;i++) celdas[i].contentEditable = estado;
-      });
-      saveBtn.style.display = estado ? "block" : "none";
-    }
+    function habilitarEdicion(estado) {
+      materias.forEach(fila => {
+        const celdas = fila.querySelectorAll("td");
+        for(let i=1;i<=3;i++) celdas[i].contentEditable = estado;
+      });
+      saveBtn.style.display = estado ? "block" : "none";
+    }
 
-    saveBtn.addEventListener("click", ()=>{
-      localStorage.setItem("notas", JSON.stringify(extraerNotas()));
-      alert("Notas guardadas correctamente ✅");
-    });
+    /**
+     * Función para ocultar el mensaje de bienvenida después de 10 segundos
+     */
+    function ocultarMensajeBienvenida() {
+      setTimeout(() => {
+        welcome.classList.add("welcome-hidden");
+      }, 10000); // 10000 milisegundos = 10 segundos
+    }
 
-    document.getElementById("login-btn").addEventListener("click", ()=>{
-      const user = usuario.value.trim();
-      const pass = contrasena.value.trim();
-      const notas = JSON.parse(localStorage.getItem("notas")) || {};
+    saveBtn.addEventListener("click", ()=>{
+      localStorage.setItem("notas", JSON.stringify(extraerNotas()));
+      alert("Notas guardadas correctamente ✅");
+    });
 
-      if(user==="JFlores" && pass==="Notas2025"){
-        loginDiv.classList.add("hidden");
-        sistemaDiv.classList.remove("hidden");
-        welcome.textContent="Bienvenido Jorge Flores";
-        habilitarEdicion(true);
-        cargarNotas(notas);
+    document.getElementById("login-btn").addEventListener("click", ()=>{
+      const user = usuario.value.trim();
+      const pass = contrasena.value.trim();
+      const notas = JSON.parse(localStorage.getItem("notas")) || {};
 
-      } else if(user==="20210012" && pass==="Ccsa2025"){
-        loginDiv.classList.add("hidden");
-        sistemaDiv.classList.remove("hidden");
-        welcome.textContent="Bienvenido Jorge Flores";
-        habilitarEdicion(false);
-        cargarNotas(notas);
+      if(user==="JFlores" && pass==="Notas2025"){
+        loginDiv.classList.add("hidden");
+        sistemaDiv.classList.remove("hidden");
+        
+        welcome.textContent="Bienvenido Jorge Flores";
+        welcome.classList.remove("welcome-hidden"); // Mostrar mensaje
+        ocultarMensajeBienvenida(); // Ocultar después de 10 segundos
 
-        // Actualización en tiempo real cuando JFlores cambia notas
-        window.addEventListener('storage', (e) => {
-          if(e.key === "notas"){
-            const datosActualizados = JSON.parse(e.newValue) || {};
-            cargarNotas(datosActualizados);
-          }
-        });
-      } else {
-        errorMsg.textContent = "Usuario o contraseña incorrectos.";
-      }
-    });
+        habilitarEdicion(true);
+        cargarNotas(notas);
 
-    logout.addEventListener("click", ()=>{
-      sistemaDiv.classList.add("hidden");
-      loginDiv.classList.remove("hidden");
-      usuario.value="";
-      contrasena.value="";
-      errorMsg.textContent="";
-    });
+      } else if(user==="20210012" && pass==="Ccsa2025"){
+        loginDiv.classList.add("hidden");
+        sistemaDiv.classList.remove("hidden");
 
-    tabla.addEventListener("input", actualizarTabla);
-    window.onload = ()=>{
-      const notas = JSON.parse(localStorage.getItem("notas")) || {};
-      cargarNotas(notas);
-    };
-  </script>
+        welcome.textContent="Bienvenido Jorge Flores";
+        welcome.classList.remove("welcome-hidden"); // Mostrar mensaje
+        ocultarMensajeBienvenida(); // Ocultar después de 10 segundos
+        
+        habilitarEdicion(false);
+        cargarNotas(notas);
+
+        // Actualización en tiempo real cuando JFlores cambia notas
+        window.addEventListener('storage', (e) => {
+          if(e.key === "notas"){
+            const datosActualizados = JSON.parse(e.newValue) || {};
+            cargarNotas(datosActualizados);
+          }
+        });
+      } else {
+        errorMsg.textContent = "Usuario o contraseña incorrectos.";
+      }
+    });
+
+    logout.addEventListener("click", ()=>{
+      sistemaDiv.classList.add("hidden");
+      loginDiv.classList.remove("hidden");
+      usuario.value="";
+      contrasena.value="";
+      errorMsg.textContent="";
+      // Asegurar que el mensaje de bienvenida se restablece al estado inicial
+      welcome.classList.remove("welcome-hidden");
+      welcome.textContent="";
+    });
+
+    tabla.addEventListener("input", actualizarTabla);
+    window.onload = ()=>{
+      const notas = JSON.parse(localStorage.getItem("notas")) || {};
+      cargarNotas(notas);
+    };
+  </script>
 </body>
 </html>
