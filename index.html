@@ -170,21 +170,21 @@
       color: #0033a0;
       font-weight: bold;
       font-size: 16px;
+      text-align:center;
     }
   </style>
 </head>
 <body>
   <!-- LOGIN -->
   <div id="login" class="card">
-    <h2>Sistema de Notas</h2>
+    <h2>Iniciar Sesión</h2>
     <input type="text" id="usuario" placeholder="Usuario">
     <input type="password" id="contrasena" placeholder="Contraseña">
     <button id="login-btn">Entrar</button>
     <p id="error-msg"></p>
 
     <!-- Año con línea azul -->
-    <p class="year-line" style="text-align:center;">© 2025 Sistema de Notas</p>
-
+    <p class="year-line">© 2025 Sistema de Notas</p>
   </div>
 
   <!-- SISTEMA DE NOTAS -->
@@ -259,19 +259,16 @@
         const final = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
         celdas[4].textContent = final;
 
-        // Colorear en rojo celdas <7 para usuario 20210012
+        // Colorear en rojo solo para usuario 20210012
         if(currentUser === "20210012"){
           for(let i=1;i<=4;i++){
-            if(parseFloat(celdas[i].textContent) < 7) {
-              celdas[i].classList.add("menor-siete");
-            } else {
-              celdas[i].classList.remove("menor-siete");
-            }
+            if(parseFloat(celdas[i].textContent) < 7) celdas[i].classList.add("menor-siete");
+            else celdas[i].classList.remove("menor-siete");
           }
         } else {
-          // Para otros usuarios, solo Nota Final
-          if(parseFloat(final)<7) celdas[4].classList.add("menor-siete");
-          else celdas[4].classList.remove("menor-siete");
+          for(let i=1;i<=4;i++){
+            celdas[i].classList.remove("menor-siete");
+          }
         }
 
         total += parseFloat(final);
@@ -284,12 +281,7 @@
       const datos = {};
       materias.forEach(fila => {
         const celdas = fila.querySelectorAll("td");
-        datos[celdas[0].textContent] = [
-          celdas[1].textContent,
-          celdas[2].textContent,
-          celdas[3].textContent,
-          celdas[4].textContent
-        ];
+        datos[celdas[0].textContent] = [celdas[1].textContent,celdas[2].textContent,celdas[3].textContent,celdas[4].textContent];
       });
       return datos;
     }
@@ -311,7 +303,13 @@
     function habilitarEdicion(estado) {
       materias.forEach(fila => {
         const celdas = fila.querySelectorAll("td");
-        for(let i=1;i<=3;i++) celdas[i].contentEditable = estado;
+        for(let i=1;i<=3;i++){
+          celdas[i].contentEditable = estado;
+          // Validar entrada: solo números
+          celdas[i].addEventListener("input", (e)=>{
+            e.target.textContent = e.target.textContent.replace(/[^0-9.]/g,'');
+          });
+        }
       });
       saveBtn.style.display = estado ? "block" : "none";
     }
@@ -325,9 +323,9 @@
       const user = usuario.value.trim();
       const pass = contrasena.value.trim();
       const notas = JSON.parse(localStorage.getItem("notas")) || {};
-      currentUser = user; // Guardamos usuario actual
+      currentUser = user;
 
-      if(user==="JFlores" && pass==="Notas2025."){
+      if(user==="JFlores" && pass==="Notas2025"){
         loginDiv.classList.add("hidden");
         sistemaDiv.classList.remove("hidden");
         welcome.textContent="Bienvenido Jorge Flores";
@@ -335,10 +333,10 @@
         cargarNotas(notas);
         setTimeout(()=>{welcome.style.opacity="0";},10000);
 
-      } else if(user==="20210012" && pass==="Mined2025"){
+      } else if(user==="20210012" && pass==="Mined2025."){
         loginDiv.classList.add("hidden");
         sistemaDiv.classList.remove("hidden");
-        welcome.textContent="Bienvenida Montserrath Benitez";
+        welcome.textContent="Bienvenida Montserrath Benítez";
         habilitarEdicion(false);
         cargarNotas(notas);
 
@@ -361,11 +359,10 @@
       usuario.value="";
       contrasena.value="";
       errorMsg.textContent="";
-      welcome.style.opacity="1"; // Reinicia visibilidad
+      welcome.style.opacity="1";
     });
 
     tabla.addEventListener("input", actualizarTabla);
-
     window.onload = ()=>{
       const notas = JSON.parse(localStorage.getItem("notas")) || {};
       cargarNotas(notas);
