@@ -63,7 +63,7 @@
 
     th, td {
       padding: 12px 8px;
-      border: 1px solid #ccc; /* Líneas verticales y horizontales */
+      border: 1px solid #ccc;
     }
 
     th {
@@ -193,7 +193,7 @@
       <table id="tabla">
         <thead>
           <tr>
-            <th>Materias</th>
+            <th>Materia</th>
             <th>Cotidiana</th>
             <th>Integradora</th>
             <th>Examen</th>
@@ -212,7 +212,7 @@
           <tr><td>Seminario</td><td></td><td></td><td></td><td></td></tr>
           <tr><td>Conversation</td><td></td><td></td><td></td><td></td></tr>
           <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td></td></tr>
-           <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
           <tr><td>Biología</td><td></td><td></td><td></td><td></td></tr>
         </tbody>
         <tfoot>
@@ -243,6 +243,20 @@
     const materias = Array.from(tabla.querySelectorAll("tbody tr"));
     let currentUser = "";
 
+    function mostrarMensaje(msg){
+      if(!document.getElementById("alerta-msg")){
+        const p = document.createElement("p");
+        p.id = "alerta-msg";
+        p.style.color = "#d52b1e";
+        p.style.fontWeight = "bold";
+        p.style.textAlign = "center";
+        p.style.marginTop = "10px";
+        document.querySelector("section").prepend(p);
+        p.textContent = msg;
+        setTimeout(()=>p.remove(), 3000);
+      }
+    }
+
     function actualizarTabla() {
       let total = 0, count = 0;
       materias.forEach(fila=>{
@@ -251,35 +265,27 @@
         const inte = parseFloat(celdas[2].textContent)||0;
         const exam = parseFloat(celdas[3].textContent)||0;
 
-        // Nota final solo si hay al menos un valor
         if(celdas[1].textContent||celdas[2].textContent||celdas[3].textContent){
           const final = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
           celdas[4].textContent = final;
 
           // Para JFlores: nota final roja si <7
           if(currentUser==="JFlores"){
-            if(parseFloat(final)<7) celdas[4].classList.add("menor-siete");
-            else celdas[4].classList.remove("menor-siete");
+            if(parseFloat(final) < 7){
+              celdas[4].classList.add("menor-siete");
+            } else {
+              celdas[4].classList.remove("menor-siete");
+            }
           }
         } else {
           celdas[4].textContent = "";
         }
 
-        // Para 20210012: notas <7 rojas
-        if(currentUser==="20210012"){
-          for(let i=1;i<=4;i++){
-            if(parseFloat(celdas[i].textContent)<7) celdas[i].classList.add("menor-siete");
-            else celdas[i].classList.remove("menor-siete");
-          }
-        } else if(currentUser!=="JFlores"){
-          for(let i=1;i<=4;i++) celdas[i].classList.remove("menor-siete");
-        }
-
-        if(celdas[4].textContent) total+=parseFloat(celdas[4].textContent);
+        if(celdas[4].textContent) total += parseFloat(celdas[4].textContent);
         count++;
       });
       promedio.textContent = total>0 ? (total/count).toFixed(2) : "";
-      // Promedio rojo si JFlores y <7
+
       if(currentUser==="JFlores" && promedio.textContent && parseFloat(promedio.textContent)<7){
         promedio.classList.add("menor-siete");
       } else {
@@ -316,19 +322,18 @@
         for(let i=1;i<=3;i++){
           celdas[i].contentEditable = estado;
           celdas[i].addEventListener("input",(e)=>{
-            // Solo números y decimales
             e.target.textContent = e.target.textContent.replace(/[^0-9.]/g,'');
 
             if(currentUser==="JFlores" && e.target.textContent!==""){
               let valor = parseFloat(e.target.textContent);
               if(valor < 2){
-                alert("No se puede poner un número menor a 2");
-                e.target.textContent = "";
-              } else if(valor > 10){
-                alert("No se puede poner un número mayor a 10");
-                e.target.textContent = "";
+                mostrarMensaje("No se puede poner un número menor a 2");
+              } else if(valor > 10.1){
+                mostrarMensaje("No se puede poner un número mayor a 10.1");
               }
             }
+
+            actualizarTabla();
           });
         }
       });
@@ -346,7 +351,7 @@
       const notas=JSON.parse(localStorage.getItem("notas"))||{};
       currentUser=user;
 
-      if(user==="JFlores" && pass==="Notas2025"){
+      if(user==="JFlores" && pass==="Notas2025."){
         loginDiv.classList.add("hidden");
         sistemaDiv.classList.remove("hidden");
         welcome.textContent="Bienvenido Jorge Flores";
