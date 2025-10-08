@@ -317,7 +317,7 @@
         modoEdicion = true;
         habilitarEdicion(true);
         encabezado.innerHTML = `<th>Materia</th><th>Cotidiana</th><th>Integradora</th><th>Examen</th><th>Nota Final</th>`;
-        downloadBtn.classList.add("hidden");
+        downloadBtn.classList.add("hidden"); // PDF oculto
         mostrarBienvenida();
         cargarNotas();
       } else if (user === "20210012" && pass === "Ccsa2025") {
@@ -327,9 +327,9 @@
         modoEdicion = false;
         habilitarEdicion(false);
         encabezado.innerHTML = `<th>Materia</th><th>Cotidiana (35%)</th><th>Integradora (35%)</th><th>Examen (30%)</th><th>Nota Final</th>`;
-        downloadBtn.classList.remove("hidden");
+        downloadBtn.classList.add("hidden"); // PDF oculto también
         mostrarBienvenida();
-        cargarNotas(datosJFlores); // Datos de JFlores
+        cargarNotas(datosJFlores);
       } else {
         errorMsg.textContent = "Usuario o contraseña incorrectos.";
       }
@@ -364,7 +364,7 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
-      // Imagen
+      // Imagen (ejemplo: ruta relativa)
       const imgData = await fetch('/mnt/data/fdde3afd-d943-48ac-9c49-e94d0bce4385.png')
         .then(res => res.blob())
         .then(blob => new Promise(resolve => {
