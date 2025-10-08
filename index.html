@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Notas</title>
+  <title>Sistema de Notas - CCSA</title>
   <link rel="stylesheet" href="style.css">
   <style>
     body {
@@ -12,6 +12,10 @@
       margin: 0;
       padding: 0;
       color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh; /* Para centrar verticalmente la tarjeta de login */
     }
 
     header {
@@ -33,18 +37,13 @@
       padding: 5px 15px;
       border-radius: 8px;
       font-weight: bold;
-      /* Estilos para el mensaje de bienvenida */
-      transition: opacity 0.5s ease-in-out;
-      opacity: 1; /* Por defecto visible */
+      transition: opacity 0.5s ease-in-out; /* Para una transición suave */
+      opacity: 1; 
     }
 
     .welcome-hidden {
       opacity: 0 !important;
-      width: 0;
-      height: 0;
-      padding: 0 !important;
-      margin: 0 !important;
-      overflow: hidden;
+      pointer-events: none; /* Evita interacciones cuando está oculto */
     }
 
     #logout {
@@ -131,130 +130,151 @@
       border-top: 2px solid #0033a0;
     }
 
-    /* === Estilos modificados para el panel de login === */
+    /* Estilos para la tarjeta de Login */
     .card {
-      width: 350px; /* Ancho ajustado para el logo */
-      margin: 80px auto; /* Margen superior ajustado */
+      width: 320px;
+      /* margin: 100px auto; Se elimina porque body ya centra */
       background: white;
-      padding: 25px;
+      padding: 30px 25px; /* Más padding para espaciar */
       border-radius: 15px;
       text-align: center;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
 
-    .card .logo {
+    .card .login-logo {
       margin-bottom: 20px;
-      width: 100%; /* Asegura que el logo ocupe el ancho */
     }
-    
-    .card .logo img {
+
+    .card .login-logo img {
       max-width: 90%;
       height: auto;
     }
 
     .card h2 {
-      color: #0033a0;
-      margin-top: 0;
+      font-weight: normal;
+      margin-top: 5px;
+      margin-bottom: 20px;
+      color: #333; /* Color de texto del "Sistema de Notas" */
     }
 
     .card input {
       display: block;
-      margin: 15px auto; /* Margen ajustado */
-      padding: 12px; /* Relleno ajustado */
-      width: 85%; /* Ancho ajustado */
+      margin: 15px auto;
+      padding: 10px;
+      width: 85%; /* Se ajusta el ancho */
       border: 1px solid #ccc;
       border-radius: 8px;
-      box-sizing: border-box; /* Incluir padding y borde en el ancho */
+      box-sizing: border-box;
     }
 
     .card button {
-      background-color: #4CAF50; /* Botón verde como el de la imagen de referencia */
+      background-color: #4CAF50; /* Botón verde como el de la imagen */
       color: white;
       padding: 10px 20px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       font-size: 16px;
-      margin-top: 10px;
+      margin-top: 15px;
     }
 
     .card button:hover {
       background-color: #45a049;
     }
 
+    .card .login-footer {
+      text-align: center;
+      margin-top: 25px;
+      color: #555;
+      font-size: 14px;
+    }
+
     #error-msg {
       color: #d52b1e;
       font-weight: bold;
-      margin-bottom: 15px;
+      margin-top: 10px;
     }
 
     .hidden {
       display: none;
     }
+
+    .container-app {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
   </style>
 </head>
 <body>
-    <div id="login" class="card">
+    <div id="sistema-container" class="container-app hidden">
+        <div id="sistema">
+      <header>
+        <h1>Sistema de Notas</h1>
+        <span id="welcome"></span>
+        <button id="logout">Cerrar sesión</button>
+      </header>
+
+      <section>
+        <table id="tabla">
+          <thead>
+            <tr id="encabezado">
+              <th>Materia</th>
+              <th>Cotidiana</th>
+              <th>Integradora</th>
+              <th>Examen</th>
+              <th>Nota Final</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Lenguaje</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Matemáticas</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Inglés</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Informática</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Orientación Para La Vida</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Educación Física</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Seminario</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Biología</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Reading and Writing</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>Conversation</td><td></td><td></td><td></td><td></td></tr>
+          </tbody>
+          <tfoot>
+            <tr class="final-row">
+              <td colspan="4">Promedio General</td>
+              <td id="promedio">0.00</td>
+            </tr>
+          </tfoot>
+        </table>
+        <div class="button-container">
+          <button id="save">Guardar Notas</button>
+        </div>
+      </section>
+      <footer>© 2025 Sistema de Notas</footer>
     </div>
-    
+  </div>
+
+    <div id="login" class="card">
+    <div class="login-logo">
+            <img src="logo_ccsa.png" alt="Centro Cultural Salvadoreño Americano"> 
+    </div>
     <h2>Sistema de Notas</h2>
     <input type="text" id="usuario" placeholder="Usuario">
     <input type="password" id="contrasena" placeholder="Contraseña">
     <button id="login-btn">Entrar</button>
     <p id="error-msg"></p>
-    <p style="text-align:center; margin-top:20px; color:#555; font-size: 14px;">© 2025 Sistema de Notas</p>
+    <p class="login-footer">© CCSA - 2025</p>
   </div>
 
-    <div id="sistema" class="hidden">
-    <header>
-      <h1>Sistema de Notas</h1>
-      <span id="welcome"></span>
-      <button id="logout">Cerrar sesión</button>
-    </header>
-
-    <section>
-      <table id="tabla">
-        <thead>
-          <tr id="encabezado">
-            <th>Materia</th>
-            <th>Cotidiana</th>
-            <th>Integradora</th>
-            <th>Examen</th>
-            <th>Nota Final</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Lenguaje</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Matemáticas</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Inglés</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Informática</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Orientación Para La Vida</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Educación Física</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Seminario</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Biología</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Reading and Writing</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Conversation</td><td></td><td></td><td></td><td></td></tr>
-        </tbody>
-        <tfoot>
-          <tr class="final-row">
-            <td colspan="4">Promedio General</td>
-            <td id="promedio">0.00</td>
-          </tr>
-        </tfoot>
-      </table>
-      <div class="button-container">
-        <button id="save">Guardar Notas</button>
-      </div>
-    </section>
-    <footer>© 2025 Sistema de Notas</footer>
-  </div>
 
   <script>
     const loginDiv = document.getElementById("login");
-    const sistemaDiv = document.getElementById("sistema");
+    const sistemaContainer = document.getElementById("sistema-container"); // Usamos el contenedor principal
     const usuario = document.getElementById("usuario");
     const contrasena = document.getElementById("contrasena");
     const errorMsg = document.getElementById("error-msg");
@@ -313,13 +333,11 @@
       saveBtn.style.display = estado ? "block" : "none";
     }
 
-    /**
-     * Función para ocultar el mensaje de bienvenida después de 10 segundos
-     */
+    /* Nueva función para ocultar el mensaje de bienvenida */
     function ocultarMensajeBienvenida() {
       setTimeout(() => {
         welcome.classList.add("welcome-hidden");
-      }, 10000); // 10000 milisegundos = 10 segundos
+      }, 10000); // 10,000 milisegundos = 10 segundos
     }
 
     saveBtn.addEventListener("click", ()=>{
@@ -334,22 +352,22 @@
 
       if(user==="JFlores" && pass==="Notas2025"){
         loginDiv.classList.add("hidden");
-        sistemaDiv.classList.remove("hidden");
+        sistemaContainer.classList.remove("hidden"); // Mostrar el sistema
         
         welcome.textContent="Bienvenido Jorge Flores";
-        welcome.classList.remove("welcome-hidden"); // Mostrar mensaje
-        ocultarMensajeBienvenida(); // Ocultar después de 10 segundos
-
+        welcome.classList.remove("welcome-hidden"); // Asegurar que es visible al iniciar
+        ocultarMensajeBienvenida(); // Iniciar el temporizador
+        
         habilitarEdicion(true);
         cargarNotas(notas);
 
       } else if(user==="20210012" && pass==="Ccsa2025"){
         loginDiv.classList.add("hidden");
-        sistemaDiv.classList.remove("hidden");
-
+        sistemaContainer.classList.remove("hidden"); // Mostrar el sistema
+        
         welcome.textContent="Bienvenido Jorge Flores";
-        welcome.classList.remove("welcome-hidden"); // Mostrar mensaje
-        ocultarMensajeBienvenida(); // Ocultar después de 10 segundos
+        welcome.classList.remove("welcome-hidden"); // Asegurar que es visible al iniciar
+        ocultarMensajeBienvenida(); // Iniciar el temporizador
         
         habilitarEdicion(false);
         cargarNotas(notas);
@@ -367,12 +385,12 @@
     });
 
     logout.addEventListener("click", ()=>{
-      sistemaDiv.classList.add("hidden");
+      sistemaContainer.classList.add("hidden"); // Ocultar el sistema
       loginDiv.classList.remove("hidden");
       usuario.value="";
       contrasena.value="";
       errorMsg.textContent="";
-      // Asegurar que el mensaje de bienvenida se restablece al estado inicial
+      // Resetear el mensaje de bienvenida para la próxima sesión
       welcome.classList.remove("welcome-hidden");
       welcome.textContent="";
     });
