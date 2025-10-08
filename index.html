@@ -49,26 +49,34 @@
       margin: 30px auto;
       width: 90%;
       background: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 10px;
+      overflow: hidden;
       text-align: center;
-      border: 1px solid black;
+      margin-bottom: 20px;
     }
 
     th, td {
-      padding: 10px;
-      border: 1px solid black;
+      padding: 12px 8px;
+      border-bottom: 1px solid #ccc;
     }
 
     th {
-      background-color: #0033a0;
+      background: linear-gradient(to right, #0033a0, #d52b1e);
       color: white;
+      font-size: 16px;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #f9f9f9;
     }
 
     td.menor-siete {
@@ -79,21 +87,13 @@
     .final-row {
       background-color: #eaf0fb;
       font-weight: bold;
-    }
-
-    input[type="number"] {
-      width: 80px;
-      text-align: center;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 5px;
+      font-size: 16px;
     }
 
     .button-container {
       display: flex;
       justify-content: center;
-      margin-top: 15px;
-      gap: 10px;
+      gap: 15px;
     }
 
     #save, #download {
@@ -101,7 +101,7 @@
       color: white;
       border: none;
       padding: 10px 25px;
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       font-size: 16px;
     }
@@ -240,6 +240,23 @@
     const materias = Array.from(tabla.querySelectorAll("tbody tr"));
     const storedData = JSON.parse(localStorage.getItem("notas")) || {};
 
+    // Datos de JFlores
+    const datosJFlores = {
+      "Lenguaje": ["8.5","9.0","8.0","0.00"],
+      "Matemáticas": ["7.5","8.0","9.0","0.00"],
+      "Estudios Sociales":["9","8.5","9","0.00"],
+      "Inglés":["8","7.5","9","0.00"],
+      "Informática":["9","9","9.5","0.00"],
+      "Orientación Para La Vida":["10","9","9","0.00"],
+      "Educación Física":["7","8","8","0.00"],
+      "Seminario":["9","9","9","0.00"],
+      "Moral Urbanidad y Cívica":["8","7","9","0.00"],
+      "Biología":["8","9","8","0.00"],
+      "Física Química":["9","8","9","0.00"],
+      "Reading and Writing":["10","9","10","0.00"],
+      "Conversation":["9","8","9","0.00"]
+    };
+
     function actualizarTabla() {
       let total = 0, count = 0;
       materias.forEach(fila => {
@@ -274,15 +291,16 @@
       alert("Notas guardadas correctamente ✅");
     });
 
-    function cargarNotas() {
+    function cargarNotas(datos = null) {
       materias.forEach(fila => {
         const celdas = fila.querySelectorAll("td");
         const materia = celdas[0].textContent;
-        if (storedData[materia]) {
-          celdas[1].textContent = storedData[materia][0];
-          celdas[2].textContent = storedData[materia][1];
-          celdas[3].textContent = storedData[materia][2];
-          celdas[4].textContent = storedData[materia][3];
+        const data = datos ? datos[materia] : storedData[materia];
+        if (data) {
+          celdas[1].textContent = data[0];
+          celdas[2].textContent = data[1];
+          celdas[3].textContent = data[2];
+          celdas[4].textContent = data[3];
         }
       });
       actualizarTabla();
@@ -311,7 +329,7 @@
         encabezado.innerHTML = `<th>Materia</th><th>Cotidiana (35%)</th><th>Integradora (35%)</th><th>Examen (30%)</th><th>Nota Final</th>`;
         downloadBtn.classList.remove("hidden");
         mostrarBienvenida();
-        cargarNotas();
+        cargarNotas(datosJFlores); // Datos de JFlores
       } else {
         errorMsg.textContent = "Usuario o contraseña incorrectos.";
       }
@@ -342,21 +360,33 @@
       }, 10000);
     }
 
-    downloadBtn.addEventListener("click", () => {
+    downloadBtn.addEventListener("click", async () => {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      doc.text("Notas del estudiante", 10, 10);
-      let y = 20;
+
+      // Imagen
+      const imgData = await fetch('/mnt/data/fdde3afd-d943-48ac-9c49-e94d0bce4385.png')
+        .then(res => res.blob())
+        .then(blob => new Promise(resolve => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        }));
+
+      doc.addImage(imgData, 'PNG', 10, 10, 190, 40);
+      let y = 60;
+
       materias.forEach(fila => {
         const celdas = fila.querySelectorAll("td");
         const texto = `${celdas[0].textContent}: Cotidiana ${celdas[1].textContent}, Integradora ${celdas[2].textContent}, Examen ${celdas[3].textContent}, Nota Final ${celdas[4].textContent}`;
         doc.text(texto, 10, y);
         y += 10;
       });
+
       doc.save("Notas.pdf");
     });
 
-    window.onload = cargarNotas;
+    window.onload = () => cargarNotas();
   </script>
 </body>
 </html>
