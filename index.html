@@ -1,123 +1,330 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Notas</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f3f6fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(to right, #0033a0, #d52b1e);
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+    }
+
+    #welcome {
+      background-color: white;
+      color: #0033a0;
+      padding: 5px 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      animation: fadeInOut 4s ease-in-out;
+    }
+
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0; }
+      10%, 90% { opacity: 1; }
+    }
+
+    #logout {
+      background: white;
+      color: #d52b1e;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    section {
+      margin: 30px auto;
+      width: 90%;
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+
+    th {
+      background-color: #0033a0;
+      color: white;
+      padding: 10px;
+    }
+
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .final-row {
+      background-color: #eaf0fb;
+      font-weight: bold;
+    }
+
+    input[type="number"] {
+      width: 80px;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 5px;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    #save {
+      background-color: #0033a0;
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #save:hover {
+      background-color: #002070;
+    }
+
+    footer {
+      text-align: center;
+      background: #f1f1f1;
+      padding: 10px;
+      color: #555;
+      font-size: 14px;
+      border-top: 2px solid #0033a0;
+    }
+
+    .card {
+      width: 320px;
+      margin: 100px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .card input {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      width: 80%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .card button {
+      background-color: #0033a0;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .card button:hover {
+      background-color: #002070;
+    }
+
+    #error-msg {
+      color: #d52b1e;
+      font-weight: bold;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
   <!-- LOGIN -->
-  <div id="login-container" class="card">
-    <h2>Sistema de Notas</h2>
-    <input type="text" id="username" placeholder="Usuario">
-    <input type="password" id="password" placeholder="Contraseña">
-    <button onclick="login()">Ingresar</button>
+  <div id="login" class="card">
+    <h2>Iniciar Sesión</h2>
+    <input type="text" id="usuario" placeholder="Usuario">
+    <input type="password" id="contrasena" placeholder="Contraseña">
+    <button id="login-btn">Entrar</button>
     <p id="error-msg"></p>
-    <footer>
-      <p>© Sistema de Notas - 2025</p>
-    </footer>
   </div>
 
-  <!-- PÁGINA PRINCIPAL -->
-  <div id="main-container" class="hidden">
+  <!-- SISTEMA DE NOTAS -->
+  <div id="sistema" class="hidden">
     <header>
       <h1>Sistema de Notas</h1>
-      <div id="welcome"></div>
-      <button id="logout" onclick="logout()">Cerrar sesión</button>
+      <span id="welcome"></span>
+      <button id="logout">Cerrar sesión</button>
     </header>
 
     <section>
-      <table id="grades-table">
+      <table id="tabla">
         <thead>
           <tr>
-            <th>Materias</th>
+            <th>Materia</th>
             <th>Cotidiana (35%)</th>
             <th>Integradora (35%)</th>
             <th>Examen (30%)</th>
-            <th>Promedio</th>
+            <th>Nota Final</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Lenguaje</td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td class="final-grade"></td></tr>
-          <tr><td>Matemáticas</td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td class="final-grade"></td></tr>
-          <tr><td>Estudios Sociales</td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td class="final-grade"></td></tr>
-          <tr><td>Inglés</td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td class="final-grade"></td></tr>
-          <tr><td>Informática</td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td class="final-grade"></td></tr>
-          <tr><td>Orientación Para La Vida</td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td class="final-grade"></td></tr>
-          <tr><td>Educación Física</td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td class="final-grade"></td></tr>
-          <tr><td>Seminario</td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td class="final-grade"></td></tr>
-          <tr><td>Biología</td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td><input type="number" min="0" max="10" step="0.01" oninput="updateAverage(this)"></td><td class="final-grade"></td></tr>
+          <tr><td>Lenguaje</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Matemáticas</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Inglés</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Informática</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Orientación Para La Vida</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Educación Física</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Seminario</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Biología</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Reading and Writing</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Conversation</td><td></td><td></td><td></td><td></td></tr>
         </tbody>
         <tfoot>
           <tr class="final-row">
-            <td colspan="4"><strong>Promedio Final</strong></td>
-            <td id="overall-average">--</td>
+            <td colspan="4">Promedio General</td>
+            <td id="promedio">0.00</td>
           </tr>
         </tfoot>
       </table>
-
       <div class="button-container">
-        <button id="save">Guardar Cambios</button>
+        <button id="save">Guardar Notas</button>
       </div>
     </section>
-
-    <footer>
-      <p>© Sistema de Notas - 2025</p>
-    </footer>
+    <footer>© 2025 Sistema de Notas - Jorge Flores</footer>
   </div>
 
   <script>
-    // Login
-    function login() {
-      const user = document.getElementById("username").value;
-      const pass = document.getElementById("password").value;
-      const error = document.getElementById("error-msg");
+    const loginDiv = document.getElementById("login");
+    const sistemaDiv = document.getElementById("sistema");
+    const usuario = document.getElementById("usuario");
+    const contrasena = document.getElementById("contrasena");
+    const errorMsg = document.getElementById("error-msg");
+    const welcome = document.getElementById("welcome");
+    const logout = document.getElementById("logout");
+    const tabla = document.getElementById("tabla");
+    const promedio = document.getElementById("promedio");
+    const saveBtn = document.getElementById("save");
+    let modoEdicion = true;
+
+    const materias = Array.from(tabla.querySelectorAll("tbody tr"));
+    const storedData = JSON.parse(localStorage.getItem("notas")) || {};
+
+    function actualizarTabla() {
+      let total = 0, count = 0;
+      materias.forEach(fila => {
+        const celdas = fila.querySelectorAll("td");
+        const coti = parseFloat(celdas[1].textContent) || 0;
+        const inte = parseFloat(celdas[2].textContent) || 0;
+        const exam = parseFloat(celdas[3].textContent) || 0;
+        const final = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
+        celdas[4].textContent = final;
+        total += parseFloat(final);
+        count++;
+      });
+      promedio.textContent = (total / count).toFixed(2);
+    }
+
+    tabla.addEventListener("input", actualizarTabla);
+
+    saveBtn.addEventListener("click", () => {
+      const datos = {};
+      materias.forEach(fila => {
+        const celdas = fila.querySelectorAll("td");
+        datos[celdas[0].textContent] = [
+          celdas[1].textContent,
+          celdas[2].textContent,
+          celdas[3].textContent,
+          celdas[4].textContent
+        ];
+      });
+      localStorage.setItem("notas", JSON.stringify(datos));
+      alert("Notas guardadas correctamente ✅");
+    });
+
+    function cargarNotas() {
+      materias.forEach(fila => {
+        const celdas = fila.querySelectorAll("td");
+        const materia = celdas[0].textContent;
+        if (storedData[materia]) {
+          celdas[1].textContent = storedData[materia][0];
+          celdas[2].textContent = storedData[materia][1];
+          celdas[3].textContent = storedData[materia][2];
+          celdas[4].textContent = storedData[materia][3];
+        }
+      });
+      actualizarTabla();
+    }
+
+    document.getElementById("login-btn").addEventListener("click", () => {
+      const user = usuario.value.trim();
+      const pass = contrasena.value.trim();
 
       if (user === "JFlores" && pass === "Notas2025") {
-        document.getElementById("login-container").classList.add("hidden");
-        document.getElementById("main-container").classList.remove("hidden");
-        const welcome = document.getElementById("welcome");
-        welcome.textContent = "Bienvenido, " + user + " 👋";
-        welcome.style.display = "block";
-        setTimeout(() => { welcome.style.display = "none"; }, 4000);
+        loginDiv.classList.add("hidden");
+        sistemaDiv.classList.remove("hidden");
+        welcome.textContent = "Bienvenido Jorge Flores";
+        modoEdicion = true;
+        habilitarEdicion(true);
+        cargarNotas();
+      } else if (user === "20210012" && pass === "Ccsa2025") {
+        loginDiv.classList.add("hidden");
+        sistemaDiv.classList.remove("hidden");
+        welcome.textContent = "Bienvenido Jorge Flores";
+        modoEdicion = false;
+        habilitarEdicion(false);
+        cargarNotas();
       } else {
-        error.textContent = "Usuario o contraseña incorrectos";
+        errorMsg.textContent = "Usuario o contraseña incorrectos.";
       }
-    }
-
-    function logout() {
-      location.reload();
-    }
-
-    // Calcular promedios
-    function updateAverage(input) {
-      const row = input.closest("tr");
-      const [cotidiana, integradora, examen] = row.querySelectorAll("input");
-      const avgCell = row.querySelector(".final-grade");
-
-      const c = parseFloat(cotidiana.value) || 0;
-      const i = parseFloat(integradora.value) || 0;
-      const e = parseFloat(examen.value) || 0;
-
-      const avg = (c * 0.35) + (i * 0.35) + (e * 0.30);
-      avgCell.textContent = avg > 0 ? avg.toFixed(2) : "";
-      avgCell.style.color = avg >= 7 ? "green" : "red";
-
-      updateOverallAverage();
-    }
-
-    function updateOverallAverage() {
-      const all = Array.from(document.querySelectorAll(".final-grade"))
-        .map(td => parseFloat(td.textContent))
-        .filter(v => !isNaN(v));
-      const overall = all.length > 0 ? (all.reduce((a, b) => a + b) / all.length).toFixed(2) : "--";
-      document.getElementById("overall-average").textContent = overall;
-    }
-
-    document.getElementById("save").addEventListener("click", () => {
-      alert("Cambios guardados correctamente ✅");
     });
+
+    function habilitarEdicion(estado) {
+      materias.forEach(fila => {
+        const celdas = fila.querySelectorAll("td");
+        for (let i = 1; i <= 3; i++) {
+          celdas[i].contentEditable = estado;
+        }
+      });
+      saveBtn.style.display = estado ? "block" : "none";
+    }
+
+    logout.addEventListener("click", () => {
+      sistemaDiv.classList.add("hidden");
+      loginDiv.classList.remove("hidden");
+      usuario.value = "";
+      contrasena.value = "";
+      errorMsg.textContent = "";
+    });
+
+    window.onload = cargarNotas;
   </script>
 </body>
 </html>
+
