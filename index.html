@@ -33,12 +33,6 @@
       padding: 5px 15px;
       border-radius: 8px;
       font-weight: bold;
-      animation: fadeInOut 4s ease-in-out;
-    }
-
-    @keyframes fadeInOut {
-      0%, 100% { opacity: 0; }
-      10%, 90% { opacity: 1; }
     }
 
     #logout {
@@ -64,17 +58,22 @@
       width: 100%;
       border-collapse: collapse;
       text-align: center;
+      border: 1px solid black;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid black;
     }
 
     th {
       background-color: #0033a0;
       color: white;
-      padding: 10px;
     }
 
-    td {
-      padding: 8px;
-      border-bottom: 1px solid #eee;
+    td.menor-siete {
+      color: red;
+      font-weight: bold;
     }
 
     .final-row {
@@ -94,9 +93,10 @@
       display: flex;
       justify-content: center;
       margin-top: 15px;
+      gap: 10px;
     }
 
-    #save {
+    #save, #download {
       background-color: #0033a0;
       color: white;
       border: none;
@@ -106,7 +106,7 @@
       font-size: 16px;
     }
 
-    #save:hover {
+    #save:hover, #download:hover {
       background-color: #002070;
     }
 
@@ -183,11 +183,11 @@
     <section>
       <table id="tabla">
         <thead>
-          <tr>
+          <tr id="encabezado">
             <th>Materia</th>
-            <th>Cotidiana (35%)</th>
-            <th>Integradora (35%)</th>
-            <th>Examen (30%)</th>
+            <th>Cotidiana</th>
+            <th>Integradora</th>
+            <th>Examen</th>
             <th>Nota Final</th>
           </tr>
         </thead>
@@ -215,11 +215,13 @@
       </table>
       <div class="button-container">
         <button id="save">Guardar Notas</button>
+        <button id="download" class="hidden">Descargar PDF</button>
       </div>
     </section>
-    <footer>© 2025 Sistema de Notas - Jorge Flores</footer>
+    <footer>© 2025 Sistema de Notas</footer>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     const loginDiv = document.getElementById("login");
     const sistemaDiv = document.getElementById("sistema");
@@ -231,6 +233,8 @@
     const tabla = document.getElementById("tabla");
     const promedio = document.getElementById("promedio");
     const saveBtn = document.getElementById("save");
+    const downloadBtn = document.getElementById("download");
+    const encabezado = document.getElementById("encabezado");
     let modoEdicion = true;
 
     const materias = Array.from(tabla.querySelectorAll("tbody tr"));
@@ -245,6 +249,8 @@
         const exam = parseFloat(celdas[3].textContent) || 0;
         const final = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
         celdas[4].textContent = final;
+        if(final < 7) celdas[4].classList.add("menor-siete");
+        else celdas[4].classList.remove("menor-siete");
         total += parseFloat(final);
         count++;
       });
@@ -292,6 +298,9 @@
         welcome.textContent = "Bienvenido Jorge Flores";
         modoEdicion = true;
         habilitarEdicion(true);
+        encabezado.innerHTML = `<th>Materia</th><th>Cotidiana</th><th>Integradora</th><th>Examen</th><th>Nota Final</th>`;
+        downloadBtn.classList.add("hidden");
+        mostrarBienvenida();
         cargarNotas();
       } else if (user === "20210012" && pass === "Ccsa2025") {
         loginDiv.classList.add("hidden");
@@ -299,6 +308,9 @@
         welcome.textContent = "Bienvenido Jorge Flores";
         modoEdicion = false;
         habilitarEdicion(false);
+        encabezado.innerHTML = `<th>Materia</th><th>Cotidiana (35%)</th><th>Integradora (35%)</th><th>Examen (30%)</th><th>Nota Final</th>`;
+        downloadBtn.classList.remove("hidden");
+        mostrarBienvenida();
         cargarNotas();
       } else {
         errorMsg.textContent = "Usuario o contraseña incorrectos.";
@@ -323,8 +335,28 @@
       errorMsg.textContent = "";
     });
 
+    function mostrarBienvenida() {
+      welcome.style.display = "inline-block";
+      setTimeout(() => {
+        welcome.style.display = "none";
+      }, 10000);
+    }
+
+    downloadBtn.addEventListener("click", () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text("Notas del estudiante", 10, 10);
+      let y = 20;
+      materias.forEach(fila => {
+        const celdas = fila.querySelectorAll("td");
+        const texto = `${celdas[0].textContent}: Cotidiana ${celdas[1].textContent}, Integradora ${celdas[2].textContent}, Examen ${celdas[3].textContent}, Nota Final ${celdas[4].textContent}`;
+        doc.text(texto, 10, y);
+        y += 10;
+      });
+      doc.save("Notas.pdf");
+    });
+
     window.onload = cargarNotas;
   </script>
 </body>
 </html>
-
