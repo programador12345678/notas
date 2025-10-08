@@ -56,17 +56,14 @@
 
     table {
       width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      border-radius: 10px;
-      overflow: hidden;
+      border-collapse: collapse;
       text-align: center;
       margin-bottom: 20px;
     }
 
     th, td {
       padding: 12px 8px;
-      border-bottom: 1px solid #ccc;
+      border: 1px solid #ccc; /* Líneas verticales y horizontales */
     }
 
     th {
@@ -162,7 +159,6 @@
       display: none;
     }
 
-    /* Línea azul con año */
     .year-line {
       margin-top: 15px;
       padding-top: 10px;
@@ -182,8 +178,6 @@
     <input type="password" id="contrasena" placeholder="Contraseña">
     <button id="login-btn">Entrar</button>
     <p id="error-msg"></p>
-
-    <!-- Año con línea azul -->
     <p class="year-line">© 2025 Sistema de Notas</p>
   </div>
 
@@ -198,7 +192,7 @@
     <section>
       <table id="tabla">
         <thead>
-          <tr id="encabezado">
+          <tr>
             <th>Materia</th>
             <th>Cotidiana</th>
             <th>Integradora</th>
@@ -224,7 +218,7 @@
         <tfoot>
           <tr class="final-row">
             <td colspan="4">Promedio General</td>
-            <td id="promedio">0.00</td>
+            <td id="promedio"></td>
           </tr>
         </tfoot>
       </table>
@@ -251,79 +245,87 @@
 
     function actualizarTabla() {
       let total = 0, count = 0;
-      materias.forEach(fila => {
+      materias.forEach(fila=>{
         const celdas = fila.querySelectorAll("td");
         const coti = parseFloat(celdas[1].textContent)||0;
         const inte = parseFloat(celdas[2].textContent)||0;
         const exam = parseFloat(celdas[3].textContent)||0;
-        const final = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
-        celdas[4].textContent = final;
 
-        // Colorear en rojo solo para usuario 20210012
-        if(currentUser === "20210012"){
+        // Nota final solo si hay al menos un valor
+        if(celdas[1].textContent||celdas[2].textContent||celdas[3].textContent){
+          const final = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
+          celdas[4].textContent = final;
+        } else {
+          celdas[4].textContent = "";
+        }
+
+        // Colorear en rojo solo para 20210012
+        if(currentUser==="20210012"){
           for(let i=1;i<=4;i++){
-            if(parseFloat(celdas[i].textContent) < 7) celdas[i].classList.add("menor-siete");
+            if(parseFloat(celdas[i].textContent)<7) celdas[i].classList.add("menor-siete");
             else celdas[i].classList.remove("menor-siete");
           }
         } else {
-          for(let i=1;i<=4;i++){
-            celdas[i].classList.remove("menor-siete");
-          }
+          for(let i=1;i<=4;i++) celdas[i].classList.remove("menor-siete");
         }
 
-        total += parseFloat(final);
+        if(celdas[4].textContent) total+=parseFloat(celdas[4].textContent);
         count++;
       });
-      promedio.textContent = (total/count).toFixed(2);
+      promedio.textContent = total>0 ? (total/count).toFixed(2) : "";
     }
 
-    function extraerNotas() {
-      const datos = {};
-      materias.forEach(fila => {
-        const celdas = fila.querySelectorAll("td");
-        datos[celdas[0].textContent] = [celdas[1].textContent,celdas[2].textContent,celdas[3].textContent,celdas[4].textContent];
+    function extraerNotas(){
+      const datos={};
+      materias.forEach(fila=>{
+        const celdas=fila.querySelectorAll("td");
+        datos[celdas[0].textContent]=[celdas[1].textContent,celdas[2].textContent,celdas[3].textContent,celdas[4].textContent];
       });
       return datos;
     }
 
-    function cargarNotas(datos) {
-      materias.forEach(fila => {
-        const celdas = fila.querySelectorAll("td");
-        const mat = celdas[0].textContent;
+    function cargarNotas(datos){
+      materias.forEach(fila=>{
+        const celdas=fila.querySelectorAll("td");
+        const mat=celdas[0].textContent;
         if(datos[mat]){
-          celdas[1].textContent = datos[mat][0];
-          celdas[2].textContent = datos[mat][1];
-          celdas[3].textContent = datos[mat][2];
-          celdas[4].textContent = datos[mat][3];
+          celdas[1].textContent=datos[mat][0];
+          celdas[2].textContent=datos[mat][1];
+          celdas[3].textContent=datos[mat][2];
+          celdas[4].textContent=datos[mat][3];
         }
       });
       actualizarTabla();
     }
 
-    function habilitarEdicion(estado) {
-      materias.forEach(fila => {
-        const celdas = fila.querySelectorAll("td");
+    function habilitarEdicion(estado){
+      materias.forEach(fila=>{
+        const celdas=fila.querySelectorAll("td");
         for(let i=1;i<=3;i++){
           celdas[i].contentEditable = estado;
-          // Validar entrada: solo números
-          celdas[i].addEventListener("input", (e)=>{
-            e.target.textContent = e.target.textContent.replace(/[^0-9.]/g,'');
+          celdas[i].addEventListener("input",(e)=>{
+            // Solo números y decimales
+            e.target.textContent=e.target.textContent.replace(/[^0-9.]/g,'');
+            if(currentUser==="JFlores" && e.target.textContent!==""){
+              // No aceptar menores que 2
+              if(parseFloat(e.target.textContent)<2) e.target.textContent="2";
+            }
           });
         }
       });
-      saveBtn.style.display = estado ? "block" : "none";
+      saveBtn.style.display = estado?"block":"none";
     }
 
-    saveBtn.addEventListener("click", ()=>{
-      localStorage.setItem("notas", JSON.stringify(extraerNotas()));
+    saveBtn.addEventListener("click",()=>{
+      localStorage.setItem("notas",JSON.stringify(extraerNotas()));
       alert("Notas guardadas correctamente ✅");
     });
 
-    document.getElementById("login-btn").addEventListener("click", ()=>{
-      const user = usuario.value.trim();
-      const pass = contrasena.value.trim();
-      const notas = JSON.parse(localStorage.getItem("notas")) || {};
-      currentUser = user;
+    document.getElementById("login-btn").addEventListener("click",()=>{
+      const user=usuario.value.trim();
+      const pass=contrasena.value.trim();
+      const notas=JSON.parse(localStorage.getItem("notas"))||{};
+      currentUser=user;
 
       if(user==="JFlores" && pass==="Notas2025"){
         loginDiv.classList.add("hidden");
@@ -332,7 +334,6 @@
         habilitarEdicion(true);
         cargarNotas(notas);
         setTimeout(()=>{welcome.style.opacity="0";},10000);
-
       } else if(user==="20210012" && pass==="Mined2025."){
         loginDiv.classList.add("hidden");
         sistemaDiv.classList.remove("hidden");
@@ -340,20 +341,20 @@
         habilitarEdicion(false);
         cargarNotas(notas);
 
-        window.addEventListener('storage', (e) => {
-          if(e.key === "notas"){
-            const datosActualizados = JSON.parse(e.newValue) || {};
+        window.addEventListener('storage',(e)=>{
+          if(e.key==="notas"){
+            const datosActualizados=JSON.parse(e.newValue)||{};
             cargarNotas(datosActualizados);
           }
         });
 
         setTimeout(()=>{welcome.style.opacity="0";},10000);
       } else {
-        errorMsg.textContent = "Usuario o contraseña incorrectos.";
+        errorMsg.textContent="Usuario o contraseña incorrectos.";
       }
     });
 
-    logout.addEventListener("click", ()=>{
+    logout.addEventListener("click",()=>{
       sistemaDiv.classList.add("hidden");
       loginDiv.classList.remove("hidden");
       usuario.value="";
@@ -363,8 +364,8 @@
     });
 
     tabla.addEventListener("input", actualizarTabla);
-    window.onload = ()=>{
-      const notas = JSON.parse(localStorage.getItem("notas")) || {};
+    window.onload=()=>{
+      const notas=JSON.parse(localStorage.getItem("notas"))||{};
       cargarNotas(notas);
     };
   </script>
