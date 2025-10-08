@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Notas</title>
-  <link rel="stylesheet" href="style.css">
   <style>
     body {
       font-family: "Poppins", sans-serif;
@@ -163,7 +162,7 @@
       display: none;
     }
 
-    /* NUEVO: línea azul y año */
+    /* Línea azul con año */
     .year-line {
       margin-top: 15px;
       padding-top: 10px;
@@ -184,8 +183,9 @@
     <p id="error-msg"></p>
 
     <!-- Año con línea azul -->
+    <p class="year-line">© 2025 Sistema de Notas</p>
 
-    <p style="text-align:center; margin-top:10px; color:#555;">© 2025 Sistema de Notas</p>
+    
   </div>
 
   <!-- SISTEMA DE NOTAS -->
@@ -248,6 +248,7 @@
     const promedio = document.getElementById("promedio");
     const saveBtn = document.getElementById("save");
     const materias = Array.from(tabla.querySelectorAll("tbody tr"));
+    let currentUser = "";
 
     function actualizarTabla() {
       let total = 0, count = 0;
@@ -258,8 +259,22 @@
         const exam = parseFloat(celdas[3].textContent)||0;
         const final = (coti*0.35 + inte*0.35 + exam*0.30).toFixed(2);
         celdas[4].textContent = final;
-        if(final<7) celdas[4].classList.add("menor-siete");
-        else celdas[4].classList.remove("menor-siete");
+
+        // Colorear en rojo celdas <7 para usuario 20210012
+        if(currentUser === "20210012"){
+          for(let i=1;i<=4;i++){
+            if(parseFloat(celdas[i].textContent) < 7) {
+              celdas[i].classList.add("menor-siete");
+            } else {
+              celdas[i].classList.remove("menor-siete");
+            }
+          }
+        } else {
+          // Para otros usuarios, solo Nota Final
+          if(parseFloat(final)<7) celdas[4].classList.add("menor-siete");
+          else celdas[4].classList.remove("menor-siete");
+        }
+
         total += parseFloat(final);
         count++;
       });
@@ -270,7 +285,12 @@
       const datos = {};
       materias.forEach(fila => {
         const celdas = fila.querySelectorAll("td");
-        datos[celdas[0].textContent] = [celdas[1].textContent,celdas[2].textContent,celdas[3].textContent,celdas[4].textContent];
+        datos[celdas[0].textContent] = [
+          celdas[1].textContent,
+          celdas[2].textContent,
+          celdas[3].textContent,
+          celdas[4].textContent
+        ];
       });
       return datos;
     }
@@ -306,6 +326,7 @@
       const user = usuario.value.trim();
       const pass = contrasena.value.trim();
       const notas = JSON.parse(localStorage.getItem("notas")) || {};
+      currentUser = user; // Guardamos usuario actual
 
       if(user==="JFlores" && pass==="Notas2025"){
         loginDiv.classList.add("hidden");
@@ -313,8 +334,6 @@
         welcome.textContent="Bienvenido Jorge Flores";
         habilitarEdicion(true);
         cargarNotas(notas);
-
-        // Desaparece mensaje después de 10 segundos
         setTimeout(()=>{welcome.style.opacity="0";},10000);
 
       } else if(user==="20210012" && pass==="Ccsa2025"){
@@ -347,6 +366,7 @@
     });
 
     tabla.addEventListener("input", actualizarTabla);
+
     window.onload = ()=>{
       const notas = JSON.parse(localStorage.getItem("notas")) || {};
       cargarNotas(notas);
