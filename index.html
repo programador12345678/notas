@@ -5,80 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Notas</title>
   <link rel="stylesheet" href="style.css">
-
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // 🔧 Configura tus credenciales de Supabase
-    const SUPABASE_URL = "https://TU-PROJECT-URL.supabase.co";  // cambia esto
-    const SUPABASE_KEY = "TU-CLAVE-ANON-PUBLICA";                // cambia esto
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  </script>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f6fa;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    header {
-      background: #34495e;
-      color: white;
-      padding: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .card {
-      background: white;
-      width: 320px;
-      margin: 100px auto;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-    input {
-      width: 90%;
-      margin: 8px 0;
-      padding: 8px;
-    }
-    button {
-      background: #3498db;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      margin-top: 10px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-    button:hover {
-      background: #2980b9;
-    }
-    table {
-      margin: 20px auto;
-      border-collapse: collapse;
-      width: 90%;
-      background: white;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background: #2ecc71;
-      color: white;
-    }
-    .hidden { display: none; }
-    footer {
-      margin-top: 30px;
-      color: #888;
-    }
-  </style>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
-
 <body>
   <!-- LOGIN -->
   <div id="login" class="card">
@@ -86,7 +16,7 @@
     <input type="text" id="usuario" placeholder="Usuario">
     <input type="password" id="contrasena" placeholder="Contraseña">
     <button id="login-btn">Entrar</button>
-    <p id="error-msg" style="color:red"></p>
+    <p id="error-msg"></p>
     <p class="year-line">© 2025 Sistema de Notas</p>
   </div>
 
@@ -110,19 +40,19 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td>Lenguaje</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
-          <tr><td>Matemáticas</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
-          <tr><td>Estudios Sociales</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
-          <tr><td>Inglés</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
-          <tr><td>Informática</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
-          <tr><td>Orientación Para La Vida</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
-          <tr><td>Reading and Writing</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
-          <tr><td>Educación Física</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
-          <tr><td>Seminario</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
-          <tr><td>Conversation</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
-          <tr><td>Moral Urbanidad y Cívica</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
-          <tr><td>Física Química</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
-          <tr><td>Biología</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Lenguaje</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Matemáticas</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Inglés</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Informática</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Orientación Para La Vida</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Reading and Writing</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Educación Física</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Seminario</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Conversation</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Biología</td><td></td><td></td><td></td><td></td></tr>
         </tbody>
         <tfoot>
           <tr class="final-row">
@@ -131,92 +61,10 @@
           </tr>
         </tfoot>
       </table>
-
-      <button id="guardar-btn">Guardar notas</button>
-      <button id="cargar-btn">Cargar notas</button>
     </section>
-
     <footer>© 2025 Sistema de Notas</footer>
   </div>
 
-  <script>
-    // --- LOGIN LOCAL ---
-    const loginDiv = document.getElementById("login");
-    const sistemaDiv = document.getElementById("sistema");
-    const loginBtn = document.getElementById("login-btn");
-    const logoutBtn = document.getElementById("logout");
-
-    loginBtn.addEventListener("click", () => {
-      const user = document.getElementById("usuario").value;
-      const pass = document.getElementById("contrasena").value;
-
-      if (user === "admin" && pass === "1234") {
-        loginDiv.classList.add("hidden");
-        sistemaDiv.classList.remove("hidden");
-        document.getElementById("welcome").textContent = `Bienvenido, ${user}`;
-      } else {
-        document.getElementById("error-msg").textContent = "Usuario o contraseña incorrectos.";
-      }
-    });
-
-    logoutBtn.addEventListener("click", () => {
-      loginDiv.classList.remove("hidden");
-      sistemaDiv.classList.add("hidden");
-    });
-
-    // --- GUARDAR DATOS EN SUPABASE ---
-    const guardarBtn = document.getElementById("guardar-btn");
-    const tabla = document.getElementById("tabla");
-
-    guardarBtn.addEventListener("click", async () => {
-      const filas = tabla.querySelectorAll("tbody tr");
-      const datos = [];
-
-      filas.forEach(fila => {
-        const celdas = fila.querySelectorAll("td");
-        const materia = celdas[0].textContent.trim();
-        const cotidiana = celdas[1].textContent.trim() || null;
-        const integradora = celdas[2].textContent.trim() || null;
-        const examen = celdas[3].textContent.trim() || null;
-        const nota_final = celdas[4].textContent.trim() || null;
-        datos.push({ materia, cotidiana, integradora, examen, nota_final });
-      });
-
-      // Limpia la tabla antes de volver a insertar
-      await supabase.from("notas").delete().neq("materia", "");
-
-      const { error } = await supabase.from("notas").insert(datos);
-      if (error) {
-        alert("Error al guardar: " + error.message);
-      } else {
-        alert("Notas guardadas correctamente en la base de datos.");
-      }
-    });
-
-    // --- CARGAR DATOS DESDE SUPABASE ---
-    const cargarBtn = document.getElementById("cargar-btn");
-
-    cargarBtn.addEventListener("click", async () => {
-      const { data, error } = await supabase.from("notas").select("*");
-      if (error) {
-        alert("Error al cargar: " + error.message);
-        return;
-      }
-
-      const filas = tabla.querySelectorAll("tbody tr");
-      filas.forEach(fila => {
-        const celdas = fila.querySelectorAll("td");
-        const registro = data.find(d => d.materia === celdas[0].textContent.trim());
-        if (registro) {
-          celdas[1].textContent = registro.cotidiana || "";
-          celdas[2].textContent = registro.integradora || "";
-          celdas[3].textContent = registro.examen || "";
-          celdas[4].textContent = registro.nota_final || "";
-        }
-      });
-
-      alert("Notas cargadas correctamente desde la base de datos.");
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
-</html>
+</html> este codigo editlo para que se pueda guardar los datos en supabase 
