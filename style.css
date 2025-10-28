@@ -1,72 +1,46 @@
 body {
   font-family: "Poppins", sans-serif;
+  background: #f3f6fa;
   margin: 0;
   padding: 0;
-  background: #f3f6fa;
   color: #333;
 }
 
 header {
   background: linear-gradient(to right, #0033a0, #d52b1e);
   color: white;
-  padding: 15px 20px;
+  padding: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-#welcome {
-  background-color: white;
-  color: #0033a0;
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-weight: bold;
 }
 
 #logout {
   background: white;
   color: #d52b1e;
   border: none;
-  padding: 5px 10px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: bold;
 }
 
-section {
-  margin: 20px auto;
-  width: 95%;
-  max-width: 900px;
-  background: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-  overflow-x: auto;
-}
-
-table {
+#sistema table {
   width: 100%;
   border-collapse: collapse;
-  text-align: center;
+  margin: 15px 0;
 }
 
 th, td {
-  padding: 10px 5px;
+  padding: 8px;
   border: 1px solid #ccc;
+  text-align: center;
 }
 
 th {
   background: linear-gradient(to right, #0033a0, #d52b1e);
   color: white;
   font-size: 14px;
-}
-
-tbody tr:nth-child(even) {
-  background: #f9f9f9;
 }
 
 td.menor-siete {
@@ -77,35 +51,29 @@ td.menor-siete {
 .final-row {
   background-color: #eaf0fb;
   font-weight: bold;
-  font-size: 16px;
 }
 
 .card {
-  width: 90%;
   max-width: 350px;
-  margin: 50px auto;
+  margin: 60px auto;
   background: white;
-  padding: 25px;
-  border-radius: 15px;
+  padding: 20px;
+  border-radius: 12px;
   text-align: center;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-.card input {
-  display: block;
-  margin: 10px auto;
-  padding: 10px;
+.card input, .card button {
   width: 80%;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  margin: 8px auto;
+  padding: 10px;
+  border-radius: 6px;
 }
 
 .card button {
   background-color: #0033a0;
   color: white;
-  padding: 10px 20px;
   border: none;
-  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -113,24 +81,10 @@ td.menor-siete {
   background-color: #002070;
 }
 
-.year-line {
-  margin-top: 15px;
-  color: #0033a0;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
 /* Responsive */
 @media (max-width: 600px){
-  th, td {
-    font-size: 12px;
-    padding: 8px 3px;
-  }
-  header h1 {
-    font-size: 1.2rem;
-  }
+  th, td { font-size: 12px; padding: 6px; }
+  header { flex-direction: column; gap: 8px; }
 }
