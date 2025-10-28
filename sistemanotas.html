@@ -5,11 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema de Notas</title>
 
-<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = "https://TU-PROJECT-URL.supabase.co";  // Cambia esto
-  const SUPABASE_KEY = "TU-CLAVE-ANON-PUBLICA";               // Cambia esto
+  const SUPABASE_KEY = "TU-CLAVE-ANON-PUBLICA";                // Cambia esto
   const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 </script>
 
@@ -27,6 +26,8 @@ th,td { border:1px solid #ccc; padding:8px; text-align:center; }
 th { background:#1e90ff; color:white; }
 tfoot td { font-weight:bold; background:#eee; }
 .hidden { display:none; }
+/* Estilo para notas reprobadas (menor a 7.00) */
+.nota-roja { color: red; font-weight: bold; }
 footer { margin-top:20px; color:#555; }
 @media(max-width:600px){
   th,td { font-size:12px; padding:5px; }
@@ -36,7 +37,6 @@ footer { margin-top:20px; color:#555; }
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login" class="card">
   <h2>Sistema de Notas</h2>
   <input type="text" id="usuario" placeholder="Usuario">
@@ -45,14 +45,13 @@ footer { margin-top:20px; color:#555; }
   <p id="error-msg" style="color:red"></p>
 </div>
 
-<!-- SISTEMA DE NOTAS -->
 <div id="sistema" class="hidden">
   <header>
-    <h1>Sistema de Notas</h1>
+    <div style="width: 33%;"></div> <h1 style="margin: 0;">Sistema de Notas</h1>
     <button id="logout" class="cerrar-btn">Cerrar sesión</button>
   </header>
 
-  <p id="saludo" style="color:#b22222; font-weight:bold;"></p>
+  <p id="saludo" style="color:#b22222; font-weight:bold; margin: 10px 0;"></p>
 
   <section>
     <table id="tabla">
@@ -95,9 +94,13 @@ footer { margin-top:20px; color:#555; }
 </div>
 
 <script>
-// Usuarios fijos
-const usuarios = { "JFlores":"Notassv25", "20210012":"CCSA20" };
+// Usuarios y sus nombres completos
+const usuarios = { 
+    "JFlores": { pass: "Notassv25", nombre: "Jorge Flores" }, 
+    "20210012": { pass: "CCSA20", nombre: "Monse Benitez" } 
+};
 let usuarioActual = "";
+let nombreActual = ""; // Para guardar el nombre completo del usuario
 
 // LOGIN
 const loginDiv = document.getElementById("login");
@@ -106,100 +109,233 @@ const loginBtn = document.getElementById("login-btn");
 const logoutBtn = document.getElementById("logout");
 const errorMsg = document.getElementById("error-msg");
 const saludo = document.getElementById("saludo");
+const tabla = document.getElementById("tabla");
 
 loginBtn.addEventListener("click", async () => {
-  const user = document.getElementById("usuario").value;
-  const pass = document.getElementById("contrasena").value;
+    const user = document.getElementById("usuario").value;
+    const pass = document.getElementById("contrasena").value;
 
-  if(usuarios[user] && usuarios[user]===pass){
-    usuarioActual=user;
-    loginDiv.classList.add("hidden");
-    sistemaDiv.classList.remove("hidden");
-    saludo.textContent = `Hola, ${usuarioActual}`;
-    setTimeout(()=>{ saludo.textContent = ""; },10000);
+    if(usuarios[user] && usuarios[user].pass === pass){
+        usuarioActual = user;
+        nombreActual = usuarios[user].nombre; // Asignar el nombre completo
 
-    // Permisos
-    const filas = document.querySelectorAll("#tabla tbody tr td[contenteditable]");
-    if(usuarioActual==="JFlores"){
-      filas.forEach(td=>td.contentEditable=true);
-      document.getElementById("guardar-btn").style.display="inline-block";
+        loginDiv.classList.add("hidden");
+        sistemaDiv.classList.remove("hidden");
+        // Mostrar el nombre completo en el saludo
+        saludo.textContent = `Hola, ${nombreActual}`;
+        setTimeout(()=>{ saludo.textContent = ""; },10000);
+
+        // Permisos y configuración de la tabla
+        const filas = document.querySelectorAll("#tabla tbody tr td[contenteditable]");
+        const guardarBtn = document.getElementById("guardar-btn");
+
+        if(usuarioActual === "JFlores"){
+            filas.forEach(td => {
+                td.contentEditable = true;
+                td.addEventListener('input', calcularYGuardarAuto); // Evento para auto-cálculo y auto-guardado
+            });
+            guardarBtn.style.display = "inline-block";
+        } else {
+            filas.forEach(td => {
+                td.contentEditable = false;
+                td.removeEventListener('input', calcularYGuardarAuto); // Remover el evento si existe
+            });
+            guardarBtn.style.display = "none";
+        }
+
+        cargarDatos();
     } else {
-      filas.forEach(td=>td.contentEditable=false);
-      document.getElementById("guardar-btn").style.display="none";
+        errorMsg.textContent = "Usuario o contraseña incorrectos.";
     }
-
-    cargarDatos();
-  } else {
-    errorMsg.textContent="Usuario o contraseña incorrectos.";
-  }
 });
 
 // LOGOUT
 logoutBtn.addEventListener("click", ()=>{
-  loginDiv.classList.remove("hidden");
-  sistemaDiv.classList.add("hidden");
+    loginDiv.classList.remove("hidden");
+    sistemaDiv.classList.add("hidden");
+    // Limpiar campos de login
+    document.getElementById("usuario").value = "";
+    document.getElementById("contrasena").value = "";
 });
+
+// FUNCIÓN DE CÁLCULO DE NOTA FINAL Y PROMEDIO
+function calcularNota(fila) {
+    const celdas = fila.querySelectorAll("td");
+    
+    // Obtener valores como números y limitar a 2 decimales para el cálculo
+    let cot = parseFloat(celdas[1].textContent.replace(',', '.')) || 0;
+    let int = parseFloat(celdas[2].textContent.replace(',', '.')) || 0;
+    let exa = parseFloat(celdas[3].textContent.replace(',', '.')) || 0;
+
+    // Asegurar que solo se consideran hasta 2 decimales en el input para el cálculo
+    cot = parseFloat(cot.toFixed(2));
+    int = parseFloat(int.toFixed(2));
+    exa = parseFloat(exa.toFixed(2));
+
+    // Cálculo de Nota Final: 35% Cotidiana, 35% Integradora, 30% Examen
+    const notaFinal = (cot * 0.35 + int * 0.35 + exa * 0.3).toFixed(2);
+    const notaFinalCelda = celdas[4];
+    notaFinalCelda.textContent = notaFinal;
+
+    // Aplicar color rojo si la nota es menor a 7.00
+    if (parseFloat(notaFinal) < 7.00) {
+        notaFinalCelda.classList.add("nota-roja");
+    } else {
+        notaFinalCelda.classList.remove("nota-roja");
+    }
+    
+    return parseFloat(notaFinal);
+}
+
+function actualizarPromedio() {
+    const filas = document.querySelectorAll("#tabla tbody tr");
+    let sumaProm = 0;
+    let count = 0;
+
+    filas.forEach(fila => {
+        const notaFinalCelda = fila.querySelectorAll("td")[4];
+        const notaFinal = parseFloat(notaFinalCelda.textContent);
+        if (!isNaN(notaFinal)) {
+            sumaProm += notaFinal;
+            count++;
+        }
+    });
+
+    const promedioGeneral = (count > 0) ? (sumaProm / count).toFixed(2) : "";
+    document.getElementById("promedio").textContent = promedioGeneral;
+}
+
+// CÁLCULO Y GUARDADO AUTOMÁTICO (Solo para JFlores)
+async function calcularYGuardarAuto(event) {
+    // Limitar el input a 2 decimales
+    let valor = event.target.textContent.replace(',', '.');
+    if (valor.includes('.')) {
+        const parts = valor.split('.');
+        if (parts[1].length > 2) {
+            valor = parts[0] + '.' + parts[1].substring(0, 2);
+            event.target.textContent = valor;
+        }
+    }
+    
+    // Recalcular la nota final de la fila actual
+    const fila = event.target.closest('tr');
+    calcularNota(fila);
+    actualizarPromedio();
+    
+    // Guardar automáticamente
+    if(usuarioActual === "JFlores") {
+        await guardarDatos();
+    }
+}
+
+// Recalcular notas de todas las filas al cargar los datos.
+function recalcularTodasLasNotas(){
+    const filas = document.querySelectorAll("#tabla tbody tr");
+    filas.forEach(fila => calcularNota(fila));
+    actualizarPromedio();
+}
 
 // GUARDAR DATOS
 async function guardarDatos(){
-  const filas=document.querySelectorAll("#tabla tbody tr");
-  let datos=[];
-  let sumaProm=0;
-  let count=0;
+    const filas=document.querySelectorAll("#tabla tbody tr");
+    let datos=[];
 
-  filas.forEach(fila=>{
-    const celdas=fila.querySelectorAll("td");
-    const materia=celdas[0].textContent.trim();
-    const cot=parseFloat(celdas[1].textContent)||0;
-    const int=parseFloat(celdas[2].textContent)||0;
-    const exa=parseFloat(celdas[3].textContent)||0;
-    const notaFinal=(cot*0.35 + int*0.35 + exa*0.3).toFixed(2);
-    celdas[4].textContent=notaFinal;
-    sumaProm+=parseFloat(notaFinal);
-    count++;
+    filas.forEach(fila=>{
+        const celdas=fila.querySelectorAll("td");
+        const materia=celdas[0].textContent.trim();
+        // Usar los valores de las celdas incluyendo la nota final ya calculada
+        const cot=parseFloat(celdas[1].textContent.replace(',', '.'))||0;
+        const int=parseFloat(celdas[2].textContent.replace(',', '.'))||0;
+        const exa=parseFloat(celdas[3].textContent.replace(',', '.'))||0;
+        const notaFinal=celdas[4].textContent;
 
-    datos.push({ usuario:usuarioActual, materia, cotidiana:cot, integradora:int, examen:exa, nota_final:notaFinal });
-  });
+        datos.push({ 
+            usuario:usuarioActual, 
+            materia, 
+            cotidiana:parseFloat(cot.toFixed(2)), 
+            integradora:parseFloat(int.toFixed(2)), 
+            examen:parseFloat(exa.toFixed(2)), 
+            nota_final:parseFloat(notaFinal) 
+        });
+    });
 
-  const promedioGeneral=(sumaProm/count).toFixed(2);
-  document.getElementById("promedio").textContent=promedioGeneral;
-
-  // Guardar en Supabase
-  await supabase.from("notas").delete().eq("usuario",usuarioActual);
-  const { error }=await supabase.from("notas").insert(datos);
-  if(error) alert("Error al guardar: "+error.message);
-  else alert("Notas guardadas correctamente");
+    // Guardar en Supabase: Se mantiene el comportamiento original de delete e insert
+    // Ojo: Esto asume que la tabla 'notas' tiene una columna 'usuario'
+    await supabase.from("notas").delete().eq("usuario",usuarioActual);
+    const { error }=await supabase.from("notas").insert(datos);
+    
+    if(error && usuarioActual === "JFlores") {
+         console.error("Error al guardar automáticamente:", error.message);
+         // Opcional: alert("Error al guardar: "+error.message);
+    } else if (!error && usuarioActual !== "JFlores") {
+        alert("Notas guardadas correctamente"); // Solo muestra el alert si se presiona el botón
+    }
 }
 
 // CARGAR DATOS
 async function cargarDatos(){
-  const { data,error } = await supabase.from("notas").select("*").eq("usuario","JFlores");
-  if(error){ console.log(error); return; }
-  const filas=document.querySelectorAll("#tabla tbody tr");
-  let sumaProm=0;
-  let count=0;
+    // Solo cargamos los datos del usuario logueado
+    const { data,error } = await supabase.from("notas").select("*").eq("usuario",usuarioActual);
+    if(error){ console.error(error); return; }
+    
+    const filas=document.querySelectorAll("#tabla tbody tr");
+    
+    filas.forEach(fila => {
+        const materia = fila.querySelector("td").textContent.trim();
+        const registro = data.find(item => item.materia === materia);
+        
+        if(registro){
+            const celdas=fila.querySelectorAll("td");
+            // Mostrar los valores con 2 decimales si son números
+            celdas[1].textContent = parseFloat(registro.cotidiana).toFixed(2);
+            celdas[2].textContent = parseFloat(registro.integradora).toFixed(2);
+            celdas[3].textContent = parseFloat(registro.examen).toFixed(2);
+            // La nota final se recalcula con la función para aplicar el color
+            // celdas[4].textContent = parseFloat(registro.nota_final).toFixed(2);
+        } else {
+            // Limpiar si no hay datos
+            const celdas=fila.querySelectorAll("td");
+            celdas[1].textContent = "";
+            celdas[2].textContent = "";
+            celdas[3].textContent = "";
+            celdas[4].textContent = "";
+        }
+    });
 
-  filas.forEach((fila,i)=>{
-    const registro=data[i];
-    if(registro){
-      const celdas=fila.querySelectorAll("td");
-      celdas[1].textContent=registro.cotidiana;
-      celdas[2].textContent=registro.integradora;
-      celdas[3].textContent=registro.examen;
-      celdas[4].textContent=registro.nota_final;
-      sumaProm+=parseFloat(registro.nota_final);
-      count++;
-    }
-  });
-
-  const promedioGeneral=(count>0)?(sumaProm/count).toFixed(2):"";
-  document.getElementById("promedio").textContent=promedioGeneral;
+    // Recalcular y actualizar colores/promedio después de cargar los datos
+    recalcularTodasLasNotas();
 }
 
-// EVENTO BOTON GUARDAR
-document.getElementById("guardar-btn").addEventListener("click",guardarDatos);
+
+// EVENTO BOTON GUARDAR (Solo visible y funcional para usuarios NO 'JFlores')
+document.getElementById("guardar-btn").addEventListener("click", () => {
+    // Si no es JFlores, se calculan las notas al presionar Guardar
+    if(usuarioActual !== "JFlores"){
+        const filas = document.querySelectorAll("#tabla tbody tr");
+        filas.forEach(fila => calcularNota(fila));
+        actualizarPromedio();
+    }
+    // Guardar los datos en Supabase
+    guardarDatos();
+});
+
+// Configurar el evento de input en todas las celdas contenteditable para manejar decimales
+document.querySelectorAll("#tabla tbody tr td[contenteditable]").forEach(td => {
+    // Esto asegura que al pegar o ingresar texto, solo se permitan números y un punto/coma
+    td.addEventListener('blur', function() {
+        // Reemplazar coma por punto y validar el formato de número decimal
+        let valor = this.textContent.trim().replace(',', '.');
+        let num = parseFloat(valor);
+        
+        if (isNaN(num) || valor.length === 0) {
+            this.textContent = ""; // Limpiar si no es un número válido
+        } else {
+            // Limitar a dos decimales y actualizar la celda
+            this.textContent = num.toFixed(2);
+        }
+    });
+});
 </script>
 
 </body>
 </html>
-
