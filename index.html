@@ -5,9 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Notas</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    // 🔧 Configura tus credenciales de Supabase
+    const SUPABASE_URL = "https://TU-PROJECT-URL.supabase.co";  // <-- cámbialo
+    const SUPABASE_KEY = "TU-CLAVE-PUBLICA"; // <-- cámbialo
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  </script>
 </head>
 <body>
   <!-- LOGIN -->
@@ -61,10 +68,89 @@
           </tr>
         </tfoot>
       </table>
+
+      <button id="guardar-btn">Guardar notas</button>
+      <button id="cargar-btn">Cargar notas</button>
     </section>
     <footer>© 2025 Sistema de Notas</footer>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    // --- LOGIN BÁSICO LOCAL ---
+    const loginDiv = document.getElementById("login");
+    const sistemaDiv = document.getElementById("sistema");
+    const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout");
+
+    loginBtn.addEventListener("click", () => {
+      const user = document.getElementById("usuario").value;
+      const pass = document.getElementById("contrasena").value;
+
+      if (user === "admin" && pass === "1234") {
+        loginDiv.classList.add("hidden");
+        sistemaDiv.classList.remove("hidden");
+        document.getElementById("welcome").textContent = `Bienvenido, ${user}`;
+      } else {
+        document.getElementById("error-msg").textContent = "Usuario o contraseña incorrectos.";
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      loginDiv.classList.remove("hidden");
+      sistemaDiv.classList.add("hidden");
+    });
+
+    // --- GUARDAR DATOS EN SUPABASE ---
+    const guardarBtn = document.getElementById("guardar-btn");
+    const tabla = document.getElementById("tabla");
+
+    guardarBtn.addEventListener("click", async () => {
+      const filas = tabla.querySelectorAll("tbody tr");
+      const datos = [];
+
+      filas.forEach(fila => {
+        const celdas = fila.querySelectorAll("td");
+        const materia = celdas[0].textContent.trim();
+        const cot = celdas[1].textContent.trim() || null;
+        const int = celdas[2].textContent.trim() || null;
+        const exa = celdas[3].textContent.trim() || null;
+        const notaFinal = celdas[4].textContent.trim() || null;
+
+        datos.push({ materia, cotidiana: cot, integradora: int, examen: exa, nota_final: notaFinal });
+      });
+
+      const { data, error } = await supabase.from("notas").insert(datos);
+      if (error) {
+        alert("Error al guardar: " + error.message);
+      } else {
+        alert("Notas guardadas correctamente");
+      }
+    });
+
+    // --- CARGAR DATOS DESDE SUPABASE ---
+    const cargarBtn = document.getElementById("cargar-btn");
+
+    cargarBtn.addEventListener("click", async () => {
+      const { data, error } = await supabase.from("notas").select("*");
+      if (error) {
+        alert("Error al cargar: " + error.message);
+        return;
+      }
+
+      const filas = tabla.querySelectorAll("tbody tr");
+      filas.forEach((fila, i) => {
+        const celdas = fila.querySelectorAll("td");
+        const registro = data.find(d => d.materia === celdas[0].textContent.trim());
+        if (registro) {
+          celdas[1].textContent = registro.cotidiana || "";
+          celdas[2].textContent = registro.integradora || "";
+          celdas[3].textContent = registro.examen || "";
+          celdas[4].textContent = registro.nota_final || "";
+        }
+      });
+
+      alert("Notas cargadas correctamente");
+    });
+  </script>
 </body>
 </html>
