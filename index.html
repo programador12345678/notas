@@ -8,11 +8,10 @@
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <script>
     // 🔧 Configura tus credenciales de Supabase
-    const SUPABASE_URL = "https://TU-PROJECT-URL.supabase.co";  // <-- cámbialo
-    const SUPABASE_KEY = "TU-CLAVE-PUBLICA"; // <-- cámbialo
+    const SUPABASE_URL = "https://TU-PROJECT-URL.supabase.co";  // cámbialo
+    const SUPABASE_KEY = "TU-CLAVE-PUBLICA"; // cámbialo
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   </script>
 </head>
@@ -76,7 +75,7 @@
   </div>
 
   <script>
-    // --- LOGIN BÁSICO LOCAL ---
+    // --- LOGIN LOCAL ---
     const loginDiv = document.getElementById("login");
     const sistemaDiv = document.getElementById("sistema");
     const loginBtn = document.getElementById("login-btn");
@@ -111,19 +110,22 @@
       filas.forEach(fila => {
         const celdas = fila.querySelectorAll("td");
         const materia = celdas[0].textContent.trim();
-        const cot = celdas[1].textContent.trim() || null;
-        const int = celdas[2].textContent.trim() || null;
-        const exa = celdas[3].textContent.trim() || null;
-        const notaFinal = celdas[4].textContent.trim() || null;
-
-        datos.push({ materia, cotidiana: cot, integradora: int, examen: exa, nota_final: notaFinal });
+        const cotidiana = celdas[1].textContent.trim() || null;
+        const integradora = celdas[2].textContent.trim() || null;
+        const examen = celdas[3].textContent.trim() || null;
+        const nota_final = celdas[4].textContent.trim() || null;
+        datos.push({ materia, cotidiana, integradora, examen, nota_final });
       });
 
-      const { data, error } = await supabase.from("notas").insert(datos);
+      // 🔄 Limpia la tabla antes de volver a insertar (evita duplicados)
+      await supabase.from("notas").delete().neq("materia", "");
+
+      // 🔽 Inserta todos los datos
+      const { error } = await supabase.from("notas").insert(datos);
       if (error) {
         alert("Error al guardar: " + error.message);
       } else {
-        alert("Notas guardadas correctamente");
+        alert("Notas guardadas correctamente en la base de datos SQL.");
       }
     });
 
@@ -138,7 +140,7 @@
       }
 
       const filas = tabla.querySelectorAll("tbody tr");
-      filas.forEach((fila, i) => {
+      filas.forEach(fila => {
         const celdas = fila.querySelectorAll("td");
         const registro = data.find(d => d.materia === celdas[0].textContent.trim());
         if (registro) {
@@ -149,7 +151,7 @@
         }
       });
 
-      alert("Notas cargadas correctamente");
+      alert("Notas cargadas correctamente desde la base de datos.");
     });
   </script>
 </body>
