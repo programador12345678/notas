@@ -1,157 +1,205 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sistema de Notas — Versión CSS (linked)</title>
-  <link rel="stylesheet" href="SistemaNotas_v2.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Notas</title>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = "https://TU-PROJECT-URL.supabase.co";  // Cambia esto
+  const SUPABASE_KEY = "TU-CLAVE-ANON-PUBLICA";               // Cambia esto
+  const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
+
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:0; text-align:center; background:#f2f2f2; }
+header { background:#b22222; color:white; padding:10px; display:flex; justify-content:space-between; align-items:center; }
+.card { background:white; width:90%; max-width:400px; margin:80px auto; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2); }
+input { width:90%; padding:8px; margin:8px 0; }
+button { padding:8px 12px; margin:8px; border:none; border-radius:5px; cursor:pointer; }
+button:hover { opacity:0.8; }
+.guardar-btn { background:#b22222; color:white; }
+.cerrar-btn { background:#1e90ff; color:white; }
+table { margin:20px auto; border-collapse:collapse; width:95%; max-width:800px; background:white; }
+th,td { border:1px solid #ccc; padding:8px; text-align:center; }
+th { background:#1e90ff; color:white; }
+tfoot td { font-weight:bold; background:#eee; }
+.hidden { display:none; }
+footer { margin-top:20px; color:#555; }
+@media(max-width:600px){
+  th,td { font-size:12px; padding:5px; }
+  button { padding:6px 10px; }
+}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>Sistema de Notas — CSS Clean</h1>
-        <p class="lead small">Inicia sesión para administrar notas. Demo local — no para datos sensibles.</p>
-      </div>
-      <div class="small muted">Hecho rápido y sin drama</div>
-    </header>
 
-    <div class="grid">
-      <!-- LOGIN / INFO -->
-      <aside>
-        <div class="card login-box" id="loginCard">
-          <h3>Acceso</h3>
-          <p class="muted">Usuario por defecto: <strong>admin</strong> / Clave: <strong>1234</strong></p>
-          <label for="u">Usuario</label>
-          <input id="u" type="text" placeholder="usuario" />
-          <label for="p">Contraseña</label>
-          <input id="p" type="password" placeholder="contraseña" />
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn btn-primary" id="loginBtn">Entrar</button>
-            <button class="btn btn-danger" id="clearBtn">Borrar datos</button>
-          </div>
-          <p id="msg" class="small muted" style="margin-top:8px"></p>
-        </div>
+<!-- LOGIN -->
+<div id="login" class="card">
+  <h2>Sistema de Notas</h2>
+  <input type="text" id="usuario" placeholder="Usuario">
+  <input type="password" id="contrasena" placeholder="Contraseña">
+  <button id="login-btn">Entrar</button>
+  <p id="error-msg" style="color:red"></p>
+</div>
 
-        <div style="height:12px"></div>
-        <div class="card small muted">
-          <strong>Notas:</strong>
-          <ul style="margin-top:8px; margin-left:18px">
-            <li>Las notas se guardan en tu navegador (localStorage).</li>
-            <li>Nota mínima permitida: <strong>2</strong>.</li>
-            <li>Exporta/Importa CSV desde el panel cuando inicies sesión.</li>
-          </ul>
-        </div>
-      </aside>
+<!-- SISTEMA DE NOTAS -->
+<div id="sistema" class="hidden">
+  <header>
+    <h1>Sistema de Notas</h1>
+    <button id="logout" class="cerrar-btn">Cerrar sesión</button>
+  </header>
 
-      <!-- APP -->
-      <main>
-        <div class="card" id="appCard" style="display:none">
-          <div class="panel-head">
-            <div>
-              <h3 style="margin:0">Panel de Notas</h3>
-              <div class="small muted">Tabla horizontal — click en celdas para editar.</div>
-            </div>
-            <div class="controls">
-              <button class="btn" id="addCol">+ Alumno</button>
-              <button class="btn" id="addRow">+ Materia</button>
-              <label style="display:inline-flex;align-items:center;gap:8px;padding-left:6px"><input id="csvFile" type="file" accept="text/csv" style="display:none"/><span class="btn">Importar CSV</span></label>
-              <button class="btn" id="exportCSV">Exportar CSV</button>
-              <button class="btn" id="logout">Cerrar sesión</button>
-            </div>
-          </div>
+  <p id="saludo" style="color:#b22222; font-weight:bold;"></p>
 
-          <div class="table-wrap">
-            <table id="grades">
-              <thead id="thead"></thead>
-              <tbody id="tbody"></tbody>
-            </table>
-          </div>
+  <section>
+    <table id="tabla">
+      <thead>
+        <tr>
+          <th>Materia</th>
+          <th>Cotidiana</th>
+          <th>Integradora</th>
+          <th>Examen</th>
+          <th>Nota Final</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Lenguaje</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+        <tr><td>Matemáticas</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+        <tr><td>Estudios Sociales</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+        <tr><td>Inglés</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+        <tr><td>Informática</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+        <tr><td>Orientación Para La Vida</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+        <tr><td>Reading and Writing</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+        <tr><td>Educación Física</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+        <tr><td>Seminario</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+        <tr><td>Conversation</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+        <tr><td>Moral Urbanidad y Cívica</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+        <tr><td>Física Química</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+        <tr><td>Biología</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td></td></tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4">Promedio General</td>
+          <td id="promedio"></td>
+        </tr>
+      </tfoot>
+    </table>
 
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-            <div class="small muted">Validación: decimales permitidos. Mínimo 2.</div>
-            <div>
-              <button class="btn btn-primary" id="saveBtn">Guardar</button>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  </div>
+    <button id="guardar-btn" class="guardar-btn">Guardar resultados</button>
+  </section>
 
-  <script>
-    // Keys
-    const KEY = 'notas_v2_data';
-    const CRED = 'notas_v2_cred';
+  <footer>© 2025 Sistema de Notas</footer>
+</div>
 
-    // Estado por defecto
-    let state = { students: ['Raúl','Aurora'], rows: [{name:'Parcial 1', grades:[8.5,9.0]},{name:'Parcial 2', grades:[7.5,8.0]}] };
+<script>
+// Usuarios fijos
+const usuarios = { "JFlores":"Notassv25", "20210012":"CCSA20" };
+let usuarioActual = "";
 
-    // Elementos
-    const loginCard = document.getElementById('loginCard');
-    const appCard = document.getElementById('appCard');
-    const msg = document.getElementById('msg');
+// LOGIN
+const loginDiv = document.getElementById("login");
+const sistemaDiv = document.getElementById("sistema");
+const loginBtn = document.getElementById("login-btn");
+const logoutBtn = document.getElementById("logout");
+const errorMsg = document.getElementById("error-msg");
+const saludo = document.getElementById("saludo");
 
-    // Helpers
-    function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
-    function load(){ const x=localStorage.getItem(KEY); if(x) try{state=JSON.parse(x)}catch(e){} }
-    function loadCred(){ const x=localStorage.getItem(CRED); if(x) return JSON.parse(x); const d={user:'admin',pass:'1234'}; localStorage.setItem(CRED,JSON.stringify(d)); return d }
+loginBtn.addEventListener("click", async () => {
+  const user = document.getElementById("usuario").value;
+  const pass = document.getElementById("contrasena").value;
 
-    // Render tabla
-    function render(){
-      const thead = document.getElementById('thead'); const tbody = document.getElementById('tbody');
-      thead.innerHTML=''; tbody.innerHTML='';
-      const tr = document.createElement('tr'); tr.innerHTML = `<th>Materia / Actividad</th>` + state.students.map(s=>`<th>${escape(s)}</th>`).join(''); thead.appendChild(tr);
-      state.rows.forEach((r,ri)=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td contenteditable="true" data-row="${ri}" data-col="-1">${escape(r.name)}</td>` + r.grades.map((g,ci)=>`<td contenteditable="true" data-row="${ri}" data-col="${ci}">${g}</td>`).join('');
-        tbody.appendChild(tr);
-      });
-      // listeners
-      document.querySelectorAll('[contenteditable=true]').forEach(cell=>cell.addEventListener('blur',onBlur));
+  if(usuarios[user] && usuarios[user]===pass){
+    usuarioActual=user;
+    loginDiv.classList.add("hidden");
+    sistemaDiv.classList.remove("hidden");
+    saludo.textContent = `Hola, ${usuarioActual}`;
+    setTimeout(()=>{ saludo.textContent = ""; },10000);
+
+    // Permisos
+    const filas = document.querySelectorAll("#tabla tbody tr td[contenteditable]");
+    if(usuarioActual==="JFlores"){
+      filas.forEach(td=>td.contentEditable=true);
+      document.getElementById("guardar-btn").style.display="inline-block";
+    } else {
+      filas.forEach(td=>td.contentEditable=false);
+      document.getElementById("guardar-btn").style.display="none";
     }
 
-    function onBlur(e){
-      const el=e.target; const r=parseInt(el.dataset.row,10); const c=parseInt(el.dataset.col,10); const val=el.textContent.trim();
-      if(c===-1){ state.rows[r].name = val||'Sin nombre'; save(); return; }
-      if(val===''){ state.rows[r].grades[c]=''; save(); return; }
-      const num = Number(val.replace(',','.'));
-      if(isNaN(num)){ alert('Valor no numérico'); return; }
-      if(num < 2){ alert('La nota debe ser al menos 2'); return; }
-      state.rows[r].grades[c] = Math.round(num*100)/100; save(); render();
+    cargarDatos();
+  } else {
+    errorMsg.textContent="Usuario o contraseña incorrectos.";
+  }
+});
+
+// LOGOUT
+logoutBtn.addEventListener("click", ()=>{
+  loginDiv.classList.remove("hidden");
+  sistemaDiv.classList.add("hidden");
+});
+
+// GUARDAR DATOS
+async function guardarDatos(){
+  const filas=document.querySelectorAll("#tabla tbody tr");
+  let datos=[];
+  let sumaProm=0;
+  let count=0;
+
+  filas.forEach(fila=>{
+    const celdas=fila.querySelectorAll("td");
+    const materia=celdas[0].textContent.trim();
+    const cot=parseFloat(celdas[1].textContent)||0;
+    const int=parseFloat(celdas[2].textContent)||0;
+    const exa=parseFloat(celdas[3].textContent)||0;
+    const notaFinal=(cot*0.35 + int*0.35 + exa*0.3).toFixed(2);
+    celdas[4].textContent=notaFinal;
+    sumaProm+=parseFloat(notaFinal);
+    count++;
+
+    datos.push({ usuario:usuarioActual, materia, cotidiana:cot, integradora:int, examen:exa, nota_final:notaFinal });
+  });
+
+  const promedioGeneral=(sumaProm/count).toFixed(2);
+  document.getElementById("promedio").textContent=promedioGeneral;
+
+  // Guardar en Supabase
+  await supabase.from("notas").delete().eq("usuario",usuarioActual);
+  const { error }=await supabase.from("notas").insert(datos);
+  if(error) alert("Error al guardar: "+error.message);
+  else alert("Notas guardadas correctamente");
+}
+
+// CARGAR DATOS
+async function cargarDatos(){
+  const { data,error } = await supabase.from("notas").select("*").eq("usuario","JFlores");
+  if(error){ console.log(error); return; }
+  const filas=document.querySelectorAll("#tabla tbody tr");
+  let sumaProm=0;
+  let count=0;
+
+  filas.forEach((fila,i)=>{
+    const registro=data[i];
+    if(registro){
+      const celdas=fila.querySelectorAll("td");
+      celdas[1].textContent=registro.cotidiana;
+      celdas[2].textContent=registro.integradora;
+      celdas[3].textContent=registro.examen;
+      celdas[4].textContent=registro.nota_final;
+      sumaProm+=parseFloat(registro.nota_final);
+      count++;
     }
+  });
 
-    // Eventos login
-    document.getElementById('loginBtn').addEventListener('click',()=>{
-      const u=document.getElementById('u').value.trim(); const p=document.getElementById('p').value;
-      const cred = loadCred();
-      if(u===cred.user && p===cred.pass){ msg.textContent='Acceso correcto.'; showApp(); } else { msg.textContent='Usuario/clave incorrectos'; }
-    });
+  const promedioGeneral=(count>0)?(sumaProm/count).toFixed(2):"";
+  document.getElementById("promedio").textContent=promedioGeneral;
+}
 
-    document.getElementById('clearBtn').addEventListener('click',()=>{ if(confirm('Borrar datos guardados?')){ localStorage.removeItem(KEY); localStorage.removeItem(CRED); location.reload(); } });
+// EVENTO BOTON GUARDAR
+document.getElementById("guardar-btn").addEventListener("click",guardarDatos);
+</script>
 
-    function showApp(){ loginCard.style.display='none'; appCard.style.display='block'; load(); render(); }
-
-    document.getElementById('logout').addEventListener('click',()=>{ location.reload(); });
-
-    // Add alumno / materia
-    document.getElementById('addCol').addEventListener('click',()=>{ const name = prompt('Nombre del alumno:','Nuevo'); if(!name) return; state.students.push(name); state.rows.forEach(r=>r.grades.push('')); save(); render(); });
-    document.getElementById('addRow').addEventListener('click',()=>{ const name = prompt('Nombre materia/actividad:','Actividad'); if(!name) return; state.rows.push({name,grades:state.students.map(()=>'' )}); save(); render(); });
-
-    // CSV import/export
-    document.querySelector('label span').addEventListener('click',()=>document.getElementById('csvFile').click());
-    document.getElementById('csvFile').addEventListener('change',async (ev)=>{ const f=ev.target.files[0]; if(!f) return; const txt=await f.text(); parseCSV(txt); ev.target.value=''; });
-
-    function parseCSV(text){ const lines=text.split(/\r?\n/).filter(Boolean); if(lines.length<2){ alert('CSV inválido'); return; } const hdr=lines[0].split(',').map(s=>s.trim()); const students=hdr.slice(1); const rows=lines.slice(1).map(l=>{ const parts=l.split(',').map(p=>p.trim()); return {name:parts[0]||'Sin nombre', grades: students.map((_,i)=>{ const v=parts[i+1]; if(!v) return ''; const n=Number(v.replace(',','.')); return isNaN(n)?v:n; }) }; }); state.students = students.length?students:state.students; state.rows = rows.length?rows:state.rows; save(); render(); alert('CSV importado'); }
-
-    document.getElementById('exportCSV').addEventListener('click',()=>{ const h=['Materia'].concat(state.students).join(',')+'\n'; const b = state.rows.map(r=> [r.name].concat(r.grades.map(g=>g===undefined?'':g)).join(',')).join('\n'); const csv=h+b; const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='notas_export.csv'; a.click(); URL.revokeObjectURL(url); });
-
-    document.getElementById('saveBtn').addEventListener('click',()=>{ // validación final
-      for(const r of state.rows){ for(const g of r.grades){ if(g===''||g===null) continue; const n=Number(g); if(isNaN(n)||n<2){ alert('Hay notas inválidas (vacías o <2). Revisa.'); return; } } } save(); alert('Guardado.'); });
-
-    function escape(str){ return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-    // iniciar en modo login
-  </script>
 </body>
 </html>
+
