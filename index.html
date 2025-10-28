@@ -10,11 +10,75 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // 🔧 Configura tus credenciales de Supabase
-    const SUPABASE_URL = "https://TU-PROJECT-URL.supabase.co";  // cámbialo
-    const SUPABASE_KEY = "TU-CLAVE-PUBLICA"; // cámbialo
+    const SUPABASE_URL = "https://TU-PROJECT-URL.supabase.co";  // cambia esto
+    const SUPABASE_KEY = "TU-CLAVE-ANON-PUBLICA";                // cambia esto
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   </script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    header {
+      background: #34495e;
+      color: white;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card {
+      background: white;
+      width: 320px;
+      margin: 100px auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    input {
+      width: 90%;
+      margin: 8px 0;
+      padding: 8px;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      margin-top: 10px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 90%;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background: #2ecc71;
+      color: white;
+    }
+    .hidden { display: none; }
+    footer {
+      margin-top: 30px;
+      color: #888;
+    }
+  </style>
 </head>
+
 <body>
   <!-- LOGIN -->
   <div id="login" class="card">
@@ -22,7 +86,7 @@
     <input type="text" id="usuario" placeholder="Usuario">
     <input type="password" id="contrasena" placeholder="Contraseña">
     <button id="login-btn">Entrar</button>
-    <p id="error-msg"></p>
+    <p id="error-msg" style="color:red"></p>
     <p class="year-line">© 2025 Sistema de Notas</p>
   </div>
 
@@ -46,19 +110,19 @@
           </tr>
         </thead>
         <tbody>
-          <tr><td>Lenguaje</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Matemáticas</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Inglés</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Informática</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Orientación Para La Vida</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Reading and Writing</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Educación Física</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Seminario</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Conversation</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Física Química</td><td></td><td></td><td></td><td></td></tr>
-          <tr><td>Biología</td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Lenguaje</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Matemáticas</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Estudios Sociales</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Inglés</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Informática</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Orientación Para La Vida</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Reading and Writing</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Educación Física</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Seminario</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Conversation</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Moral Urbanidad y Cívica</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Física Química</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
+          <tr><td>Biología</td><td contenteditable></td><td contenteditable></td><td contenteditable></td><td contenteditable></td></tr>
         </tbody>
         <tfoot>
           <tr class="final-row">
@@ -71,6 +135,7 @@
       <button id="guardar-btn">Guardar notas</button>
       <button id="cargar-btn">Cargar notas</button>
     </section>
+
     <footer>© 2025 Sistema de Notas</footer>
   </div>
 
@@ -117,15 +182,14 @@
         datos.push({ materia, cotidiana, integradora, examen, nota_final });
       });
 
-      // 🔄 Limpia la tabla antes de volver a insertar (evita duplicados)
+      // Limpia la tabla antes de volver a insertar
       await supabase.from("notas").delete().neq("materia", "");
 
-      // 🔽 Inserta todos los datos
       const { error } = await supabase.from("notas").insert(datos);
       if (error) {
         alert("Error al guardar: " + error.message);
       } else {
-        alert("Notas guardadas correctamente en la base de datos SQL.");
+        alert("Notas guardadas correctamente en la base de datos.");
       }
     });
 
