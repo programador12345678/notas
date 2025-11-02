@@ -26,7 +26,7 @@ let currentUser = "";
 let inactivityTimer;
 function resetInactivity() {
   clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(()=>logout.click(), 5*60*1000); // 5 minutos
+  inactivityTimer = setTimeout(()=>logout.click(), 5*60*1000); // 5 min
 }
 
 // Mostrar bienvenida 10s
@@ -35,7 +35,7 @@ function showWelcome(msg){
   setTimeout(()=>welcome.textContent="", 10000);
 }
 
-// Actualizar nota final
+// Actualizar notas finales
 function actualizarTabla() {
   let total=0, count=0;
   materias.forEach(f=>{
@@ -43,16 +43,14 @@ function actualizarTabla() {
     const coti=parseFloat(c[1].textContent)||0;
     const inte=parseFloat(c[2].textContent)||0;
     const exam=parseFloat(c[3].textContent)||0;
-    if(coti||inte||exam){
-      const final=(coti*0.35+inte*0.35+exam*0.3).toFixed(2);
-      c[4].textContent=final;
-      c[4].classList.toggle("menor-siete", final<7);
-      total+=parseFloat(final);
-    } else c[4].textContent="";
+    const final=(coti*0.35+inte*0.35+exam*0.3).toFixed(2);
+    c[4].textContent=final;
+    c[4].classList.toggle("menor-siete", final<7);
+    total+=parseFloat(final);
     count++;
   });
-  const prom=total/count;
-  document.getElementById("promedio").textContent=prom.toFixed(2);
+  const prom=(total/count).toFixed(2);
+  document.getElementById("promedio").textContent=prom;
   document.getElementById("promedio").classList.toggle("menor-siete", prom<7);
 }
 
@@ -63,15 +61,15 @@ function guardarNotas(){
   materias.forEach(f=>{
     const mat=f.cells[0].textContent;
     notas[mat]={
-      Cotidiana: f.cells[1].textContent || "",
-      Integradora: f.cells[2].textContent || "",
-      Examen: f.cells[3].textContent || ""
+      Cotidiana: f.cells[1].textContent || "0",
+      Integradora: f.cells[2].textContent || "0",
+      Examen: f.cells[3].textContent || "0"
     };
   });
   db.ref(`notas/${currentUser}`).set(notas);
 }
 
-// Cargar notas y escuchar cambios en tiempo real
+// Cargar notas en tiempo real
 function cargarNotas(){
   if(!currentUser) return;
   db.ref(`notas/${currentUser}`).on('value', snapshot=>{
@@ -80,24 +78,21 @@ function cargarNotas(){
     materias.forEach(f=>{
       const mat=f.cells[0].textContent;
       if(data[mat]){
-        f.cells[1].textContent=data[mat].Cotidiana||"";
-        f.cells[2].textContent=data[mat].Integradora||"";
-        f.cells[3].textContent=data[mat].Examen||"";
+        f.cells[1].textContent=data[mat].Cotidiana||"0";
+        f.cells[2].textContent=data[mat].Integradora||"0";
+        f.cells[3].textContent=data[mat].Examen||"0";
       }
     });
     actualizarTabla();
   });
 }
 
-// Hacer celdas editables y sincronizar
+// Hacer celdas editables
 materias.forEach(f=>{
   Array.from(f.cells).forEach((td,i)=>{
     if(i>0){
       td.contentEditable=true;
       td.addEventListener("input", ()=>{
-        const val=parseFloat(td.textContent);
-        if(val<2) td.textContent="2";
-        if(val>10.1) td.textContent="10.1";
         actualizarTabla();
         guardarNotas();
         resetInactivity();
@@ -105,6 +100,23 @@ materias.forEach(f=>{
     }
   });
 });
+
+// Mostrar reloj
+const relojDiv=document.getElementById("reloj");
+function mostrarReloj(){
+  const now=new Date();
+  const hora=now.toLocaleTimeString();
+  relojDiv.textContent=hora;
+}
+let relojInterval;
+function iniciarReloj(){
+  mostrarReloj();
+  relojInterval=setInterval(mostrarReloj,1000);
+  setTimeout(()=>{
+    clearInterval(relojInterval);
+    relojDiv.textContent="";
+  },60000); // 1 min
+}
 
 // Login
 document.getElementById("login-btn").addEventListener("click", ()=>{
@@ -116,6 +128,7 @@ document.getElementById("login-btn").addEventListener("click", ()=>{
     sistemaDiv.style.display="block";
     showWelcome(user==="JFlores"? "Bienvenido Jorge Flores":"Bienvenida Montserrath");
     cargarNotas();
+    iniciarReloj();
     resetInactivity();
   } else errorMsg.textContent="Usuario o contraseña incorrectos.";
 });
@@ -129,9 +142,11 @@ logout.addEventListener("click", ()=>{
   errorMsg.textContent="";
   welcome.textContent="";
   clearTimeout(inactivityTimer);
+  clearInterval(relojInterval);
+  relojDiv.textContent="";
 });
 
-// Reiniciar inactividad al mover mouse o tocar pantalla
+// Reiniciar inactividad al mover mouse, teclado o touch
 document.addEventListener("mousemove", resetInactivity);
 document.addEventListener("keydown", resetInactivity);
 document.addEventListener("touchstart", resetInactivity);
