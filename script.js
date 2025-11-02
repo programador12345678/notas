@@ -26,12 +26,10 @@ let currentUser = "";
 let inactivityTimer;
 let relojInterval;
 
-// --- Manejo de inactividad ---
-function resetInactivity() {
+// --- Reset de inactividad ---
+function resetInactividad() {
   clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(() => {
-    cerrarSesion();
-  }, 5 * 60 * 1000); // 5 minutos
+  inactivityTimer = setTimeout(() => cerrarSesion(), 5 * 60 * 1000);
 }
 
 // --- Mostrar bienvenida 10s ---
@@ -40,7 +38,7 @@ function showWelcome(msg) {
   setTimeout(() => welcome.textContent = "", 10000);
 }
 
-// --- Actualizar tabla de notas ---
+// --- Actualizar tabla ---
 function actualizarTabla() {
   let total = 0, count = 0;
   materias.forEach(f => {
@@ -48,27 +46,35 @@ function actualizarTabla() {
     const coti = parseFloat(c[1].textContent) || 0;
     const inte = parseFloat(c[2].textContent) || 0;
     const exam = parseFloat(c[3].textContent) || 0;
-    const final = (coti * 0.35 + inte * 0.35 + exam * 0.3).toFixed(2);
-    c[4].textContent = final;
-    c[4].classList.toggle("menor-siete", final < 7);
-    total += parseFloat(final);
+    
+    // Si todas están vacías, nota final = 0.00
+    if (!c[1].textContent && !c[2].textContent && !c[3].textContent) {
+      c[4].textContent = "0.00";
+    } else {
+      const final = (coti * 0.35 + inte * 0.35 + exam * 0.3).toFixed(2);
+      c[4].textContent = final;
+    }
+
+    c[4].classList.toggle("menor-siete", parseFloat(c[4].textContent) < 7);
+    total += parseFloat(c[4].textContent);
     count++;
   });
+
   const prom = (total / count).toFixed(2);
   document.getElementById("promedio").textContent = prom;
   document.getElementById("promedio").classList.toggle("menor-siete", prom < 7);
 }
 
-// --- Guardar notas automáticamente ---
+// --- Guardar en Firebase automáticamente ---
 function guardarNotas() {
   if (!currentUser) return;
   const notas = {};
   materias.forEach(f => {
     const mat = f.cells[0].textContent;
     notas[mat] = {
-      Cotidiana: f.cells[1].textContent || "0",
-      Integradora: f.cells[2].textContent || "0",
-      Examen: f.cells[3].textContent || "0"
+      Cotidiana: f.cells[1].textContent || "",
+      Integradora: f.cells[2].textContent || "",
+      Examen: f.cells[3].textContent || ""
     };
   });
   db.ref(`notas/${currentUser}`).set(notas);
@@ -77,39 +83,60 @@ function guardarNotas() {
 // --- Cargar notas en tiempo real ---
 function cargarNotas() {
   if (!currentUser) return;
+
   db.ref(`notas/${currentUser}`).on('value', snapshot => {
     const data = snapshot.val();
     if (!data) return;
     materias.forEach(f => {
       const mat = f.cells[0].textContent;
       if (data[mat]) {
-        f.cells[1].textContent = data[mat].Cotidiana || "0";
-        f.cells[2].textContent = data[mat].Integradora || "0";
-        f.cells[3].textContent = data[mat].Examen || "0";
+        f.cells[1].textContent = data[mat].Cotidiana || "";
+        f.cells[2].textContent = data[mat].Integradora || "";
+        f.cells[3].textContent = data[mat].Examen || "";
       }
     });
     actualizarTabla();
   });
+
+  // Para usuario 20210012: también escuchar notas de JFlores
+  if (currentUser === "20210012") {
+    db.ref(`notas/JFlores`).on('value', snapshot => {
+      const data = snapshot.val();
+      if (!data) return;
+      materias.forEach(f => {
+        const mat = f.cells[0].textContent;
+        if (data[mat]) {
+          f.cells[1].textContent = data[mat].Cotidiana || "";
+          f.cells[2].textContent = data[mat].Integradora || "";
+          f.cells[3].textContent = data[mat].Examen || "";
+        }
+      });
+      actualizarTabla();
+    });
+  }
 }
 
-// --- Hacer celdas editables ---
-materias.forEach(f => {
-  Array.from(f.cells).forEach((td, i) => {
-    if (i > 0) {
-      td.contentEditable = true;
-      td.addEventListener("input", () => {
-        actualizarTabla();
-        guardarNotas();
-        resetInactivity();
-      });
-    }
+// --- Hacer celdas editables solo para JFlores ---
+function habilitarEdicion(estado) {
+  materias.forEach(f => {
+    Array.from(f.cells).forEach((td, i) => {
+      if (i > 0) {
+        td.contentEditable = estado;
+        if (estado) {
+          td.addEventListener("input", () => {
+            actualizarTabla();
+            guardarNotas();
+            resetInactividad();
+          });
+        }
+      }
+    });
   });
-});
+}
 
 // --- Mostrar reloj ---
 function mostrarReloj() {
-  const now = new Date();
-  relojDiv.textContent = now.toLocaleTimeString();
+  relojDiv.textContent = new Date().toLocaleTimeString();
 }
 function iniciarReloj() {
   mostrarReloj();
@@ -117,7 +144,7 @@ function iniciarReloj() {
   setTimeout(() => {
     clearInterval(relojInterval);
     relojDiv.textContent = "";
-  }, 60000); // desaparece después de 1 minuto
+  }, 60000);
 }
 
 // --- Cerrar sesión ---
@@ -141,13 +168,14 @@ document.getElementById("login-btn").addEventListener("click", () => {
   const pass = contrasena.value.trim();
   if ((user === "JFlores" && pass === "Notas2025.") || (user === "20210012" && pass === "Mined2025.")) {
     currentUser = user;
+    localStorage.setItem("currentUser", currentUser); // mantener sesión
     loginDiv.style.display = "none";
     sistemaDiv.style.display = "block";
-    showWelcome(user === "JFlores" ? "Bienvenido Jorge Flores" : "Bienvenida Montserrath");
+    showWelcome(currentUser === "JFlores" ? "Bienvenido Jorge Flores" : "Bienvenida Montserrath");
+    habilitarEdicion(currentUser === "JFlores");
     cargarNotas();
     iniciarReloj();
     resetInactividad();
-    localStorage.setItem("currentUser", currentUser); // mantener sesión
   } else {
     errorMsg.textContent = "Usuario o contraseña incorrectos.";
     errorMsg.style.color = "red";
@@ -162,6 +190,7 @@ window.addEventListener("load", () => {
     loginDiv.style.display = "none";
     sistemaDiv.style.display = "block";
     showWelcome(currentUser === "JFlores" ? "Bienvenido Jorge Flores" : "Bienvenida Montserrath");
+    habilitarEdicion(currentUser === "JFlores");
     cargarNotas();
     iniciarReloj();
     resetInactividad();
