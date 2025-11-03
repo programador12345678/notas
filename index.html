@@ -5,29 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Notas</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
   <!-- LOGIN -->
-  <div id="login" class="card">
-    <h2>Sistema de Notas</h2>
-    <input type="text" id="usuario" placeholder="Usuario">
-    <input type="password" id="contrasena" placeholder="Contraseña">
-    <button id="login-btn">Entrar</button>
+  <div id="login" class="login-container">
+    <h2 class="title">Sistema de Notas</h2>
+    <div class="input-group">
+      <input type="text" id="usuario" placeholder="Usuario">
+    </div>
+    <div class="input-group">
+      <input type="password" id="contrasena" placeholder="Contraseña">
+    </div>
+    <button id="login-btn">ENTRAR</button>
     <p id="error-msg"></p>
-    <p class="year-line">© 2025 Sistema de Notas</p>
+    <p class="footer">© 2025 Sistema de Notas</p>
   </div>
 
-  <!-- SISTEMA DE NOTAS -->
+  <!-- SISTEMA -->
   <div id="sistema" class="hidden">
     <header>
       <h1>Sistema de Notas</h1>
       <span id="welcome"></span>
       <button id="logout">Cerrar sesión</button>
     </header>
-
     <section>
       <table id="tabla">
         <thead>
@@ -45,27 +47,18 @@
           <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td>0.00</td></tr>
           <tr><td>Inglés</td><td></td><td></td><td></td><td>0.00</td></tr>
           <tr><td>Informática</td><td></td><td></td><td></td><td>0.00</td></tr>
-          <tr><td>Orientación Para La Vida</td><td></td><td></td><td></td><td>0.00</td></tr>
-          <tr><td>Reading and Writing</td><td></td><td></td><td></td><td>0.00</td></tr>
-          <tr><td>Educación Física</td><td></td><td></td><td></td><td>0.00</td></tr>
-          <tr><td>Seminario</td><td></td><td></td><td></td><td>0.00</td></tr>
-          <tr><td>Conversation</td><td></td><td></td><td></td><td>0.00</td></tr>
-          <tr><td>Moral Urbanidad y Cívica</td><td></td><td></td><td></td><td>0.00</td></tr>
-          <tr><td>Física Química</td><td></td><td></td><td></td><td>0.00</td></tr>
-          <tr><td>Biología</td><td></td><td></td><td></td><td>0.00</td></tr>
         </tbody>
         <tfoot>
-          <tr class="final-row">
+          <tr>
             <td colspan="4">Promedio General</td>
             <td id="promedio">0.00</td>
           </tr>
         </tfoot>
       </table>
-      <div id="reloj" style="text-align:center; font-weight:bold; font-size:16px; margin-bottom:10px;"></div>
     </section>
-    <footer style="text-align:center;">© 2025 Sistema de Notas</footer>
   </div>
 
   <script src="script.js"></script>
 </body>
 </html>
+
