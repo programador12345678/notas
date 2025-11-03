@@ -1,71 +1,8 @@
-// Configuración Firebase
-const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "TU_MENSAJE_ID",
-  appId: "TU_APP_ID"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+// script.js
+import { db } from './firebase.js';
+import { ref, set, onValue } from "firebase/database";
 
-const loginDiv = document.getElementById("login");
-const sistemaDiv = document.getElementById("sistema");
-const usuario = document.getElementById("usuario");
-const contrasena = document.getElementById("contrasena");
-const errorMsg = document.getElementById("error-msg");
-const welcome = document.getElementById("welcome");
-const logout = document.getElementById("logout");
-const tabla = document.getElementById("tabla");
-const materias = Array.from(tabla.querySelectorAll("tbody tr"));
-const relojDiv = document.getElementById("reloj");
-
-let currentUser = "";
-let inactivityTimer;
-let relojInterval;
-
-// --- Reset de inactividad ---
-function resetInactividad() {
-  clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(() => cerrarSesion(), 5 * 60 * 1000);
-}
-
-// --- Mostrar bienvenida 10s ---
-function showWelcome(msg) {
-  welcome.textContent = msg;
-  setTimeout(() => welcome.textContent = "", 10000);
-}
-
-// --- Actualizar tabla ---
-function actualizarTabla() {
-  let total = 0, count = 0;
-  materias.forEach(f => {
-    const c = f.querySelectorAll("td");
-    const coti = parseFloat(c[1].textContent) || 0;
-    const inte = parseFloat(c[2].textContent) || 0;
-    const exam = parseFloat(c[3].textContent) || 0;
-    
-    // Si todas están vacías, nota final = 0.00
-    if (!c[1].textContent && !c[2].textContent && !c[3].textContent) {
-      c[4].textContent = "0.00";
-    } else {
-      const final = (coti * 0.35 + inte * 0.35 + exam * 0.3).toFixed(2);
-      c[4].textContent = final;
-    }
-
-    c[4].classList.toggle("menor-siete", parseFloat(c[4].textContent) < 7);
-    total += parseFloat(c[4].textContent);
-    count++;
-  });
-
-  const prom = (total / count).toFixed(2);
-  document.getElementById("promedio").textContent = prom;
-  document.getElementById("promedio").classList.toggle("menor-siete", prom < 7);
-}
-
-// --- Guardar en Firebase automáticamente ---
+// --- Guardar notas ---
 function guardarNotas() {
   if (!currentUser) return;
   const notas = {};
@@ -77,14 +14,15 @@ function guardarNotas() {
       Examen: f.cells[3].textContent || ""
     };
   });
-  db.ref(`notas/${currentUser}`).set(notas);
+  set(ref(db, `notas/${currentUser}`), notas);
 }
 
 // --- Cargar notas en tiempo real ---
 function cargarNotas() {
   if (!currentUser) return;
 
-  db.ref(`notas/${currentUser}`).on('value', snapshot => {
+  const notasRef = ref(db, `notas/${currentUser}`);
+  onValue(notasRef, snapshot => {
     const data = snapshot.val();
     if (!data) return;
     materias.forEach(f => {
@@ -98,9 +36,10 @@ function cargarNotas() {
     actualizarTabla();
   });
 
-  // Para usuario 20210012: también escuchar notas de JFlores
+  // Para el usuario 20210012, también mostrar notas de JFlores
   if (currentUser === "20210012") {
-    db.ref(`notas/JFlores`).on('value', snapshot => {
+    const jfloresRef = ref(db, `notas/JFlores`);
+    onValue(jfloresRef, snapshot => {
       const data = snapshot.val();
       if (!data) return;
       materias.forEach(f => {
@@ -115,89 +54,3 @@ function cargarNotas() {
     });
   }
 }
-
-// --- Hacer celdas editables solo para JFlores ---
-function habilitarEdicion(estado) {
-  materias.forEach(f => {
-    Array.from(f.cells).forEach((td, i) => {
-      if (i > 0) {
-        td.contentEditable = estado;
-        if (estado) {
-          td.addEventListener("input", () => {
-            actualizarTabla();
-            guardarNotas();
-            resetInactividad();
-          });
-        }
-      }
-    });
-  });
-}
-
-// --- Mostrar reloj ---
-function mostrarReloj() {
-  relojDiv.textContent = new Date().toLocaleTimeString();
-}
-function iniciarReloj() {
-  mostrarReloj();
-  relojInterval = setInterval(mostrarReloj, 1000);
-  setTimeout(() => {
-    clearInterval(relojInterval);
-    relojDiv.textContent = "";
-  }, 60000);
-}
-
-// --- Cerrar sesión ---
-function cerrarSesion() {
-  sistemaDiv.style.display = "none";
-  loginDiv.style.display = "block";
-  usuario.value = "";
-  contrasena.value = "";
-  errorMsg.textContent = "";
-  welcome.textContent = "";
-  clearTimeout(inactivityTimer);
-  clearInterval(relojInterval);
-  relojDiv.textContent = "";
-  currentUser = "";
-  localStorage.removeItem("currentUser");
-}
-
-// --- Login ---
-document.getElementById("login-btn").addEventListener("click", () => {
-  const user = usuario.value.trim();
-  const pass = contrasena.value.trim();
-  if ((user === "JFlores" && pass === "Notas2025.") || (user === "20210012" && pass === "Mined2025.")) {
-    currentUser = user;
-    localStorage.setItem("currentUser", currentUser); // mantener sesión
-    loginDiv.style.display = "none";
-    sistemaDiv.style.display = "block";
-    showWelcome(currentUser === "JFlores" ? "Bienvenido Jorge Flores" : "Bienvenida Montserrath");
-    habilitarEdicion(currentUser === "JFlores");
-    cargarNotas();
-    iniciarReloj();
-    resetInactividad();
-  } else {
-    errorMsg.textContent = "Usuario o contraseña incorrectos.";
-    errorMsg.style.color = "red";
-  }
-});
-
-// --- Mantener sesión aunque se refresque ---
-window.addEventListener("load", () => {
-  const savedUser = localStorage.getItem("currentUser");
-  if (savedUser) {
-    currentUser = savedUser;
-    loginDiv.style.display = "none";
-    sistemaDiv.style.display = "block";
-    showWelcome(currentUser === "JFlores" ? "Bienvenido Jorge Flores" : "Bienvenida Montserrath");
-    habilitarEdicion(currentUser === "JFlores");
-    cargarNotas();
-    iniciarReloj();
-    resetInactividad();
-  }
-});
-
-// --- Reset inactividad al mover mouse, teclado o touch ---
-document.addEventListener("mousemove", resetInactividad);
-document.addEventListener("keydown", resetInactividad);
-document.addEventListener("touchstart", resetInactividad);
