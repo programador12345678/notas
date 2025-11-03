@@ -1,90 +1,126 @@
 body {
   font-family: "Poppins", sans-serif;
-  background: #f3f6fa;
+  background-color: #f3f4f8;
   margin: 0;
-  padding: 0;
-  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-header {
-  background: linear-gradient(to right, #0033a0, #d52b1e);
+.hidden {
+  display: none;
+}
+
+/* --- LOGIN --- */
+.login-container {
+  background: white;
+  padding: 50px 40px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 340px;
+}
+
+.title {
+  color: #1d2d5c;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+
+input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 15px;
+  transition: border 0.2s;
+}
+
+input:focus {
+  border-color: #4969e2;
+}
+
+button {
+  background-color: #4969e2;
   color: white;
-  padding: 15px;
+  border: none;
+  padding: 12px;
+  width: 100%;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background-color: #3450b5;
+}
+
+#error-msg {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 15px;
+  display: none;
+}
+
+.footer {
+  margin-top: 40px;
+  font-size: 13px;
+  color: #888;
+}
+
+/* --- SISTEMA --- */
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #4969e2;
+  color: white;
+  padding: 15px 25px;
 }
 
-#logout {
-  background: white;
-  color: #d52b1e;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-#sistema table {
-  width: 100%;
+table {
+  width: 90%;
+  margin: 30px auto;
   border-collapse: collapse;
-  margin: 15px 0;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 th, td {
-  padding: 8px;
-  border: 1px solid #ccc;
+  padding: 12px;
   text-align: center;
+  border-bottom: 1px solid #eee;
 }
 
 th {
-  background: linear-gradient(to right, #0033a0, #d52b1e);
-  color: white;
-  font-size: 14px;
+  background: #f6f7fb;
+  color: #333;
 }
 
-td.menor-siete {
-  color: red;
-  font-weight: bold;
+tr:last-child td {
+  border-bottom: none;
 }
 
-.final-row {
-  background-color: #eaf0fb;
-  font-weight: bold;
-}
-
-.card {
-  max-width: 350px;
-  margin: 60px auto;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.card input, .card button {
-  width: 80%;
-  margin: 8px auto;
-  padding: 10px;
-  border-radius: 6px;
-}
-
-.card button {
-  background-color: #0033a0;
-  color: white;
+#logout {
+  background-color: #fff;
+  color: #4969e2;
   border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background 0.3s;
 }
 
-.card button:hover {
-  background-color: #002070;
-}
-
-.hidden { display: none; }
-
-/* Responsive */
-@media (max-width: 600px){
-  th, td { font-size: 12px; padding: 6px; }
-  header { flex-direction: column; gap: 8px; }
+#logout:hover {
+  background-color: #dfe4ff;
 }
