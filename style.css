@@ -14,10 +14,10 @@ body {
 
 /* --- LOGIN --- */
 .login-container {
-  background: white;
+  background: #fff;
   padding: 50px 40px;
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
   width: 340px;
 }
@@ -39,7 +39,7 @@ input {
   border-radius: 8px;
   outline: none;
   font-size: 15px;
-  transition: border 0.2s;
+  transition: border-color 0.2s ease;
 }
 
 input:focus {
@@ -48,7 +48,7 @@ input:focus {
 
 button {
   background-color: #4969e2;
-  color: white;
+  color: #fff;
   border: none;
   padding: 12px;
   width: 100%;
@@ -56,7 +56,7 @@ button {
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
@@ -82,7 +82,7 @@ header {
   justify-content: space-between;
   align-items: center;
   background: #4969e2;
-  color: white;
+  color: #fff;
   padding: 15px 25px;
 }
 
@@ -90,13 +90,14 @@ table {
   width: 90%;
   margin: 30px auto;
   border-collapse: collapse;
-  background: white;
+  background: #fff;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   text-align: center;
   border-bottom: 1px solid #eee;
@@ -105,6 +106,7 @@ th, td {
 th {
   background: #f6f7fb;
   color: #333;
+  font-weight: 600;
 }
 
 tr:last-child td {
@@ -118,7 +120,7 @@ tr:last-child td {
   padding: 8px 15px;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background-color 0.3s ease;
 }
 
 #logout:hover {
