@@ -1,77 +1,78 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Evaluación - MINED</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mecanismo de Evaluación en Línea</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
-    <div id="login" class="login-container">
-        <div class="header-mined">
-            <img src="logo-gobierno.png" alt="Gobierno de El Salvador" class="logo-gobierno">
-            <img src="logo-mined.png" alt="Ministerio de Educación" class="logo-mined">
-            </div>
+    <div id="login" class="login-container">
+    <div class="logos">
+      <img src="logo_el_salvador.png" alt="Gobierno de El Salvador" class="logo-gob">
+      <img src="logo_mined.png" alt="Ministerio de Educación" class="logo-mined">
+    </div>
+    
+        <div id="top-error-box" class="error-box hidden">
+      <p>Parece que los datos enviados no son correctos.</p>
+      <ul>
+        <li>Las credenciales no coinciden, por favor intente de nuevo.</li>
+      </ul>
+    </div>
 
-        <div id="error-box" class="error-box hidden-error">
-            <p>Parece que los datos enviados no son correctos.</p>
-            <ul>
-                <li>Las credenciales no coinciden, por favor intente de nuevo.</li>
-            </ul>
-        </div>
-        
-        <div class="input-group">
-            <input type="text" id="usuario" placeholder="Usuario">
-            <span class="input-icon" id="user-icon">ⓘ</span> 
-            <p id="error-msg" class="input-error-text hidden-error">Las credenciales no coinciden, por favor intente de nuevo.</p>
-        </div>
-        <div class="input-group">
-            <input type="password" id="contrasena" placeholder="Contraseña">
-        </div>
-        <button id="login-btn">ENTRAR</button>
-        
-        <p class="footer-mined">
-            Un mecanismo de evaluación en línea<br> del Ministerio de Educación de El Salvador.
-        </p>
-    </div>
+    <div class="input-group">
+            <input type="text" id="usuario" placeholder="@gm"> 
+            <p id="error-msg" class="inline-error hidden">Las credenciales no coinciden, por favor intente de nuevo.</p>
+    </div>
+    
+    <div class="input-group">
+      <input type="password" id="contrasena" placeholder="Contraseña">
+    </div>
+    
+    <button id="login-btn" class="login-button">ENTRAR</button>
+    
+    <p class="footer-text">
+      Un mecanismo de evaluación en línea<br>
+      del Ministerio de Educación de El Salvador.
+    </p>
+  </div>
 
-    <div id="sistema" class="hidden">
-        <header>
-            <h1>Sistema de Notas</h1>
-            <span id="welcome"></span>
-            <div id="reloj" class="reloj"></div> <button id="logout">Cerrar sesión</button>
-        </header>
-        <section>
-            <table id="tabla">
-                <thead>
-                    <tr>
-                        <th>Materia</th>
-                        <th>Cotidiana</th>
-                        <th>Integradora</th>
-                        <th>Examen</th>
-                        <th>Nota Final</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Lenguaje</td><td></td><td></td><td></td><td>0.00</td></tr>
-                    <tr><td>Matemáticas</td><td></td><td></td><td></td><td>0.00</td></tr>
-                    <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td>0.00</td></tr>
-                    <tr><td>Inglés</td><td></td><td></td><td></td><td>0.00</td></tr>
-                    <tr><td>Informática</td><td></td><td></td><td></td><td>0.00</td></tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="4">Promedio General</td>
-                        <td id="promedio">0.00</td>
-                    </tr>
-                </tfoot>
-            </table>
-        </section>
-    </div>
+    <div id="sistema" class="hidden">
+    <header>
+      <h1>Sistema de Notas</h1>
+      <span id="welcome"></span>
+      <button id="logout">Cerrar sesión</button>
+    </header>
+    <section>
+      <table id="tabla">
+        <thead>
+          <tr>
+            <th>Materia</th>
+            <th>Cotidiana</th>
+            <th>Integradora</th>
+            <th>Examen</th>
+            <th>Nota Final</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Lenguaje</td><td></td><td></td><td></td><td>0.00</td></tr>
+          <tr><td>Matemáticas</td><td></td><td></td><td></td><td>0.00</td></tr>
+          <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td>0.00</td></tr>
+          <tr><td>Inglés</td><td></td><td></td><td></td><td>0.00</td></tr>
+          <tr><td>Informática</td><td></td><td></td><td></td><td>0.00</td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4">Promedio General</td>
+            <td id="promedio">0.00</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+  </div>
 
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
