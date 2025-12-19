@@ -1,169 +1,28 @@
-body {
-  font-family: "Poppins", sans-serif;
-  background-color: #f0f3f8; /* Fondo de color gris claro */
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
+/* Esto es vital para que el login funcione */
 .hidden {
-  display: none !important;
+    display: none;
 }
 
-/* --- LOGIN --- */
-.login-container {
-  background: #fff;
-  padding: 40px 35px 20px; /* Reducido para parecerse a la imagen */
-  border-radius: 4px; /* Bordes menos redondeados */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Sombra más sutil */
-  text-align: center;
-  width: 380px; /* Ancho ajustado */
-}
-
-.logos {
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.logo-gob {
-  width: 100px; /* Ajusta el tamaño de los logos si es necesario */
-  vertical-align: middle;
-}
-
-.logo-mined {
-  width: 170px; /* Ajusta el tamaño de los logos si es necesario */
-  vertical-align: middle;
-}
-
-/* Caja de error roja superior */
-.error-box {
-  background-color: #ffe4e6; /* Color de fondo del error */
-  border-radius: 4px;
-  padding: 15px;
-  margin-bottom: 25px;
-  text-align: left;
-  color: #dc3545; /* Color del texto dentro de la caja */
-  font-size: 14px;
-}
-
-.error-box p {
-  margin: 0;
-  padding-bottom: 5px;
-}
-
-.error-box ul {
-  margin: 0;
-  padding-left: 20px;
-  list-style: disc;
-}
-
-.input-group {
-  margin-bottom: 10px;
-}
-
-input {
-  width: 100%;
-  padding: 16px 14px; /* Padding ajustado */
-  border: 1px solid #ccc;
-  border-radius: 4px; /* Bordes menos redondeados */
-  outline: none;
-  font-size: 16px;
-  transition: border-color 0.2s ease;
-}
-
-input:focus {
-  border-color: #6390f7; /* Color de enfoque similar al azul del botón */
-}
-
-/* Estilo para el input de usuario cuando hay error */
-input:placeholder-shown:invalid ~ .inline-error,
-#usuario:not(:placeholder-shown):invalid {
-  border: 1px solid #dc3545; /* Borde rojo */
-}
-
-/* Mensaje de error en línea */
-.inline-error {
-  color: #dc3545; /* Rojo de error */
-  font-size: 14px;
-  margin-top: 5px;
-  text-align: left;
-}
-
-/* Botón ENTAR */
-.login-button {
-  background-color: #4969e2; /* Azul fuerte del diseño */
-  color: #fff;
-  border: none;
-  padding: 15px;
-  width: 100%;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 20px;
-}
-
-.login-button:hover {
-  background-color: #3450b5;
-}
-
-.footer-text {
-  margin-top: 40px;
-  font-size: 12px; /* Tamaño pequeño como en la imagen */
-  color: #777;
-  line-height: 1.4;
-}
-
-/* --- SISTEMA (Se mantienen los estilos originales) --- */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #4969e2;
-  color: #fff;
-  padding: 15px 25px;
+/* Estilo básico para que se vea bien en celulares */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
 }
 
 table {
-  width: 90%;
-  margin: 30px auto;
-  border-collapse: collapse;
-  background: #fff;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
 }
 
-th,
-td {
-  padding: 12px;
-  text-align: center;
-  border-bottom: 1px solid #eee;
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
 }
 
-th {
-  background: #f6f7fb;
-  color: #333;
-  font-weight: 600;
-}
-
-tr:last-child td {
-  border-bottom: none;
-}
-
-#logout {
-  background-color: #fff;
-  color: #4969e2;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-#logout:hover {
-  background-color: #dfe4ff;
+@media (max-width: 600px) {
+    table { font-size: 12px; } /* Ajuste para pantallas pequeñas */
 }
