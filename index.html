@@ -1,77 +1,81 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mecanismo de Evaluación en Línea</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Notas 2025</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
-    <div id="login" class="login-container">
-    <div class="logos">
-      <img src="logo_el_salvador.png" alt="Gobierno de El Salvador" class="logo-gob">
-      <img src="logo_mined.png" alt="Ministerio de Educación" class="logo-mined">
-    </div>
-    
-        <div id="top-error-box" class="error-box hidden">
-      <p>Parece que los datos enviados no son correctos.</p>
-      <ul>
-        <li>Las credenciales no coinciden, por favor intente de nuevo.</li>
-      </ul>
-    </div>
 
-    <div class="input-group">
-            <input type="text" id="usuario" placeholder="@gm"> 
-            <p id="error-msg" class="inline-error hidden">Las credenciales no coinciden, por favor intente de nuevo.</p>
-    </div>
-    
-    <div class="input-group">
-      <input type="password" id="contrasena" placeholder="Contraseña">
-    </div>
-    
-    <button id="login-btn" class="login-button">ENTRAR</button>
-    
-    <p class="footer-text">
-      Un mecanismo de evaluación en línea<br>
-      del Ministerio de Educación de El Salvador.
-    </p>
-  </div>
+    <div id="login" class="card">
+        <div class="login-content">
+            <h2>Sistema de Notas</h2>
+            <p>Ingresa tus credenciales para ver tus notas en tiempo real.</p>
+            <input type="text" id="usuario" placeholder="Nombre de Usuario">
+            <input type="password" id="contrasena" placeholder="Contraseña">
+            <button id="login-btn">Entrar al Sistema</button>
+            <p id="error-msg" style="color: red;"></p>
+            <p class="year-line">© 2025 Sistema de Notas</p>
+        </div>
+    </div>
 
-    <div id="sistema" class="hidden">
-    <header>
-      <h1>Sistema de Notas</h1>
-      <span id="welcome"></span>
-      <button id="logout">Cerrar sesión</button>
-    </header>
-    <section>
-      <table id="tabla">
-        <thead>
-          <tr>
-            <th>Materia</th>
-            <th>Cotidiana</th>
-            <th>Integradora</th>
-            <th>Examen</th>
-            <th>Nota Final</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>Lenguaje</td><td></td><td></td><td></td><td>0.00</td></tr>
-          <tr><td>Matemáticas</td><td></td><td></td><td></td><td>0.00</td></tr>
-          <tr><td>Estudios Sociales</td><td></td><td></td><td></td><td>0.00</td></tr>
-          <tr><td>Inglés</td><td></td><td></td><td></td><td>0.00</td></tr>
-          <tr><td>Informática</td><td></td><td></td><td></td><td>0.00</td></tr>
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="4">Promedio General</td>
-            <td id="promedio">0.00</td>
-          </tr>
-        </tfoot>
-      </table>
-    </section>
-  </div>
+    <div id="sistema" class="hidden">
+        <header>
+            <div class="header-container">
+                <h1>Panel de Calificaciones</h1>
+                <div class="user-info">
+                    <span id="welcome"></span>
+                    <button id="logout" onclick="location.reload()">Cerrar sesión</button>
+                </div>
+            </div>
+        </header>
 
-  <script src="script.js"></script>
+        <section class="container">
+            <div class="table-responsive">
+                <table id="tabla">
+                    <thead>
+                        <tr>
+                            <th>Materia</th>
+                            <th>Cotidiana (35%)</th>
+                            <th>Integradora (35%)</th>
+                            <th>Examen (30%)</th>
+                            <th>Nota Final</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Lenguaje</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>Matemáticas</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>Estudios Sociales</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>Inglés</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>Informática</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>Orientación Para La Vida</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>Reading and Writing</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>Educación Física</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>Seminario</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>Conversation</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>Moral Urbanidad y Cívica</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>Física Química</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                        <tr><td>Biología</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="final-row">
+                            <td colspan="4"><strong>Promedio General</strong></td>
+                            <td id="promedio">0.0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2025 Sistema de Notas | Actualizado en tiempo real</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
