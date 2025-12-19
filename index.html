@@ -3,77 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Notas 2025</title>
+    <title>Dashboard | Sistema de Notas</title>
     <link rel="stylesheet" href="style.css">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 </head>
 <body>
 
-    <div id="login" class="card">
-        <div class="login-content">
+    <div id="login" class="auth-container">
+        <div class="auth-card">
             <h2>Sistema de Notas</h2>
-            <p>Ingresa tus credenciales para ver tus notas en tiempo real.</p>
-            <input type="text" id="usuario" placeholder="Nombre de Usuario">
+            <p>Inicia sesión para continuar</p>
+            <input type="text" id="usuario" placeholder="Usuario">
             <input type="password" id="contrasena" placeholder="Contraseña">
-            <button id="login-btn">Entrar al Sistema</button>
-            <p id="error-msg" style="color: red;"></p>
-            <p class="year-line">© 2025 Sistema de Notas</p>
+            <button id="login-btn">Entrar</button>
+            <p id="error-msg"></p>
         </div>
     </div>
 
     <div id="sistema" class="hidden">
-        <header>
-            <div class="header-container">
-                <h1>Panel de Calificaciones</h1>
-                <div class="user-info">
-                    <span id="welcome"></span>
-                    <button id="logout" onclick="location.reload()">Cerrar sesión</button>
+        <nav class="navbar">
+            <span id="welcome"></span>
+            <button id="logout" class="btn-outline">Cerrar Sesión</button>
+        </nav>
+
+        <div id="panel-lectores" class="hidden container">
+            <div class="welcome-card">
+                <h3>¡Bienvenidos!</h3>
+                <p>¿Qué notas desean ver hoy?</p>
+                <div class="options-grid">
+                    <button class="opt-btn" onclick="filtrarPorProfesor('fatima')">
+                        <div class="icon">👩‍🏫</div>
+                        Notas de Fatima Flores
+                    </button>
+                    <button class="opt-btn" onclick="filtrarPorProfesor('jorge')">
+                        <div class="icon">👨‍🏫</div>
+                        Notas de Jorge Flores
+                    </button>
                 </div>
             </div>
-        </header>
+        </div>
 
-        <section class="container">
-            <div class="table-responsive">
-                <table id="tabla">
-                    <thead>
-                        <tr>
-                            <th>Materia</th>
-                            <th>Cotidiana (35%)</th>
-                            <th>Integradora (35%)</th>
-                            <th>Examen (30%)</th>
-                            <th>Nota Final</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Lenguaje</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                        <tr><td>Matemáticas</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                        <tr><td>Estudios Sociales</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                        <tr><td>Inglés</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                        <tr><td>Informática</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                        <tr><td>Orientación Para La Vida</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                        <tr><td>Reading and Writing</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                        <tr><td>Educación Física</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                        <tr><td>Seminario</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                        <tr><td>Conversation</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                        <tr><td>Moral Urbanidad y Cívica</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                        <tr><td>Física Química</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                        <tr><td>Biología</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-                    </tbody>
-                    <tfoot>
-                        <tr class="final-row">
-                            <td colspan="4"><strong>Promedio General</strong></td>
-                            <td id="promedio">0.0</td>
-                        </tr>
-                    </tfoot>
-                </table>
+        <main class="container">
+            <div class="table-card">
+                <div class="table-header">
+                    <h2 id="titulo-tabla">Registro de Calificaciones</h2>
+                </div>
+                <div class="table-responsive">
+                    <table id="tabla">
+                        <thead>
+                            <tr>
+                                <th>Materia</th>
+                                <th>Cotidiana</th>
+                                <th>Integradora</th>
+                                <th>Examen</th>
+                                <th>Nota Final</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-cuerpo">
+                            </tbody>
+                    </table>
+                </div>
             </div>
-        </section>
-
-        <footer>
-            <p>© 2025 Sistema de Notas | Actualizado en tiempo real</p>
-        </footer>
+        </main>
     </div>
 
     <script src="script.js"></script>
