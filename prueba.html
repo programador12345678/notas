@@ -13,7 +13,7 @@
         :root { --bg: #f1f5f9; --card: #ffffff; --text: #1e293b; --border: #e2e8f0; }
         .dark-mode { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --border: #334155; }
         
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.5s; min-height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.5s; min-height: 100vh; }
         .glass-card { background-color: var(--card); border: 1px solid var(--border); }
         
         #welcome-overlay {
@@ -22,10 +22,8 @@
             transition: opacity 1s ease, visibility 1s;
         }
 
-        #custom-menu { transform: translateY(-10px); opacity: 0; transition: 0.3s; pointer-events: none; z-index: 100; }
-        #custom-menu.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
         .hidden { display: none !important; }
-        footer { margin-top: auto; }
+        .editable-cell:focus { background: rgba(79, 70, 229, 0.1); outline: 2px solid #4f46e5; border-radius: 8px; }
     </style>
 </head>
 <body class="light">
@@ -34,26 +32,25 @@
         <h1 id="welcome-text" class="text-5xl md:text-8xl font-black text-indigo-600 drop-shadow-2xl"></h1>
     </div>
 
-    <div class="fixed top-4 right-4 z-[110] flex gap-2">
-        <button onclick="toggleMenu()" class="glass-card p-3 rounded-full shadow-xl hover:scale-110 transition flex items-center gap-2 font-bold">
+    <nav class="fixed top-4 right-4 z-[110] flex gap-2">
+        <button onclick="document.getElementById('custom-menu').classList.toggle('hidden')" class="glass-card p-3 rounded-full shadow-xl font-bold flex items-center gap-2">
             ⚙️ <span class="lang" data-es="Personalizar" data-en="Customize">Personalizar</span>
         </button>
-        <button id="logout-btn" onclick="logout()" class="hidden bg-red-500 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-red-600 transition lang" data-es="Salir" data-en="Logout">Salir</button>
-    </div>
+        <button id="logout-btn" onclick="logout()" class="hidden bg-red-500 text-white px-6 py-3 rounded-full font-bold shadow-lg lang" data-es="Salir" data-en="Logout">Salir</button>
+    </nav>
 
-    <div id="custom-menu" class="fixed top-20 right-4 w-64 glass-card rounded-[2rem] shadow-2xl p-6">
-        <p class="text-xs font-bold text-indigo-500 uppercase mb-4 tracking-widest lang" data-es="AJUSTES" data-en="SETTINGS">AJUSTES</p>
+    <div id="custom-menu" class="fixed top-20 right-4 w-64 glass-card rounded-[2rem] shadow-2xl p-6 hidden">
         <div class="space-y-4">
             <div>
-                <label class="block text-sm font-semibold mb-2 lang" data-es="Modo Pantalla" data-en="Display Mode">Modo Pantalla</label>
-                <select onchange="setTheme(this.value)" id="theme-select" class="w-full p-2 rounded-xl outline-none border bg-transparent">
-                    <option value="light">☀️ Claro / Light</option>
-                    <option value="dark">🌙 Oscuro / Dark</option>
+                <label class="block text-sm font-semibold mb-1 lang" data-es="Modo" data-en="Mode">Modo</label>
+                <select onchange="setTheme(this.value)" class="w-full p-2 rounded-xl border bg-transparent">
+                    <option value="light">☀️ Light</option>
+                    <option value="dark">🌙 Dark</option>
                 </select>
             </div>
             <div>
-                <label class="block text-sm font-semibold mb-2 lang" data-es="Idioma" data-en="Language">Idioma</label>
-                <select onchange="setLang(this.value)" id="lang-select" class="w-full p-2 rounded-xl outline-none border bg-transparent">
+                <label class="block text-sm font-semibold mb-1 lang" data-es="Idioma" data-en="Language">Idioma</label>
+                <select onchange="setLang(this.value)" class="w-full p-2 rounded-xl border bg-transparent">
                     <option value="es">Español</option>
                     <option value="en">English</option>
                 </select>
@@ -63,73 +60,83 @@
 
     <div id="login-sec" class="min-h-screen flex flex-col items-center justify-center p-6">
         <div class="glass-card p-10 rounded-[3rem] shadow-2xl w-full max-w-md text-center">
-            <h2 class="text-4xl font-extrabold mb-2 text-indigo-600 lang" data-es="Sistema de Notas" data-en="Grades System">Sistema de Notas</h2>
-            <p class="opacity-60 mb-8 lang" data-es="Inicia sesión para continuar" data-en="Sign in to continue">Inicia sesión para continuar</p>
-            
-            <input type="text" id="user-in" placeholder="Usuario" class="w-full p-4 mb-4 rounded-2xl border outline-none focus:ring-2 focus:ring-indigo-500 transition text-black">
-            <input type="password" id="pass-in" placeholder="Contraseña" class="w-full p-4 mb-8 rounded-2xl border outline-none focus:ring-2 focus:ring-indigo-500 transition text-black">
-            
-            <button onclick="login()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:brightness-110 transition lang" data-es="Entrar" data-en="Login">Entrar</button>
-            <p id="err" class="text-red-500 mt-4 text-sm font-semibold"></p>
+            <h2 class="text-4xl font-extrabold mb-8 text-indigo-600 lang" data-es="Acceso" data-en="Login">Acceso</h2>
+            <input type="text" id="user-in" class="w-full p-4 mb-4 rounded-2xl border text-black outline-none" placeholder="Usuario">
+            <input type="password" id="pass-in" class="w-full p-4 mb-8 rounded-2xl border text-black outline-none" placeholder="Contraseña">
+            <button onclick="login()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg lang" data-es="Entrar" data-en="Sign In">Entrar</button>
         </div>
         <footer class="mt-10 opacity-50 text-sm font-bold">©2026 Sistema de notas. Derechos reservados.</footer>
     </div>
 
-    <div id="sys-sec" class="hidden p-6 md:p-10">
+    <div id="sys-sec" class="hidden p-4 md:p-10">
+        
         <div id="admin-header" class="max-w-6xl mx-auto mb-10 hidden">
             <div class="bg-indigo-600 p-8 rounded-[3rem] text-white shadow-2xl">
-                <h3 class="text-center text-2xl font-bold mb-6 lang" data-es="Panel Administrativo" data-en="Admin Panel">Panel Administrativo</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <button onclick="viewGroup('fatima')" class="bg-white/10 hover:bg-white/20 p-4 rounded-2xl border border-white/20 font-bold transition">👩‍🏫 Fatima Flores</button>
-                    <button onclick="viewGroup('jorge')" class="bg-white/10 hover:bg-white/20 p-4 rounded-2xl border border-white/20 font-bold transition">👨‍🏫 Jorge Flores</button>
-                    <button onclick="showMgmt()" class="bg-yellow-400 text-indigo-900 p-4 rounded-2xl font-bold hover:scale-105 transition shadow-lg lang" data-es="Gestión de Sistema" data-en="System Management">Gestión de Sistema</button>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="viewGroup('fatima.flores')" class="bg-white/10 p-4 rounded-2xl border border-white/20 font-bold hover:bg-white/20 transition">👩‍🏫 Fatima</button>
+                    <button onclick="viewGroup('jorge.flores')" class="bg-white/10 p-4 rounded-2xl border border-white/20 font-bold hover:bg-white/20 transition">👨‍🏫 Jorge</button>
+                    <button onclick="toggleMgmt()" class="bg-yellow-400 text-indigo-900 p-4 rounded-2xl font-bold lang" data-es="Gestión" data-en="Management">Gestión</button>
+                    <button onclick="resetAllGrades()" class="bg-red-400 text-white p-4 rounded-2xl font-bold lang" data-es="Borrar Notas" data-en="Clear Grades">Borrar Notas</button>
                 </div>
             </div>
         </div>
 
-        <div id="mgmt-panel" class="max-w-6xl mx-auto mb-10 hidden glass-card p-8 rounded-[3rem]">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold lang" data-es="Configuración de Materias y Usuarios" data-en="Subjects & Users Config">Configuración de Materias</h3>
-                <button onclick="showMgmt()" class="text-red-500 font-bold">X</button>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div id="mgmt-panel" class="max-w-6xl mx-auto mb-10 hidden glass-card p-8 rounded-[3.5rem] animate-fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 <div>
-                    <label class="block font-bold mb-2 lang" data-es="Agregar Materia" data-en="Add Subject">Agregar Materia</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="new-subject" class="flex-1 p-3 rounded-xl border text-black" placeholder="...">
-                        <button onclick="addSubject()" class="bg-green-500 text-white px-4 rounded-xl font-bold">+</button>
+                    <h3 class="text-xl font-bold mb-4 text-indigo-500 lang" data-es="Usuarios" data-en="Users">Usuarios</h3>
+                    <div class="space-y-2 mb-4" id="user-list"></div>
+                    <div class="flex flex-col gap-2 p-4 bg-gray-50 dark:bg-slate-800 rounded-2xl">
+                        <input type="text" id="new-u-name" placeholder="ID (ej: ana.perez)" class="p-2 rounded border text-black">
+                        <input type="text" id="new-u-pass" placeholder="Password" class="p-2 rounded border text-black">
+                        <select id="new-u-role" class="p-2 rounded border text-black">
+                            <option value="lector">Lector</option>
+                            <option value="editor">Editor</option>
+                        </select>
+                        <button onclick="addUser()" class="bg-indigo-500 text-white p-2 rounded-xl font-bold lang" data-es="Crear Usuario" data-en="Create User">Crear Usuario</button>
                     </div>
                 </div>
                 <div>
-                    <label class="block font-bold mb-2 lang" data-es="Cambiar Rol de Usuario" data-en="Change User Role">Cambiar Rol</label>
-                    <select id="user-role-select" class="w-full p-3 rounded-xl border text-black">
-                        <option value="lector">Lector</option>
-                        <option value="editor">Editor</option>
-                    </select>
+                    <h3 class="text-xl font-bold mb-4 text-indigo-500 lang" data-es="Materias" data-en="Subjects">Materias</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 border rounded-2xl">
+                            <p class="font-bold mb-2">Fatima Flores</p>
+                            <div class="flex gap-2">
+                                <input type="text" id="mat-fatima" class="flex-1 p-2 border rounded text-black" placeholder="Nombre materia">
+                                <button onclick="addMat('fatima.flores')" class="bg-green-500 text-white px-4 rounded-lg">+</button>
+                            </div>
+                            <div id="mats-fatima-list" class="flex flex-wrap gap-2 mt-2"></div>
+                        </div>
+                        <div class="p-4 border rounded-2xl">
+                            <p class="font-bold mb-2">Jorge Flores</p>
+                            <div class="flex gap-2">
+                                <input type="text" id="mat-jorge" class="flex-1 p-2 border rounded text-black" placeholder="Nombre materia">
+                                <button onclick="addMat('jorge.flores')" class="bg-green-500 text-white px-4 rounded-lg">+</button>
+                            </div>
+                            <div id="mats-jorge-list" class="flex flex-wrap gap-2 mt-2"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <main class="max-w-6xl mx-auto glass-card rounded-[3.5rem] shadow-2xl overflow-hidden">
-            <div class="p-10 border-b border-gray-100 dark:border-slate-800 bg-indigo-50/20">
-                <h2 id="table-head" class="text-3xl font-extrabold text-indigo-600">Registro de Calificaciones</h2>
-            </div>
+        <main class="max-w-6xl mx-auto glass-card rounded-[3rem] shadow-2xl overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
-                    <thead>
-                        <tr class="text-xs uppercase opacity-40 font-black border-b">
-                            <th class="p-8 lang" data-es="Materia" data-en="Subject">Materia</th>
-                            <th class="p-8 lang" data-es="Cotidiana" data-en="Daily">Cotidiana</th>
-                            <th class="p-8 lang" data-es="Integradora" data-en="Integrative">Integradora</th>
-                            <th class="p-8 lang" data-es="Examen" data-en="Exam">Examen</th>
-                            <th class="p-8 text-right lang" data-es="Nota Final" data-en="Final Grade">Nota Final</th>
+                    <thead class="bg-indigo-50/50 dark:bg-slate-800/50">
+                        <tr>
+                            <th class="p-6 lang" data-es="Materia" data-en="Subject">Materia</th>
+                            <th class="p-6 lang" data-es="Cotidiana" data-en="Daily">Cotidiana</th>
+                            <th class="p-6 lang" data-es="Integradora" data-en="Integrative">Integradora</th>
+                            <th class="p-6 lang" data-es="Examen" data-en="Exam">Examen</th>
+                            <th class="p-6 text-right lang" data-es="Final" data-en="Final">Final</th>
                         </tr>
                     </thead>
                     <tbody id="table-body" class="divide-y dark:divide-slate-800"></tbody>
                 </table>
             </div>
         </main>
-        <footer class="mt-10 text-center opacity-50 text-sm font-bold">©2026 Sistema de notas. Derechos reservados.</footer>
+        <footer class="py-10 text-center opacity-50 text-sm font-bold">©2026 Sistema de notas. Derechos reservados.</footer>
     </div>
 
     <script>
@@ -137,137 +144,149 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        const USERS = {
-            "fatima.flores": { pass: "Ccsa2026.", rol: "editor", name: "Fatima Flores", mats: ["Lenguaje", "Matemáticas", "Sociales", "Ciencias", "OPV", "Moral", "Seminario"] },
-            "jorge.flores": { pass: "Atb2026.", rol: "editor", name: "Jorge Flores", mats: ["Inglés", "Reading", "Conversation", "Informática", "Ed. Física"] },
+        let USERS = JSON.parse(localStorage.getItem('db_users')) || {
+            "fatima.flores": { pass: "Ccsa2026.", rol: "editor", name: "Fatima Flores", mats: ["Lenguaje", "Matemáticas"] },
+            "jorge.flores": { pass: "Atb2026.", rol: "editor", name: "Jorge Flores", mats: ["Inglés", "Reading"] },
             "admin.notas": { pass: "Admin2026.", rol: "admin", name: "Jorge Flores", mats: [] }
         };
 
         let userAct = null;
         let timer;
 
-        function resetTimer() {
-            clearTimeout(timer);
-            if(userAct) timer = setTimeout(logout, 5 * 60 * 1000);
-        }
-        window.onmousemove = resetTimer;
+        function saveDB() { localStorage.setItem('db_users', JSON.stringify(USERS)); }
 
-        function toggleMenu() { document.getElementById('custom-menu').classList.toggle('show'); }
-
-        function setTheme(t) {
-            t === 'dark' ? document.body.classList.add('dark-mode') : document.body.classList.remove('dark-mode');
-            localStorage.setItem('theme', t);
+        function toggleMgmt() { 
+            const p = document.getElementById('mgmt-panel');
+            p.classList.toggle('hidden');
+            if(!p.classList.contains('hidden')) renderMgmt();
         }
 
-        function setLang(l) {
-            document.querySelectorAll('.lang').forEach(el => {
-                el.innerText = el.getAttribute(`data-${l}`);
-            });
-            document.getElementById('user-in').placeholder = l === 'es' ? "Usuario" : "Username";
-            document.getElementById('pass-in').placeholder = l === 'es' ? "Contraseña" : "Password";
-            localStorage.setItem('lang', l);
+        function renderMgmt() {
+            const uList = document.getElementById('user-list');
+            uList.innerHTML = Object.keys(USERS).map(u => `
+                <div class="flex justify-between items-center p-2 bg-white/5 border rounded-lg">
+                    <span>${u} (${USERS[u].rol})</span>
+                    <button onclick="deleteUser('${u}')" class="text-red-500 text-xs font-bold">ELIMINAR</button>
+                </div>
+            `).join('');
+
+            const renderMats = (uKey, target) => {
+                document.getElementById(target).innerHTML = USERS[uKey].mats.map(m => `
+                    <span class="bg-indigo-100 dark:bg-indigo-900 px-2 py-1 rounded text-xs flex items-center gap-1">
+                        ${m} <button onclick="removeMat('${uKey}','${m}')" class="font-bold text-red-500">×</button>
+                    </span>
+                `).join('');
+            };
+            renderMats('fatima.flores', 'mats-fatima-list');
+            renderMats('jorge.flores', 'mats-jorge-list');
         }
 
-        function login() {
-            const u = document.getElementById('user-in').value.trim();
-            const p = document.getElementById('pass-in').value.trim();
-            if(USERS[u] && USERS[u].pass === p) {
-                initSession(u);
-            } else {
-                document.getElementById('err').innerText = localStorage.getItem('lang') === 'es' ? "Credenciales inválidas" : "Invalid credentials";
+        function addUser() {
+            const id = document.getElementById('new-u-name').value;
+            const ps = document.getElementById('new-u-pass').value;
+            const rl = document.getElementById('new-u-role').value;
+            if(id && ps) {
+                USERS[id] = { pass: ps, rol: rl, name: id, mats: [] };
+                saveDB(); renderMgmt();
             }
         }
 
-        function initSession(u) {
-            userAct = USERS[u];
-            localStorage.setItem('session', u);
+        function deleteUser(u) { if(u !== 'admin.notas') { delete USERS[u]; saveDB(); renderMgmt(); } }
+
+        function addMat(u) {
+            const m = document.getElementById(u === 'fatima.flores' ? 'mat-fatima' : 'mat-jorge').value;
+            if(m) { USERS[u].mats.push(m); saveDB(); renderMgmt(); viewGroup(u); }
+        }
+
+        function removeMat(u, m) {
+            USERS[u].mats = USERS[u].mats.filter(item => item !== m);
+            saveDB(); renderMgmt(); viewGroup(u);
+        }
+
+        function resetAllGrades() {
+            if(confirm("¿Seguro que quieres borrar TODAS las notas?")) {
+                db.ref('v4/notas').remove();
+            }
+        }
+
+        // --- LÓGICA DE SISTEMA ---
+        function login() {
+            const u = document.getElementById('user-in').value;
+            const p = document.getElementById('pass-in').value;
+            if(USERS[u] && USERS[u].pass === p) {
+                userAct = USERS[u];
+                localStorage.setItem('session', u);
+                initSys();
+            }
+        }
+
+        function initSys() {
             document.getElementById('login-sec').classList.add('hidden');
             document.getElementById('sys-sec').classList.remove('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
-
-            const overlay = document.getElementById('welcome-overlay');
-            document.getElementById('welcome-text').innerText = (localStorage.getItem('lang') === 'es' ? "Hola, " : "Hello, ") + userAct.name;
-            overlay.classList.remove('invisible');
-            overlay.style.opacity = "1";
-            setTimeout(() => { overlay.style.opacity = "0"; setTimeout(()=>overlay.classList.add('invisible'), 1000); }, 15000);
+            
+            const txt = (localStorage.getItem('lang') === 'en' ? "Hello, " : "Hola, ") + userAct.name;
+            const ov = document.getElementById('welcome-overlay');
+            document.getElementById('welcome-text').innerText = txt;
+            ov.classList.remove('invisible'); ov.style.opacity = "1";
+            setTimeout(() => { ov.style.opacity = "0"; }, 15000);
 
             if(userAct.rol === 'admin') {
                 document.getElementById('admin-header').classList.remove('hidden');
-                viewGroup('fatima');
+                viewGroup('fatima.flores');
             } else {
-                drawTable(userAct.mats);
+                viewGroup(localStorage.getItem('session'));
             }
-            resetTimer();
+            startTimer();
         }
 
-        function viewGroup(p) {
-            const prof = p === 'fatima' ? USERS["fatima.flores"] : USERS["jorge.flores"];
-            document.getElementById('table-head').innerText = prof.name;
-            drawTable(prof.mats);
-        }
-
-        function showMgmt() {
-            document.getElementById('mgmt-panel').classList.toggle('hidden');
-        }
-
-        function addSubject() {
-            const name = document.getElementById('new-subject').value;
-            if(name) {
-                alert("Materia " + name + " añadida al sistema.");
-                document.getElementById('new-subject').value = "";
-            }
-        }
-
-        function drawTable(mats) {
+        function viewGroup(uKey) {
             const body = document.getElementById('table-body');
+            const mats = USERS[uKey].mats;
             body.innerHTML = mats.map(m => `
-                <tr class="hover:bg-indigo-50/50 dark:hover:bg-slate-800/30 transition">
-                    <td class="p-8 font-bold text-lg">${m}</td>
-                    <td class="p-8 cell" data-m="${m}" data-c="coti" ${userAct.rol !== 'admin' && userAct.rol !== 'editor' ? '' : 'contenteditable="true"'}>-</td>
-                    <td class="p-8 cell" data-m="${m}" data-c="inte" ${userAct.rol !== 'admin' && userAct.rol !== 'editor' ? '' : 'contenteditable="true"'}>-</td>
-                    <td class="p-8 cell" data-m="${m}" data-c="exam" ${userAct.rol !== 'admin' && userAct.rol !== 'editor' ? '' : 'contenteditable="true"'}>-</td>
-                    <td class="p-8 text-right font-black text-2xl text-indigo-500">0.0</td>
+                <tr>
+                    <td class="p-6 font-bold">${m}</td>
+                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-m="${m}" data-c="coti">-</td>
+                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-m="${m}" data-c="inte">-</td>
+                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-m="${m}" data-c="exam">-</td>
+                    <td class="p-6 text-right font-black text-xl text-indigo-600">0.0</td>
                 </tr>
             `).join('');
-
-            document.querySelectorAll('.cell').forEach(td => {
-                td.onblur = (e) => {
-                    db.ref(`v3/notas/${e.target.dataset.m}/${e.target.dataset.c}`).set(e.target.innerText);
-                };
+            
+            document.querySelectorAll('.editable-cell').forEach(td => {
+                td.onblur = (e) => db.ref(`v4/notas/${e.target.dataset.m}/${e.target.dataset.c}`).set(e.target.innerText);
             });
             sync();
         }
 
         function sync() {
-            db.ref('v3/notas').on('value', snap => {
-                const val = snap.val() || {};
+            db.ref('v4/notas').on('value', snap => {
+                const data = snap.val() || {};
                 document.querySelectorAll('#table-body tr').forEach(row => {
                     const m = row.cells[0].innerText;
-                    if(val[m]) {
-                        row.cells[1].innerText = val[m].coti || "-";
-                        row.cells[2].innerText = val[m].inte || "-";
-                        row.cells[3].innerText = val[m].exam || "-";
-                        const f = (parseFloat(val[m].coti||0) + parseFloat(val[m].inte||0) + parseFloat(val[m].exam||0)) / 3;
-                        row.cells[4].innerText = isNaN(f) ? "0.0" : f.toFixed(1);
+                    if(data[m]) {
+                        row.cells[1].innerText = data[m].coti || "-";
+                        row.cells[2].innerText = data[m].inte || "-";
+                        row.cells[3].innerText = data[m].exam || "-";
+                        const f = (parseFloat(data[m].coti||0)+parseFloat(data[m].inte||0)+parseFloat(data[m].exam||0))/3;
+                        row.cells[4].innerText = f.toFixed(1);
                     }
                 });
             });
         }
 
-        function logout() {
-            localStorage.removeItem('session');
-            location.reload();
-        }
+        function logout() { localStorage.removeItem('session'); location.reload(); }
+        function startTimer() { clearTimeout(timer); timer = setTimeout(logout, 300000); }
+        window.onmousemove = startTimer;
+
+        function setTheme(t) { t === 'dark' ? document.body.classList.add('dark-mode') : document.body.classList.remove('dark-mode'); localStorage.setItem('theme', t); }
+        function setLang(l) { document.querySelectorAll('.lang').forEach(el => el.innerText = el.getAttribute(`data-${l}`)); localStorage.setItem('lang', l); }
 
         window.onload = () => {
-            const t = localStorage.getItem('theme') || 'light';
-            const l = localStorage.getItem('lang') || 'es';
+            setTheme(localStorage.getItem('theme') || 'light');
+            setLang(localStorage.getItem('lang') || 'es');
             const s = localStorage.getItem('session');
-            setTheme(t);
-            setLang(l);
-            document.getElementById('theme-select').value = t;
-            document.getElementById('lang-select').value = l;
-            if(s && USERS[s]) initSession(s);
+            if(s && USERS[s]) { userAct = USERS[s]; initSys(); }
         };
     </script>
 </body>
