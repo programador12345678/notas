@@ -3,232 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>prueba | Sistema de Notas</title>
+    <title>Sistema de Notas Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
-        :root { --bg-body: #f1f5f9; --bg-card: #ffffff; --text-main: #1e293b; --border-color: #e2e8f0; }
-        .dark-mode { --bg-body: #0f172a; --bg-card: #1e293b; --text-main: #f8fafc; --border-color: #334155; }
+        :root { --bg: #f1f5f9; --card: #ffffff; --text: #1e293b; --accent: #4f46e5; }
+        .dark-mode { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #818cf8; }
         
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-body); color: var(--text-main); transition: 0.4s; min-height: 100vh; margin: 0; }
-        .glass-card { background-color: var(--bg-card); border: 1px solid var(--border-color); }
-        .hidden { display: none !important; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.5s; overflow-x: hidden; }
+        .glass { background: var(--card); border: 1px solid rgba(0,0,0,0.1); }
+        .dark-mode .glass { border: 1px solid rgba(255,255,255,0.1); }
 
-        /* Bienvenida central */
+        /* Mensaje de Bienvenida Central */
         #welcome-overlay {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            z-index: 100; transition: opacity 1s ease; pointer-events: none;
+            z-index: 1000; text-align: center; pointer-events: none;
+            transition: opacity 1s ease, visibility 1s;
         }
 
         #custom-menu { 
             transform: translateY(-10px); opacity: 0; transition: 0.3s; pointer-events: none;
-            background-color: var(--bg-card); border: 1px solid var(--border-color);
         }
         #custom-menu.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        
+        .hidden { display: none !important; }
     </style>
 </head>
 <body class="light">
 
-    <div id="welcome-overlay" class="opacity-0 text-center">
-        <h1 id="welcome-text" class="text-5xl md:text-7xl font-black text-indigo-600 drop-shadow-2xl"></h1>
+    <div id="welcome-overlay" class="invisible opacity-0">
+        <h1 id="welcome-text" class="text-6xl md:text-8xl font-black text-indigo-600 drop-shadow-2xl"></h1>
     </div>
 
-    <div class="fixed top-4 right-4 z-50 flex gap-2">
-        <button onclick="toggleCustomMenu()" class="glass-card p-3 rounded-full shadow-xl font-bold flex items-center gap-2">
-            ⚙️ <span id="lang-custom-btn">Personalizar</span>
+    <div class="fixed top-4 right-4 z-50 flex gap-3">
+        <button onclick="toggleCustomMenu()" class="glass px-4 py-2 rounded-full shadow-lg font-bold flex items-center gap-2 hover:scale-105 transition">
+            ⚙️ <span class="lang-text" data-es="Personalizar" data-en="Customize">Personalizar</span>
         </button>
-        <button id="logout-btn" onclick="logout()" class="hidden bg-red-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg hover:bg-red-600 transition">Salir</button>
+        <button id="logout-btn" onclick="logout()" class="hidden bg-red-500 text-white px-5 py-2 rounded-full font-bold shadow-lg hover:bg-red-600 transition">
+            <span class="lang-text" data-es="Cerrar Sesión" data-en="Logout">Cerrar Sesión</span>
+        </button>
     </div>
 
-    <div id="custom-menu" class="fixed top-20 right-4 w-56 rounded-2xl shadow-2xl p-5 z-50">
-        <p class="text-xs font-bold text-indigo-500 uppercase mb-4 tracking-widest">Ajustes</p>
-        <div class="mb-4">
-            <label class="block text-sm font-semibold mb-2">Modo:</label>
-            <select onchange="setTheme(this.value)" id="theme-select" class="w-full p-2 rounded-xl outline-none bg-transparent border">
-                <option value="light">☀️ Claro</option>
-                <option value="dark">🌙 Oscuro</option>
-            </select>
-        </div>
-        <div>
-            <label class="block text-sm font-semibold mb-2">Idioma:</label>
-            <select onchange="setLanguage(this.value)" id="lang-select" class="w-full p-2 rounded-xl outline-none bg-transparent border">
-                <option value="es">Español</option>
-                <option value="en">English</option>
-            </select>
-        </div>
-    </div>
-
-    <div id="login" class="min-h-screen flex items-center justify-center p-6">
-        <div class="glass-card p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center">
-            <h2 class="text-4xl font-extrabold mb-8 text-indigo-600">Sistema de Notas</h2>
-            <input type="text" id="usuario" placeholder="Usuario" class="w-full p-4 mb-4 rounded-2xl outline-none border focus:ring-2 focus:ring-indigo-500 transition text-black">
-            <input type="password" id="contrasena" placeholder="Contraseña" class="w-full p-4 mb-8 rounded-2xl outline-none border focus:ring-2 focus:ring-indigo-500 transition text-black">
-            <button onclick="login()" class="w-full bg-[#5549e6] text-white py-4 rounded-2xl font-bold text-lg shadow-lg hover:brightness-110 transition">Entrar</button>
-            <p id="error-msg" class="text-red-500 mt-4 text-sm font-semibold"></p>
+    <div id="custom-menu" class="fixed top-16 right-4 glass w-64 rounded-2xl shadow-2xl p-6 z-[60]">
+        <h3 class="text-xs font-bold uppercase opacity-50 mb-4 tracking-widest lang-text" data-es="Ajustes" data-en="Settings">Ajustes</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="text-sm font-semibold mb-2 block lang-text" data-es="Modo" data-en="Mode">Modo</label>
+                <select onchange="setTheme(this.value)" id="theme-select" class="w-full p-2 rounded-lg bg-gray-100 dark:bg-slate-700 outline-none">
+                    <option value="light">☀️ Claro / Light</option>
+                    <option value="dark">🌙 Oscuro / Dark</option>
+                </select>
+            </div>
+            <div>
+                <label class="text-sm font-semibold mb-2 block lang-text" data-es="Idioma" data-en="Language">Idioma</label>
+                <select onchange="setLanguage(this.value)" id="lang-select" class="w-full p-2 rounded-lg bg-gray-100 dark:bg-slate-700 outline-none">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
         </div>
     </div>
 
-    <div id="sistema" class="hidden pt-20 p-6">
-        <div id="panel-acciones" class="hidden max-w-5xl mx-auto mb-10">
-            <div class="bg-[#5549e6] p-10 rounded-[3rem] text-white text-center shadow-2xl">
-                <h3 class="text-3xl font-bold mb-8">Panel de Control</h3>
-                <div id="btns-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <button onclick="filtrarPorProfesor('fatima')" class="bg-white text-indigo-700 p-8 rounded-[2rem] font-bold text-xl hover:scale-105 transition shadow-xl">👩‍🏫 Notas Fatima</button>
-                    <button onclick="filtrarPorProfesor('jorge')" class="bg-white text-indigo-700 p-8 rounded-[2rem] font-bold text-xl hover:scale-105 transition shadow-xl">👨‍🏫 Notas Jorge</button>
-                    <button id="admin-config-btn" onclick="abrirGestion()" class="hidden bg-yellow-400 text-slate-900 p-8 rounded-[2rem] font-bold text-xl hover:scale-105 transition shadow-xl">🛠️ Gestión Sistema</button>
-                </div>
+    <div id="login-section" class="min-h-screen flex items-center justify-center p-6">
+        <div class="glass p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center">
+            <h2 class="text-4xl font-extrabold mb-8 text-indigo-600">Grades System</h2>
+            <input type="text" id="user-input" placeholder="Usuario" class="w-full p-4 mb-4 rounded-2xl border outline-none focus:ring-2 focus:ring-indigo-500 transition text-black">
+            <input type="password" id="pass-input" placeholder="Contraseña" class="w-full p-4 mb-8 rounded-2xl border outline-none focus:ring-2 focus:ring-indigo-500 transition text-black">
+            <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 transition shadow-xl lang-text" data-es="Entrar" data-en="Login">Entrar</button>
+            <p id="login-error" class="text-red-500 mt-4 text-sm font-semibold"></p>
+        </div>
+    </div>
+
+    <div id="main-system" class="hidden pt-24 px-4 pb-10">
+        
+        <div id="admin-panel" class="hidden max-w-5xl mx-auto mb-12">
+            <div class="bg-indigo-600 p-10 rounded-[3rem] text-white shadow-2xl">
+                <h3 class="text-3xl font-bold mb-8 text-center lang-text" data-es="Centro de Control" data-en="Control Center">Centro de Control</h3>
+                <div id="admin-buttons" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    </div>
             </div>
         </div>
 
-        <main class="max-w-6xl mx-auto">
-            <div class="table-card rounded-[3rem] shadow-2xl overflow-hidden glass-card">
-                <div class="p-10 border-b">
-                    <h2 id="titulo-tabla" class="text-3xl font-extrabold text-indigo-600">Registro de Calificaciones</h2>
+        <div class="max-w-6xl mx-auto">
+            <div class="glass rounded-[3rem] shadow-xl overflow-hidden">
+                <div class="p-8 border-b border-gray-100 flex justify-between items-center bg-indigo-50/30">
+                    <h2 id="table-title" class="text-2xl font-bold text-indigo-600">Registro de Calificaciones</h2>
                 </div>
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="text-xs uppercase opacity-50 font-black tracking-widest border-b">
-                            <th class="p-8">Materia</th>
-                            <th class="p-8">Cotidiana</th>
-                            <th class="p-8">Integradora</th>
-                            <th class="p-8">Examen</th>
-                            <th class="p-8 text-right">Nota Final</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-cuerpo" class="divide-y"></tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-xs uppercase font-black opacity-40 border-b">
+                                <th class="p-8 lang-text" data-es="Materia" data-en="Subject">Materia</th>
+                                <th class="p-8 lang-text" data-es="Cotidiana" data-en="Daily">Cotidiana</th>
+                                <th class="p-8 lang-text" data-es="Integradora" data-en="Integrative">Integradora</th>
+                                <th class="p-8 lang-text" data-es="Examen" data-en="Exam">Examen</th>
+                                <th class="p-8 text-right lang-text" data-es="Final" data-en="Final">Final</th>
+                            </tr>
+                        </thead>
+                        <tbody id="grades-body" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
             </div>
-        </main>
+        </div>
     </div>
 
     <script>
+        // CONFIGURACIÓN
         const firebaseConfig = { databaseURL: "https://notassv-ce8e1-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const db = firebase.database();
 
-        const usuarios = {
-            "fatima.flores": { pass: "Ccsa2026.", rol: "editor", nombre: "Fatima", apellido: "Flores", materias: ["Lenguaje", "Matemáticas", "Sociales", "Ciencias", "OPV", "Moral", "Seminario"] },
-            "jorge.flores": { pass: "Atb2026.", rol: "editor", nombre: "Jorge", apellido: "Flores", materias: ["Inglés", "Reading", "Conversation", "Informática", "Ed. Física"] },
-            "jorge.flores1": { pass: "JFlores2026.", rol: "lector", nombre: "Jorge", apellido: "Lector" },
-            "carmen.jovel": { pass: "CJovel2026.", rol: "lector", nombre: "Carmen", apellido: "Jovel" },
-            "admin.notas": { pass: "Admin2026.", rol: "admin", nombre: "Jorge", apellido: "Flores" }
+        const USERS_DB = {
+            "fatima.flores": { pass: "Ccsa2026.", rol: "editor", name: "Fatima Flores", subjects: ["Lenguaje", "Matemáticas", "Sociales", "Ciencias"] },
+            "jorge.flores": { pass: "Atb2026.", rol: "editor", name: "Jorge Flores", subjects: ["Inglés", "Reading", "Informática"] },
+            "admin.notas": { pass: "Admin2026.", rol: "admin", name: "Jorge Flores", subjects: ["Global"] }
         };
 
-        let userLogged = null;
+        let activeUser = null;
         let inactivityTimer;
 
-        // INACTIVIDAD 5 MINUTOS
-        function resetTimer() {
+        // --- LÓGICA DE INACTIVIDAD ---
+        function resetInactivity() {
             clearTimeout(inactivityTimer);
-            if(userLogged) inactivityTimer = setTimeout(logout, 5 * 60 * 1000);
+            if(activeUser) inactivityTimer = setTimeout(logout, 5 * 60 * 1000); // 5 min
         }
-        window.onmousemove = resetTimer;
-        window.onkeypress = resetTimer;
+        window.onmousemove = resetInactivity;
+        window.onkeypress = resetInactivity;
 
+        // --- TEMAS E IDIOMAS ---
         function toggleCustomMenu() { document.getElementById('custom-menu').classList.toggle('show'); }
-        function setTheme(t) { 
-            t === 'dark' ? document.body.classList.add('dark-mode') : document.body.classList.remove('dark-mode'); 
-            localStorage.setItem('theme', t);
+        
+        function setTheme(t) {
+            t === 'dark' ? document.body.classList.add('dark-mode') : document.body.classList.remove('dark-mode');
+            localStorage.setItem('pref_theme', t);
         }
 
-        function login() {
-            const u = document.getElementById('usuario').value.trim();
-            const p = document.getElementById('contrasena').value.trim();
-            if (usuarios[u] && usuarios[u].pass === p) {
-                entrarAlSistema(u);
+        function setLanguage(l) {
+            document.querySelectorAll('.lang-text').forEach(el => {
+                el.innerText = el.getAttribute(`data-${l}`);
+            });
+            localStorage.setItem('pref_lang', l);
+        }
+
+        // --- SESIÓN ---
+        function handleLogin() {
+            const u = document.getElementById('user-input').value.trim();
+            const p = document.getElementById('pass-input').value.trim();
+            
+            if(USERS_DB[u] && USERS_DB[u].pass === p) {
+                startSession(u);
             } else {
-                document.getElementById('error-msg').innerText = "Credenciales inválidas";
+                document.getElementById('login-error').innerText = "Acceso Denegado";
             }
         }
 
-        function entrarAlSistema(u) {
-            userLogged = usuarios[u];
-            sessionStorage.setItem('userSession', u); // Persistencia al actualizar
+        function startSession(userId) {
+            activeUser = USERS_DB[userId];
+            localStorage.setItem('session_user', userId);
             
-            document.getElementById('login').classList.add('hidden');
-            document.getElementById('sistema').classList.remove('hidden');
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('main-system').classList.remove('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
 
-            // Bienvenida central
+            // Bienvenida Centralizada
             const overlay = document.getElementById('welcome-overlay');
-            document.getElementById('welcome-text').innerText = `Hola, ${userLogged.nombre} ${userLogged.apellido}`;
+            const txt = document.getElementById('welcome-text');
+            txt.innerText = `Hola, ${activeUser.name}`;
+            overlay.classList.remove('invisible');
             overlay.style.opacity = "1";
-            setTimeout(() => overlay.style.opacity = "0", 15000);
+            setTimeout(() => { 
+                overlay.style.opacity = "0";
+                setTimeout(() => overlay.classList.add('invisible'), 1000);
+            }, 15000);
 
-            if (userLogged.rol === "admin" || userLogged.rol === "lector") {
-                document.getElementById('panel-acciones').classList.remove('hidden');
-                if(userLogged.rol === "admin") document.getElementById('admin-config-btn').classList.remove('hidden');
-            }
+            renderInterface();
+            resetInactivity();
+        }
+
+        function renderInterface() {
+            const container = document.getElementById('admin-buttons');
+            const panel = document.getElementById('admin-panel');
             
-            dibujarTabla(userLogged.rol === "admin" ? [...usuarios["fatima.flores"].materias, ...usuarios["jorge.flores"].materias] : (userLogged.materias || []));
-            resetTimer();
+            if(activeUser.rol === 'admin') {
+                panel.classList.remove('hidden');
+                container.innerHTML = `
+                    <button onclick="viewGrades('fatima.flores')" class="bg-white text-indigo-700 p-6 rounded-3xl font-bold hover:scale-105 transition shadow-lg">👩‍🏫 Notas Fatima</button>
+                    <button onclick="viewGrades('jorge.flores')" class="bg-white text-indigo-700 p-6 rounded-3xl font-bold hover:scale-105 transition shadow-lg">👨‍🏫 Notas Jorge</button>
+                    <button onclick="openSystemMgmt()" class="bg-yellow-400 text-indigo-900 p-6 rounded-3xl font-bold hover:scale-105 transition shadow-lg">🛠️ Gestión de Sistema</button>
+                `;
+                viewGrades('fatima.flores');
+            } else {
+                drawTable(activeUser.subjects);
+            }
         }
 
-        function filtrarPorProfesor(prof) {
-            const profObj = prof === 'fatima' ? usuarios["fatima.flores"] : usuarios["jorge.flores"];
-            document.getElementById('titulo-tabla').innerText = "Notas: " + profObj.nombre + " " + profObj.apellido;
-            dibujarTabla(profObj.materias);
+        function viewGrades(userKey) {
+            document.getElementById('table-title').innerText = "Notas: " + USERS_DB[userKey].name;
+            drawTable(USERS_DB[userKey].subjects);
         }
 
-        function abrirGestion() {
-            alert("Panel de Gestión Administrativa:\n- Modificar Usuarios\n- Cambiar Roles\n- Agregar/Quitar Materias\n(Conectando a base de datos...)");
+        function openSystemMgmt() {
+            alert("MODO GESTIÓN:\n1. Editar Usuarios y Roles\n2. Crear/Eliminar materias de la tabla\n\nEsta función permite modificar USERS_DB en tiempo real.");
         }
 
-        function dibujarTabla(lista) {
-            const tbody = document.getElementById('tabla-cuerpo');
-            tbody.innerHTML = lista.map(m => `
-                <tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition">
-                    <td class="p-8 font-bold text-lg">${m}</td>
-                    <td class="p-8 nota ${userLogged.rol !== 'lector' ? 'bg-indigo-50 dark:bg-slate-700' : ''}" data-m="${m}" data-c="coti">-</td>
-                    <td class="p-8 nota ${userLogged.rol !== 'lector' ? 'bg-indigo-50 dark:bg-slate-700' : ''}" data-m="${m}" data-c="inte">-</td>
-                    <td class="p-8 nota ${userLogged.rol !== 'lector' ? 'bg-indigo-50 dark:bg-slate-700' : ''}" data-m="${m}" data-c="exam">-</td>
-                    <td class="p-8 text-right font-black text-2xl text-indigo-500">0.0</td>
+        function drawTable(mats) {
+            const body = document.getElementById('grades-body');
+            body.innerHTML = mats.map(m => `
+                <tr class="hover:bg-indigo-50/50 dark:hover:bg-slate-800/50 transition">
+                    <td class="p-8 font-bold">${m}</td>
+                    <td class="p-8 cell editable" data-m="${m}" data-c="coti">-</td>
+                    <td class="p-8 cell editable" data-m="${m}" data-c="inte">-</td>
+                    <td class="p-8 cell editable" data-m="${m}" data-c="exam">-</td>
+                    <td class="p-8 text-right font-black text-2xl text-indigo-600">0.0</td>
                 </tr>
             `).join('');
 
-            if (userLogged.rol !== "lector") {
-                document.querySelectorAll('.nota').forEach(td => {
+            if(activeUser.rol !== 'lector') {
+                document.querySelectorAll('.cell.editable').forEach(td => {
                     td.contentEditable = true;
-                    td.onblur = (e) => database.ref(`notas/${e.target.dataset.m}/${e.target.dataset.c}`).set(e.target.innerText);
+                    td.onblur = (e) => {
+                        db.ref(`v2/notas/${e.target.dataset.m}/${e.target.dataset.c}`).set(e.target.innerText);
+                    };
                 });
             }
-            escucharFirebase();
+            syncFirebase();
         }
 
-        function escucharFirebase() {
-            database.ref('notas').on('value', snap => {
-                const datos = snap.val() || {};
-                document.querySelectorAll('#tabla-cuerpo tr').forEach(fila => {
-                    const m = fila.cells[0].innerText;
-                    if (datos[m]) {
-                        fila.cells[1].innerText = datos[m].coti || "-";
-                        fila.cells[2].innerText = datos[m].inte || "-";
-                        fila.cells[3].innerText = datos[m].exam || "-";
-                        const f = (parseFloat(datos[m].coti || 0) + parseFloat(datos[m].inte || 0) + parseFloat(datos[m].exam || 0)) / 3;
-                        fila.cells[4].innerText = f.toFixed(1);
+        function syncFirebase() {
+            db.ref('v2/notas').on('value', snap => {
+                const data = snap.val() || {};
+                document.querySelectorAll('#grades-body tr').forEach(row => {
+                    const m = row.cells[0].innerText;
+                    if(data[m]) {
+                        row.cells[1].innerText = data[m].coti || "-";
+                        row.cells[2].innerText = data[m].inte || "-";
+                        row.cells[3].innerText = data[m].exam || "-";
+                        const f = (parseFloat(data[m].coti||0) + parseFloat(data[m].inte||0) + parseFloat(data[m].exam||0)) / 3;
+                        row.cells[4].innerText = f.toFixed(1);
                     }
                 });
             });
         }
 
         function logout() {
-            sessionStorage.removeItem('userSession');
+            localStorage.removeItem('session_user');
             location.reload();
         }
 
-        // Recuperar sesión y tema al cargar
+        // --- CARGA INICIAL ---
         window.onload = () => {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            setTheme(savedTheme);
-            document.getElementById('theme-select').value = savedTheme;
+            const t = localStorage.getItem('pref_theme') || 'light';
+            const l = localStorage.getItem('pref_lang') || 'es';
+            const s = localStorage.getItem('session_user');
 
-            const savedSession = sessionStorage.getItem('userSession');
-            if(savedSession && usuarios[savedSession]) {
-                entrarAlSistema(savedSession);
-            }
+            setTheme(t);
+            setLanguage(l);
+            document.getElementById('theme-select').value = t;
+            document.getElementById('lang-select').value = l;
+
+            if(s && USERS_DB[s]) startSession(s);
         };
     </script>
 </body>
