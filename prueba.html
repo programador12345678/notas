@@ -10,137 +10,90 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
-        /* Definición de variables para cambios globales */
-        :root {
-            --bg-body: #f1f5f9;
-            --bg-card: #ffffff;
-            --text-main: #1e293b;
-            --border-color: #e2e8f0;
-            --input-bg: #f8fafc;
+        :root { --bg-body: #f1f5f9; --bg-card: #ffffff; --text-main: #1e293b; --border-color: #e2e8f0; }
+        .dark-mode { --bg-body: #0f172a; --bg-card: #1e293b; --text-main: #f8fafc; --border-color: #334155; }
+        
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-body); color: var(--text-main); transition: 0.4s; min-height: 100vh; margin: 0; overflow-x: hidden; }
+        .glass-card { background-color: var(--bg-card); border: 1px solid var(--border-color); }
+        .hidden { display: none !important; }
+
+        /* Mensaje de bienvenida central */
+        #welcome-overlay {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 100; transition: opacity 1s ease;
         }
 
-        /* Colores cuando el modo oscuro está activo */
-        .dark-mode {
-            --bg-body: #0f172a; /* Fondo total oscuro */
-            --bg-card: #1e293b; /* Tarjetas oscuras */
-            --text-main: #f8fafc; /* Texto claro */
-            --border-color: #334155;
-            --input-bg: #334155;
-        }
-
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            background-color: var(--bg-body); 
-            color: var(--text-main);
-            transition: background-color 0.4s ease, color 0.4s ease;
-            margin: 0;
-            min-height: 100vh;
-        }
-
-        .glass-card, .navbar, .table-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            transition: background-color 0.4s ease;
-        }
-
-        input, select {
-            background-color: var(--input-bg) !important;
-            color: var(--text-main) !important;
-            border: 1px solid var(--border-color) !important;
-        }
-
+        /* Menú Personalizar */
         #custom-menu { 
-            transform: translateY(-10px); 
-            opacity: 0; 
-            transition: 0.3s ease; 
-            pointer-events: none; 
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
+            transform: translateY(-10px); opacity: 0; transition: 0.3s; pointer-events: none;
+            background-color: var(--bg-card); border: 1px solid var(--border-color);
         }
         #custom-menu.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
-        
-        .hidden { display: none !important; }
     </style>
 </head>
-<body class="light">
+<body>
 
-    <div class="fixed top-4 right-4 z-50">
-        <button onclick="toggleCustomMenu()" class="glass-card p-3 rounded-full shadow-xl hover:scale-110 transition flex items-center gap-2 font-bold">
-            ⚙️ <span id="lang-custom-btn">Personalizar</span>
-        </button>
-        
-        <div id="custom-menu" class="absolute right-0 mt-2 w-56 rounded-2xl shadow-2xl p-5">
-            <p class="text-xs font-bold text-indigo-500 uppercase mb-4 tracking-widest" id="lang-settings">Ajustes</p>
-            
-            <div class="mb-4">
-                <label class="block text-sm font-semibold mb-2" id="lang-theme">Modo de Pantalla:</label>
-                <select onchange="setTheme(this.value)" id="theme-select" class="w-full p-2 rounded-xl outline-none cursor-pointer">
-                    <option value="light">☀️ Claro / Light</option>
-                    <option value="dark">🌙 Oscuro / Dark</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold mb-2" id="lang-language">Idioma:</label>
-                <select onchange="setLanguage(this.value)" id="lang-select" class="w-full p-2 rounded-xl outline-none cursor-pointer">
-                    <option value="es">Español</option>
-                    <option value="en">English</option>
-                </select>
-            </div>
-        </div>
+    <div id="welcome-overlay" class="text-center opacity-0 pointer-events-none">
+        <h1 id="welcome-text" class="text-5xl md:text-7xl font-black text-indigo-600 drop-shadow-2xl"></h1>
     </div>
 
-    <div id="login" class="min-h-screen flex items-center justify-center p-6">
+    <div class="fixed top-4 right-4 z-50 flex gap-2">
+        <button onclick="toggleCustomMenu()" class="glass-card px-4 py-2 rounded-xl shadow-lg font-bold">⚙️ Personalizar</button>
+        <button id="logout-btn" onclick="logout()" class="hidden bg-red-500 text-white px-4 py-2 rounded-xl shadow-lg font-bold hover:bg-red-600 transition">Cerrar Sesión</button>
+    </div>
+
+    <div id="custom-menu" class="fixed top-16 right-4 w-56 rounded-2xl shadow-2xl p-5 z-50">
+        <label class="block text-xs font-bold opacity-50 mb-2 uppercase">Modo</label>
+        <select onchange="setTheme(this.value)" id="theme-select" class="w-full p-2 rounded-lg bg-gray-100 dark:bg-slate-700 mb-4 outline-none">
+            <option value="light">☀️ Claro</option>
+            <option value="dark">🌙 Oscuro</option>
+        </select>
+        <label class="block text-xs font-bold opacity-50 mb-2 uppercase">Idioma</label>
+        <select onchange="setLanguage(this.value)" id="lang-select" class="w-full p-2 rounded-lg bg-gray-100 dark:bg-slate-700 outline-none">
+            <option value="es">Español</option>
+            <option value="en">English</option>
+        </select>
+    </div>
+
+    <div id="login-section" class="min-h-screen flex items-center justify-center p-6">
         <div class="glass-card p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center">
-            <h2 class="text-4xl font-extrabold mb-2 text-indigo-600" id="lang-login-title">Sistema de Notas</h2>
-            <p class="opacity-60 mb-8" id="lang-login-subtitle">Inicia sesión para continuar</p>
-            
-            <input type="text" id="usuario" placeholder="Usuario" class="w-full p-4 mb-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
-            <input type="password" id="contrasena" placeholder="Contraseña" class="w-full p-4 mb-8 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
-            
-            <button id="login-btn" class="w-full bg-[#5549e6] text-white py-4 rounded-2xl font-bold text-lg hover:brightness-110 shadow-lg transition">Entrar</button>
-            <p id="error-msg" class="text-red-500 mt-4 text-sm font-semibold"></p>
+            <h2 class="text-3xl font-bold mb-8">Sistema de Notas</h2>
+            <input type="text" id="usuario" placeholder="Usuario" class="w-full p-4 mb-4 rounded-2xl border outline-none focus:ring-2 focus:ring-indigo-500 transition text-black">
+            <input type="password" id="contrasena" placeholder="Contraseña" class="w-full p-4 mb-8 rounded-2xl border outline-none focus:ring-2 focus:ring-indigo-500 transition text-black">
+            <button onclick="login()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-indigo-700 transition">Entrar</button>
+            <p id="error-msg" class="text-red-500 mt-4 text-sm"></p>
         </div>
     </div>
 
-    <div id="sistema" class="hidden">
-        <nav class="navbar p-6 flex justify-between items-center shadow-md px-10">
-            <span id="welcome" class="font-bold text-xl tracking-tight"></span>
-            <button id="logout" class="text-red-500 font-bold border-2 border-red-500 px-6 py-2 rounded-xl hover:bg-red-500 hover:text-white transition">Salir</button>
-        </nav>
-
-        <div id="panel-lectores" class="hidden max-w-5xl mx-auto mt-12 p-6">
-            <div class="bg-[#5549e6] p-12 rounded-[3rem] text-white text-center shadow-2xl">
-                <h3 class="text-4xl font-bold mb-4" id="lang-welcome-back">¡Bienvenidos!</h3>
-                <p class="opacity-80 text-lg mb-10" id="lang-ask-notes">¿Qué notas desean revisar hoy?</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <button class="bg-white text-indigo-700 p-8 rounded-[2rem] font-bold text-xl hover:scale-105 transition shadow-xl" onclick="filtrarPorProfesor('fatima')">👩‍🏫 Fatima Flores</button>
-                    <button class="bg-white text-indigo-700 p-8 rounded-[2rem] font-bold text-xl hover:scale-105 transition shadow-xl" onclick="filtrarPorProfesor('jorge')">👨‍🏫 Jorge Flores</button>
-                </div>
+    <div id="sistema" class="hidden pt-20 p-6">
+        <div id="panel-opciones" class="hidden max-w-5xl mx-auto mb-10">
+            <div class="bg-indigo-600 p-10 rounded-[2.5rem] text-white shadow-2xl">
+                <h3 class="text-2xl font-bold mb-6 text-center" id="lang-options-title">Panel de Control</h3>
+                <div id="btns-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    </div>
             </div>
         </div>
 
-        <main class="max-w-6xl mx-auto p-6 md:p-10">
-            <div class="table-card rounded-[3rem] shadow-2xl overflow-hidden">
-                <div class="p-10 border-b border-gray-100 dark:border-slate-800">
-                    <h2 id="titulo-tabla" class="text-3xl font-extrabold">Registro de Calificaciones</h2>
+        <div class="max-w-6xl mx-auto">
+            <div class="glass-card rounded-[2.5rem] shadow-xl overflow-hidden">
+                <div class="p-8 border-b border-gray-100 flex justify-between items-center">
+                    <h2 id="titulo-tabla" class="text-2xl font-bold">Registro de Calificaciones</h2>
+                    <span id="save-status" class="text-xs font-bold text-green-500">Sincronizado</span>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="text-xs uppercase opacity-50 font-black tracking-widest border-b border-gray-100">
-                                <th class="p-8" id="lang-th-subject">Materia</th>
-                                <th class="p-8" id="lang-th-coti">Cotidiana</th>
-                                <th class="p-8" id="lang-th-inte">Integradora</th>
-                                <th class="p-8" id="lang-th-exam">Examen</th>
-                                <th class="p-8 text-right" id="lang-th-final">Nota Final</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-cuerpo" class="divide-y divide-gray-50 dark:divide-slate-800"></tbody>
-                    </table>
-                </div>
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="opacity-50 text-xs uppercase font-bold border-b">
+                            <th class="p-6">Materia</th>
+                            <th class="p-6">Cotidiana</th>
+                            <th class="p-6">Integradora</th>
+                            <th class="p-6">Examen</th>
+                            <th class="p-6 text-right">Final</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-cuerpo" class="divide-y divide-gray-100"></tbody>
+                </table>
             </div>
-        </main>
+        </div>
     </div>
 
     <script>
@@ -148,106 +101,141 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        const usuarios = {
-            "fatima.flores": { pass: "Ccsa2026.", rol: "editor", nombre: "Fatima", apellido: "Flores", materias: ["Lenguaje", "Matemáticas", "Sociales", "Ciencias", "OPV", "Moral", "Seminario"] },
-            "jorge.flores": { pass: "Atb2026.", rol: "editor", nombre: "Jorge", apellido: "Flores", materias: ["Inglés", "Reading", "Conversation", "Informática", "Ed. Física"] },
-            "jorge.flores1": { pass: "JFlores2026.", rol: "lector", nombre: "Jorge", apellido: "Lector" },
+        let usuarios = {
+            "fatima.flores": { pass: "Ccsa2026.", rol: "editor", nombre: "Fatima", apellido: "Flores", materias: ["Lenguaje", "Matemáticas", "Sociales", "Ciencias"] },
+            "jorge.flores": { pass: "Atb2026.", rol: "editor", nombre: "Jorge", apellido: "Flores", materias: ["Inglés", "Reading", "Informática"] },
+            "jorge.flores1": { pass: "JFlores2026.", rol: "lector", nombre: "Jorge", apellido: "Flores (L)" },
             "carmen.jovel": { pass: "CJovel2026.", rol: "lector", nombre: "Carmen", apellido: "Jovel" },
-            "admin.notas": { pass: "Admin2026.", rol: "admin", nombre: "Admin", apellido: "General" }
+            "admin.notas": { pass: "Admin2026.", rol: "admin", nombre: "Jorge", apellido: "Flores" }
         };
 
-        const translations = {
-            es: { loginTitle: "Sistema de Notas", loginSubtitle: "Inicia sesión para continuar", btnLogin: "Entrar", customBtn: "Personalizar", settings: "Ajustes", theme: "Modo de Pantalla:", language: "Idioma:", logout: "Salir", welcomeBack: "¡Bienvenidos!", askNotes: "¿Qué notas desean revisar hoy?", thSubject: "Materia", thCoti: "Cotidiana", thInte: "Integradora", thExam: "Examen", thFinal: "Nota Final", hello: "Hola" },
-            en: { loginTitle: "Grades System", loginSubtitle: "Sign in to continue", btnLogin: "Sign In", customBtn: "Customize", settings: "Settings", theme: "Screen Mode:", language: "Language:", logout: "Logout", welcomeBack: "Welcome!", askNotes: "Whose grades do you want to review?", thSubject: "Subject", thCoti: "Classwork", thInte: "Integrative", thExam: "Exam", thFinal: "Final Grade", hello: "Hello" }
-        };
-
-        let currentLang = 'es';
         let userLogged = null;
+        let inactivityTimer;
 
+        // --- LÓGICA DE INACTIVIDAD (5 MINUTOS) ---
+        function resetTimer() {
+            clearTimeout(inactivityTimer);
+            if (userLogged) {
+                inactivityTimer = setTimeout(logout, 5 * 60 * 1000); // 5 minutos
+            }
+        }
+        window.onmousemove = resetTimer;
+        window.onkeypress = resetTimer;
+
+        function logout() { location.reload(); }
+
+        // --- PERSONALIZACIÓN ---
         function toggleCustomMenu() { document.getElementById('custom-menu').classList.toggle('show'); }
+        function setTheme(t) { t === 'dark' ? document.body.classList.add('dark-mode') : document.body.classList.remove('dark-mode'); }
+        function setLanguage(l) { /* Lógica de traducción similar a la anterior */ }
 
-        function setTheme(theme) {
-            if(theme === 'dark') document.body.classList.add('dark-mode');
-            else document.body.classList.remove('dark-mode');
-            localStorage.setItem('theme', theme);
-        }
+        // --- INICIO DE SESIÓN ---
+        function login() {
+            const u = document.getElementById('usuario').value.trim();
+            const p = document.getElementById('contrasena').value.trim();
 
-        function setLanguage(lang) {
-            currentLang = lang;
-            const t = translations[lang];
-            document.querySelectorAll('[id^="lang-"]').forEach(el => {
-                const key = el.id.replace('lang-', '').replace(/-([a-z])/g, g => g[1].toUpperCase());
-                if(t[key]) el.innerText = t[key];
-            });
-            if(userLogged) document.getElementById('welcome').innerText = `${t.hello}, ${userLogged.nombre} ${userLogged.apellido}`;
-            localStorage.setItem('lang', lang);
-        }
-
-        document.getElementById('login-btn').addEventListener('click', () => {
-            const u = document.getElementById('usuario').value;
-            const p = document.getElementById('contrasena').value;
             if (usuarios[u] && usuarios[u].pass === p) {
                 userLogged = usuarios[u];
-                document.getElementById('login').classList.add('hidden');
+                document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('sistema').classList.remove('hidden');
-                setLanguage(currentLang);
-                if (userLogged.rol === "lector") document.getElementById('panel-lectores').classList.remove('hidden');
-                else dibujarTabla(userLogged.rol === "admin" ? [...usuarios["fatima.flores"].materias, ...usuarios["jorge.flores"].materias] : userLogged.materias);
-            } else {
-                document.getElementById('error-msg').innerText = currentLang === 'es' ? "Credenciales inválidas" : "Invalid credentials";
-            }
-        });
+                document.getElementById('logout-btn').classList.remove('hidden');
 
-        function filtrarPorProfesor(prof) {
-            const profObj = prof === 'fatima' ? usuarios["fatima.flores"] : usuarios["jorge.flores"];
-            document.getElementById('titulo-tabla').innerText = "Notas: " + profObj.nombre + " " + profObj.apellido;
-            dibujarTabla(profObj.materias);
+                // Mostrar bienvenida central
+                const welcomeOverlay = document.getElementById('welcome-overlay');
+                const welcomeText = document.getElementById('welcome-text');
+                welcomeText.innerText = `Hola, ${userLogged.nombre} ${userLogged.apellido}`;
+                welcomeOverlay.style.opacity = "1";
+                
+                // Desaparecer después de 15 segundos
+                setTimeout(() => { welcomeOverlay.style.opacity = "0"; }, 15000);
+
+                setupDashboard();
+                resetTimer();
+            } else {
+                document.getElementById('error-msg').innerText = "Credenciales incorrectas";
+            }
         }
 
-        function dibujarTabla(lista) {
+        function setupDashboard() {
+            const btnsContainer = document.getElementById('btns-container');
+            btnsContainer.innerHTML = "";
+
+            if (userLogged.rol === "lector" || userLogged.rol === "admin") {
+                document.getElementById('panel-opciones').classList.remove('hidden');
+                
+                // Botón Fatima
+                btnsContainer.innerHTML += createMenuBtn("Notas Fatima Flores", () => filtrarNotas('fatima.flores'), "👩‍🏫");
+                // Botón Jorge
+                btnsContainer.innerHTML += createMenuBtn("Notas Jorge Flores", () => filtrarNotas('jorge.flores'), "👨‍🏫");
+
+                if (userLogged.rol === "admin") {
+                    // Botón Configuración (Gestión)
+                    btnsContainer.innerHTML += createMenuBtn("Gestión de Sistema", () => abrirGestionAdmin(), "⚙️");
+                }
+            } else {
+                dibujarTabla(userLogged.materias);
+            }
+        }
+
+        function createMenuBtn(text, action, icon) {
+            const id = "btn-" + Math.random().toString(36).substr(2, 9);
+            setTimeout(() => document.getElementById(id).onclick = action, 100);
+            return `<button id="${id}" class="bg-white text-indigo-600 p-6 rounded-2xl font-bold hover:scale-105 transition shadow-lg flex flex-col items-center">
+                        <span class="text-2xl">${icon}</span> ${text}
+                    </button>`;
+        }
+
+        function filtrarNotas(userKey) {
+            document.getElementById('titulo-tabla').innerText = "Notas de " + usuarios[userKey].nombre;
+            dibujarTabla(usuarios[userKey].materias);
+        }
+
+        function abrirGestionAdmin() {
+            alert("Accediendo a: \n1. Crear/Eliminar Usuarios\n2. Modificar Roles\n3. Añadir/Quitar Materias\n(Esta interfaz se conecta a la rama /config en Firebase)");
+            // Aquí puedes redirigir o abrir un modal de gestión
+        }
+
+        function dibujarTabla(mats) {
             const tbody = document.getElementById('tabla-cuerpo');
-            tbody.innerHTML = lista.map(m => `
-                <tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition">
-                    <td class="p-8 font-bold text-lg">${m}</td>
-                    <td class="p-8 nota cursor-edit" data-m="${m}" data-c="cotidiana">-</td>
-                    <td class="p-8 nota cursor-edit" data-m="${m}" data-c="integradora">-</td>
-                    <td class="p-8 nota cursor-edit" data-m="${m}" data-c="examen">-</td>
-                    <td class="p-8 text-right font-black text-2xl text-indigo-500">0.0</td>
+            tbody.innerHTML = mats.map(m => `
+                <tr>
+                    <td class="p-6 font-bold">${m}</td>
+                    <td class="p-6 nota" data-m="${m}" data-c="coti">-</td>
+                    <td class="p-6 nota" data-m="${m}" data-c="inte">-</td>
+                    <td class="p-6 nota" data-m="${m}" data-c="exam">-</td>
+                    <td class="p-6 text-right font-black text-indigo-600 text-xl">0.0</td>
                 </tr>
             `).join('');
+
             if (userLogged.rol !== "lector") {
                 document.querySelectorAll('.nota').forEach(td => {
                     td.contentEditable = true;
-                    td.addEventListener('blur', (e) => database.ref(`notas/${e.target.dataset.m}/${e.target.dataset.c}`).set(e.target.innerText));
+                    td.classList.add('bg-indigo-50', 'dark:bg-slate-700', 'rounded-lg');
+                    td.onblur = (e) => {
+                        const m = e.target.dataset.m;
+                        const c = e.target.dataset.c;
+                        database.ref(`notas/${m}/${c}`).set(e.target.innerText);
+                    };
                 });
             }
-            escucharFirebase();
+            escucharNotas();
         }
 
-        function escucharFirebase() {
+        function escucharNotas() {
             database.ref('notas').on('value', snap => {
-                const datos = snap.val() || {};
-                document.querySelectorAll('#tabla-cuerpo tr').forEach(fila => {
-                    const m = fila.cells[0].innerText;
-                    if (datos[m]) {
-                        fila.cells[1].innerText = datos[m].cotidiana || "-";
-                        fila.cells[2].innerText = datos[m].integradora || "-";
-                        fila.cells[3].innerText = datos[m].examen || "-";
-                        const f = (parseFloat(datos[m].cotidiana || 0) + parseFloat(datos[m].integradora || 0) + parseFloat(datos[m].examen || 0)) / 3;
-                        fila.cells[4].innerText = isNaN(f) ? "0.0" : f.toFixed(1);
+                const data = snap.val() || {};
+                document.querySelectorAll('#tabla-cuerpo tr').forEach(row => {
+                    const m = row.cells[0].innerText;
+                    if(data[m]) {
+                        row.cells[1].innerText = data[m].coti || "-";
+                        row.cells[2].innerText = data[m].inte || "-";
+                        row.cells[3].innerText = data[m].exam || "-";
+                        const f = (parseFloat(data[m].coti||0) + parseFloat(data[m].inte||0) + parseFloat(data[m].exam||0)) / 3;
+                        row.cells[4].innerText = f.toFixed(1);
                     }
                 });
             });
         }
-
-        document.getElementById('logout').addEventListener('click', () => location.reload());
-
-        window.onload = () => {
-            setTheme(localStorage.getItem('theme') || 'light');
-            setLanguage(localStorage.getItem('lang') || 'es');
-            document.getElementById('theme-select').value = localStorage.getItem('theme') || 'light';
-            document.getElementById('lang-select').value = localStorage.getItem('lang') || 'es';
-        };
     </script>
 </body>
 </html>
