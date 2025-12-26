@@ -15,8 +15,8 @@
         body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.5s; min-height: 100vh; }
         .glass-card { background-color: var(--card); border: 1px solid var(--border); }
         .hidden { display: none !important; }
-        input, select { color: #000 !important; }
-        .dark-mode input, .dark-mode select { color: #fff !important; background: #334155; }
+        input, select { color: #000 !important; border-radius: 12px; padding: 10px; }
+        .dark-mode input, .dark-mode select { color: #fff !important; background: #334155; border: 1px solid #475569; }
     </style>
 </head>
 <body class="light">
@@ -30,10 +30,10 @@
     <div id="profile-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] hidden flex items-center justify-center p-4">
         <div class="glass-card p-8 rounded-[2.5rem] w-full max-w-sm">
             <h3 class="text-xl font-bold mb-4 lang" data-es="Cambiar Contraseña" data-en="Change Password">Cambiar Contraseña</h3>
-            <input type="password" id="new-pass-val" class="w-full p-3 rounded-xl border mb-4" placeholder="Nueva contraseña">
+            <input type="password" id="new-pass-val" class="w-full mb-4" placeholder="Nueva Password">
             <div class="flex gap-2">
                 <button onclick="changeMyPass()" class="flex-1 bg-indigo-600 text-white py-2 rounded-xl font-bold lang" data-es="Guardar" data-en="Save">Guardar</button>
-                <button onclick="toggleModal('profile-modal')" class="flex-1 bg-gray-400 text-white py-2 rounded-xl font-bold lang" data-es="Cancelar" data-en="Cancel">Cancelar</button>
+                <button onclick="toggleModal('profile-modal')" class="flex-1 bg-gray-400 text-white py-2 rounded-xl font-bold lang" data-es="Cerrar" data-en="Close">Cerrar</button>
             </div>
         </div>
     </div>
@@ -41,15 +41,15 @@
     <div id="custom-menu" class="fixed top-20 right-4 w-64 glass-card rounded-[2rem] shadow-2xl p-6 hidden z-[120]">
         <div class="space-y-4">
             <div>
-                <label class="block text-sm font-semibold mb-1 lang" data-es="Modo" data-en="Mode">Modo</label>
-                <select onchange="setTheme(this.value)" class="w-full p-2 rounded-xl border bg-transparent">
-                    <option value="light">☀️ Light</option>
-                    <option value="dark">🌙 Dark</option>
+                <label class="block text-sm font-semibold mb-1 lang" data-es="Modo" data-en="Display Mode">Modo</label>
+                <select onchange="setTheme(this.value)" id="theme-sel" class="w-full bg-transparent">
+                    <option value="light">☀️ Claro / Light</option>
+                    <option value="dark">🌙 Oscuro / Dark</option>
                 </select>
             </div>
             <div>
                 <label class="block text-sm font-semibold mb-1 lang" data-es="Idioma" data-en="Language">Idioma</label>
-                <select onchange="setLang(this.value)" class="w-full p-2 rounded-xl border bg-transparent">
+                <select onchange="setLang(this.value)" id="lang-sel" class="w-full bg-transparent">
                     <option value="es">Español</option>
                     <option value="en">English</option>
                 </select>
@@ -59,10 +59,10 @@
 
     <div id="login-sec" class="min-h-screen flex flex-col items-center justify-center p-6">
         <div class="glass-card p-10 rounded-[3rem] shadow-2xl w-full max-w-md text-center">
-            <h2 class="text-4xl font-extrabold mb-8 text-indigo-600 lang" data-es="Acceso" data-en="Login">Acceso</h2>
-            <input type="text" id="user-in" class="w-full p-4 mb-4 rounded-2xl border outline-none" placeholder="Usuario">
-            <input type="password" id="pass-in" class="w-full p-4 mb-8 rounded-2xl border outline-none" placeholder="Contraseña">
-            <button onclick="login()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:brightness-110 lang" data-es="Entrar" data-en="Sign In">Entrar</button>
+            <h2 class="text-4xl font-extrabold mb-8 text-indigo-600 lang" data-es="Sistema de Notas" data-en="Grades System">Sistema de Notas</h2>
+            <input type="text" id="user-in" class="w-full mb-4 outline-none" placeholder="Usuario / Username">
+            <input type="password" id="pass-in" class="w-full mb-8 outline-none" placeholder="Password">
+            <button onclick="login()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold shadow-lg lang" data-es="Entrar" data-en="Login">Entrar</button>
             <p id="err" class="text-red-500 mt-4 text-sm font-bold"></p>
         </div>
         <footer class="mt-10 opacity-50 text-sm font-bold">©2026 Sistema de notas. Derechos reservados.</footer>
@@ -80,20 +80,27 @@
         <div id="mgmt-panel" class="max-w-6xl mx-auto mb-10 hidden glass-card p-8 rounded-[3rem] border-2 border-indigo-500">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <div>
-                    <h3 class="text-xl font-bold mb-4 text-indigo-500 lang" data-es="Lista de Usuarios y Pass" data-en="User List & Pass">Lista de Usuarios</h3>
-                    <div id="user-admin-list" class="space-y-2 max-h-60 overflow-y-auto pr-2"></div>
-                    <div class="mt-6 p-4 bg-gray-100 dark:bg-slate-700 rounded-2xl">
-                        <p class="text-xs font-bold mb-2 lang" data-es="CREAR NUEVO" data-en="CREATE NEW">CREAR NUEVO</p>
-                        <input type="text" id="new-u-name" placeholder="ID Usuario" class="w-full p-2 mb-2 rounded border">
-                        <input type="text" id="new-u-pass" placeholder="Contraseña" class="w-full p-2 mb-2 rounded border">
-                        <button onclick="addUser()" class="w-full bg-indigo-500 text-white py-2 rounded-xl font-bold">Añadir Usuario</button>
+                    <h3 class="text-xl font-bold mb-4 text-indigo-500 lang" data-es="Crear Usuario" data-en="Create User">Crear Usuario</h3>
+                    <div class="flex flex-col gap-2 p-4 bg-gray-50 dark:bg-slate-800 rounded-2xl">
+                        <input type="text" id="new-u-id" placeholder="ID (ej: ana.perez)">
+                        <input type="text" id="new-u-pass" placeholder="Password">
+                        <select id="new-u-role">
+                            <option value="lector">Lector / Reader</option>
+                            <option value="editor">Editor</option>
+                        </select>
+                        <select id="new-u-access">
+                            <option value="fatima.flores">Acceso: Fatima</option>
+                            <option value="jorge.flores">Acceso: Jorge</option>
+                        </select>
+                        <button onclick="addUser()" class="bg-indigo-600 text-white py-2 rounded-xl font-bold lang" data-es="Crear" data-en="Create">Crear</button>
                     </div>
+                    <div id="user-admin-list" class="mt-4 space-y-2 max-h-40 overflow-y-auto"></div>
                 </div>
                 <div>
                     <h3 class="text-xl font-bold mb-4 text-indigo-500 lang" data-es="Materias y Borrado" data-en="Subjects & Reset">Materias y Borrado</h3>
                     <div class="flex gap-2 mb-4">
-                        <select id="user-reset-select" class="flex-1 p-2 rounded border"></select>
-                        <button onclick="resetUserGrades()" class="bg-red-500 text-white px-4 rounded-xl text-xs font-bold">BORRAR NOTAS</button>
+                        <select id="user-reset-select" class="flex-1"></select>
+                        <button onclick="resetUserGrades()" class="bg-red-500 text-white px-4 rounded-xl text-[10px] font-bold lang" data-es="BORRAR NOTAS" data-en="CLEAR GRADES">BORRAR NOTAS</button>
                     </div>
                     <div id="mgmt-mats-container" class="space-y-4"></div>
                 </div>
@@ -115,6 +122,7 @@
                     <tbody id="table-body" class="divide-y dark:divide-slate-800"></tbody>
                 </table>
             </div>
+            <div id="empty-msg" class="p-20 text-center opacity-30 font-bold lang" data-es="Seleccione un perfil para ver notas" data-en="Select a profile to view grades">Seleccione un perfil para ver notas</div>
         </main>
         <footer class="py-10 text-center opacity-40 text-xs font-bold">©2026 Sistema de notas. Derechos reservados.</footer>
     </div>
@@ -124,51 +132,42 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let USERS = JSON.parse(localStorage.getItem('db_v6')) || {
-            "fatima.flores": { pass: "Ccsa2026.", rol: "editor", name: "Fatima Flores", mats: ["Lenguaje", "Matemáticas"] },
-            "jorge.flores": { pass: "Atb2026.", rol: "editor", name: "Jorge Flores", mats: ["Inglés", "Reading"] },
-            "admin.notas": { pass: "Admin2026.", rol: "admin", name: "Jorge Flores", mats: [] }
+        let USERS = JSON.parse(localStorage.getItem('db_v7')) || {
+            "fatima.flores": { pass: "Ccsa2026.", rol: "editor", name: "Fatima Flores", mats: ["Lenguaje", "Matemáticas"], access: "fatima.flores" },
+            "jorge.flores": { pass: "Atb2026.", rol: "editor", name: "Jorge Flores", mats: ["Inglés", "Reading"], access: "jorge.flores" },
+            "admin.notas": { pass: "Admin2026.", rol: "admin", name: "Admin Principal", mats: [], access: "all" }
         };
 
         let userAct = null;
         let currentTarget = "";
 
-        function save() { localStorage.setItem('db_v6', JSON.stringify(USERS)); }
+        function save() { localStorage.setItem('db_v7', JSON.stringify(USERS)); }
         function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); if(id==='mgmt-panel') renderMgmt(); }
 
-        // --- GESTIÓN DE PERFIL ---
         function changeMyPass() {
             const newP = document.getElementById('new-pass-val').value;
-            if(newP.length < 4) return alert("Mínimo 4 caracteres");
+            if(newP.length < 4) return;
             USERS[localStorage.getItem('session')].pass = newP;
-            save();
-            alert("Contraseña actualizada.");
-            toggleModal('profile-modal');
+            save(); toggleModal('profile-modal');
+            alert("Contraseña Cambiada / Password Changed");
         }
 
-        // --- GESTIÓN ADMIN ---
         function renderMgmt() {
             const uAdmin = document.getElementById('user-admin-list');
             uAdmin.innerHTML = Object.keys(USERS).map(u => `
-                <div class="flex justify-between items-center p-3 bg-white/5 border rounded-xl text-sm">
-                    <div>
-                        <p class="font-bold">${u}</p>
-                        <p class="opacity-50 text-xs">Pass: ${USERS[u].pass}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="resetPass('${u}')" class="text-indigo-500 font-bold text-[10px] uppercase">Reset</button>
-                        ${u !== 'admin.notas' ? `<button onclick="deleteUser('${u}')" class="text-red-500 font-bold text-[10px] uppercase">Eliminar</button>` : ''}
-                    </div>
+                <div class="flex justify-between items-center p-2 bg-black/5 rounded-lg text-[10px] mb-1">
+                    <span>${u} (${USERS[u].rol})</span>
+                    <button onclick="deleteUser('${u}')" class="text-red-500 font-bold">X</button>
                 </div>
             `).join('');
 
             const sel = document.getElementById('user-reset-select');
-            sel.innerHTML = Object.keys(USERS).map(u => `<option value="${u}">${u}</option>`).join('');
+            sel.innerHTML = Object.keys(USERS).filter(u => u !== 'admin.notas').map(u => `<option value="${u}">${u}</option>`).join('');
             
             const cont = document.getElementById('mgmt-mats-container');
-            cont.innerHTML = Object.keys(USERS).filter(u => u !== 'admin.notas').map(u => `
+            cont.innerHTML = ["fatima.flores", "jorge.flores"].map(u => `
                 <div class="p-3 border rounded-xl">
-                    <p class="font-bold text-xs mb-2">${u}</p>
+                    <p class="font-bold text-xs mb-2 text-indigo-500">${USERS[u].name}</p>
                     <div class="flex gap-2">
                         <input type="text" id="in-${u}" class="flex-1 p-1 text-sm border rounded" placeholder="Materia">
                         <button onclick="addMat('${u}')" class="bg-green-500 text-white px-3 rounded">+</button>
@@ -178,18 +177,22 @@
             `).join('');
         }
 
-        function resetPass(u) { USERS[u].pass = "123456"; save(); renderMgmt(); alert("Nueva pass: 123456"); }
-        function deleteUser(u) { if(confirm("¿Eliminar usuario?")) { delete USERS[u]; save(); renderMgmt(); } }
-        function addMat(u) { const v = document.getElementById(`in-${u}`).value; if(v){ USERS[u].mats.push(v); save(); renderMgmt(); viewGroup(u); } }
-        function remMat(u, m) { USERS[u].mats = USERS[u].mats.filter(i => i !== m); save(); renderMgmt(); viewGroup(u); }
-        function resetUserGrades() { const u = document.getElementById('user-reset-select').value; if(confirm("¿Borrar notas?")) { db.ref(`v6/notas/${u}`).remove(); } }
         function addUser() {
-            const id = document.getElementById('new-u-name').value;
+            const id = document.getElementById('new-u-id').value;
             const ps = document.getElementById('new-u-pass').value;
-            if(id && ps) { USERS[id] = { pass: ps, rol: "editor", name: id, mats: [] }; save(); renderMgmt(); }
+            const rl = document.getElementById('new-u-role').value;
+            const ac = document.getElementById('new-u-access').value;
+            if(id && ps) {
+                USERS[id] = { pass: ps, rol: rl, name: id, mats: [], access: ac };
+                save(); renderMgmt();
+            }
         }
 
-        // --- NÚCLEO ---
+        function deleteUser(u) { if(u !== 'admin.notas') { delete USERS[u]; save(); renderMgmt(); } }
+        function addMat(u) { const v = document.getElementById(`in-${u}`).value; if(v){ USERS[u].mats.push(v); save(); renderMgmt(); } }
+        function remMat(u, m) { USERS[u].mats = USERS[u].mats.filter(i => i !== m); save(); renderMgmt(); }
+        function resetUserGrades() { const u = document.getElementById('user-reset-select').value; if(confirm("¿Borrar?")) db.ref(`v7/notas/${u}`).remove(); }
+
         function login() {
             const u = document.getElementById('user-in').value;
             const p = document.getElementById('pass-in').value;
@@ -197,29 +200,40 @@
                 userAct = USERS[u];
                 localStorage.setItem('session', u);
                 initSys();
-            } else { document.getElementById('err').innerText = "Credenciales incorrectas"; }
+            } else { document.getElementById('err').innerText = "Error"; }
         }
 
         function initSys() {
             document.getElementById('login-sec').classList.add('hidden');
             document.getElementById('sys-sec').classList.remove('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
-            document.getElementById('profile-btn').classList.remove('hidden');
+            
+            // Si es admin, no mostramos el botón de cambiar propia pass
+            if(userAct.rol !== 'admin') {
+                document.getElementById('profile-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('profile-btn').classList.add('hidden');
+            }
+
             if(userAct.rol === 'admin') {
                 document.getElementById('admin-header').classList.remove('hidden');
-                viewGroup('fatima.flores');
-            } else { viewGroup(localStorage.getItem('session')); }
+                document.getElementById('table-body').innerHTML = "";
+                document.getElementById('empty-msg').classList.remove('hidden');
+            } else {
+                viewGroup(userAct.access);
+            }
         }
 
         function viewGroup(uKey) {
             currentTarget = uKey;
+            document.getElementById('empty-msg').classList.add('hidden');
             const body = document.getElementById('table-body');
             body.innerHTML = USERS[uKey].mats.map(m => `
                 <tr data-m="${m}">
                     <td class="p-6 font-bold">${m}</td>
-                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="coti" onkeypress="return isNum(event)">-</td>
-                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="inte" onkeypress="return isNum(event)">-</td>
-                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="exam" onkeypress="return isNum(event)">-</td>
+                    <td class="p-6 editable-cell" contenteditable="${userAct.rol==='editor'||userAct.rol==='admin'}" data-c="coti" onkeypress="return isNum(event)">-</td>
+                    <td class="p-6 editable-cell" contenteditable="${userAct.rol==='editor'||userAct.rol==='admin'}" data-c="inte" onkeypress="return isNum(event)">-</td>
+                    <td class="p-6 editable-cell" contenteditable="${userAct.rol==='editor'||userAct.rol==='admin'}" data-c="exam" onkeypress="return isNum(event)">-</td>
                     <td class="p-6 text-right font-black text-xl text-indigo-600">0.0</td>
                 </tr>
             `).join('');
@@ -228,7 +242,7 @@
                 td.onblur = (e) => {
                     const val = e.target.innerText.replace(/[^0-9.]/g, '');
                     e.target.innerText = val || "-";
-                    db.ref(`v6/notas/${currentTarget}/${e.target.parentElement.dataset.m}/${e.target.dataset.c}`).set(val);
+                    db.ref(`v7/notas/${currentTarget}/${e.target.parentElement.dataset.m}/${e.target.dataset.c}`).set(val);
                 };
             });
             sync();
@@ -237,7 +251,7 @@
         function isNum(e) { return (e.which != 46 || e.target.innerText.indexOf('.') != -1) && (e.which < 48 || e.which > 57) ? false : true; }
 
         function sync() {
-            db.ref(`v6/notas/${currentTarget}`).on('value', snap => {
+            db.ref(`v7/notas/${currentTarget}`).on('value', snap => {
                 const data = snap.val() || {};
                 document.querySelectorAll('#table-body tr').forEach(row => {
                     const m = row.dataset.m;
@@ -253,12 +267,23 @@
         }
 
         function logout() { localStorage.removeItem('session'); location.reload(); }
-        function setTheme(t) { t === 'dark' ? document.body.classList.add('dark-mode') : document.body.classList.remove('dark-mode'); localStorage.setItem('theme', t); }
-        function setLang(l) { document.querySelectorAll('.lang').forEach(el => el.innerText = el.getAttribute(`data-${l}`)); localStorage.setItem('lang', l); }
+        
+        function setTheme(t) { 
+            t === 'dark' ? document.body.classList.add('dark-mode') : document.body.classList.remove('dark-mode'); 
+            localStorage.setItem('theme', t); 
+        }
+        
+        function setLang(l) { 
+            document.querySelectorAll('.lang').forEach(el => el.innerText = el.getAttribute(`data-${l}`)); 
+            localStorage.setItem('lang', l); 
+        }
 
         window.onload = () => {
-            setTheme(localStorage.getItem('theme') || 'light');
-            setLang(localStorage.getItem('lang') || 'es');
+            const t = localStorage.getItem('theme') || 'light';
+            const l = localStorage.getItem('lang') || 'es';
+            setTheme(t); setLang(l);
+            document.getElementById('theme-sel').value = t;
+            document.getElementById('lang-sel').value = l;
             const s = localStorage.getItem('session');
             if(s && USERS[s]) { userAct = USERS[s]; initSys(); }
         };
