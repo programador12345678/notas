@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>prueba | Sistema de Notas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .input-field { border: 1px solid #e2e8f0; transition: all 0.3s; }
+        .input-field:focus { border-color: #4f46e5; ring: 2px; ring-color: #c7d2fe; }
+        .btn-primary { background: #5549e6; transition: 0.3s; }
+        .btn-primary:hover { background: #4338ca; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+
+    <div id="login-section" class="min-h-screen flex items-center justify-center p-6">
+        <div class="glass-card p-10 rounded-3xl shadow-2xl w-full max-w-md border border-white text-center">
+            <h1 class="text-3xl font-extrabold text-slate-800 mb-2">Sistema de Notas</h1>
+            <p class="text-slate-500 mb-8">Inicia sesión para continuar</p>
+            
+            <input type="text" id="user" placeholder="Usuario" class="input-field w-full p-4 mb-4 rounded-xl outline-none">
+            <input type="password" id="pass" placeholder="Contraseña" class="input-field w-full p-4 mb-6 rounded-xl outline-none">
+            
+            <button onclick="handleLogin()" class="btn-primary w-full text-white py-4 rounded-xl font-bold shadow-lg">Entrar</button>
+            <p id="error" class="text-red-500 mt-4 text-sm font-medium"></p>
+        </div>
+    </div>
+
+    <div id="dashboard" class="hidden min-h-screen">
+        <nav class="bg-white border-b border-gray-100 p-6 flex justify-between items-center shadow-sm">
+            <span id="user-display" class="text-slate-700 font-semibold text-lg"></span>
+            <button onclick="location.reload()" class="border-2 border-indigo-600 text-indigo-600 px-6 py-2 rounded-xl font-bold hover:bg-indigo-50 transition">Cerrar Sesión</button>
+        </nav>
+
+        <main class="max-w-6xl mx-auto p-8">
+            <div id="reader-panel" class="hidden mb-10 bg-indigo-600 p-8 rounded-3xl text-white shadow-xl">
+                <h2 class="text-2xl font-bold mb-4 text-center">Panel de Consulta</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="loadGrades('fatima')" class="bg-white text-indigo-600 p-6 rounded-2xl font-bold hover:scale-105 transition shadow-md">👩‍🏫 Ver Notas de Fatima Flores</button>
+                    <button onclick="loadGrades('jorge')" class="bg-white text-indigo-600 p-6 rounded-2xl font-bold hover:scale-105 transition shadow-md">👨‍🏫 Ver Notas de Jorge Flores</button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden">
+                <div class="p-10">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-8" id="table-title">Registro de Calificaciones</h2>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-xs uppercase text-slate-400 font-bold tracking-widest border-b border-gray-100">
+                                    <th class="pb-6">Materia</th>
+                                    <th class="pb-6">Cotidiana</th>
+                                    <th class="pb-6">Integradora</th>
+                                    <th class="pb-6">Examen</th>
+                                    <th class="pb-6 text-right">Nota Final</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="text-slate-700 font-medium">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // REEMPLAZA ESTO CON LA URL DE TU APPS SCRIPT
+        const API_URL = "TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI";
+        
+        let currentUser = null;
+        const materiasProf1 = ["Lenguaje", "Matemáticas", "Estudios Sociales", "Física Química"];
+        const materiasProf2 = ["Inglés", "Reading and Writing", "Conversation", "Informática"];
+
+        async function handleLogin() {
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+
+            // En un sistema real, haríamos fetch a API_URL
+            // Simulación basada en tus requerimientos:
+            const roles = {
+                "fatima.flores": {n: "Fatima", a: "Flores", r: "editor"},
+                "jorge.flores": {n: "Jorge", a: "Flores", r: "editor"},
+                "admin": {n: "Super", a: "Admin", r: "admin"},
+                "lector1": {n: "Juan", a: "Pérez", r: "lector"}
+            };
+
+            if(roles[u]) {
+                currentUser = roles[u];
+                initDashboard();
+            } else {
+                document.getElementById('error').innerText = "Usuario no reconocido";
+            }
+        }
+
+        function initDashboard() {
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            document.getElementById('user-display').innerText = `Hola, ${currentUser.n} ${currentUser.a}`;
+
+            if(currentUser.r === "lector") {
+                document.getElementById('reader-panel').classList.remove('hidden');
+            } else if(currentUser.r === "editor") {
+                loadGrades(currentUser.n.toLowerCase());
+            } else {
+                loadGrades('admin');
+            }
+        }
+
+        function loadGrades(prof) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = "";
+            const mats = prof === 'fatima' ? materiasProf1 : materiasProf2;
+            
+            if(prof !== 'admin') document.getElementById('table-title').innerText = `Calificaciones de ${prof.toUpperCase()}`;
+
+            mats.forEach(m => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-50 hover:bg-gray-50 transition";
+                tr.innerHTML = `
+                    <td class="py-6">${m}</td>
+                    <td class="py-6"><input type="number" value="0" onchange="updateExcel('${m}', this, 'coti')" ${currentUser.r === 'lector' ? 'disabled' : ''} class="w-16 p-2 bg-yellow-50 rounded-lg outline-none focus:ring-2 focus:ring-yellow-400"></td>
+                    <td class="py-6"><input type="number" value="0" onchange="updateExcel('${m}', this, 'inte')" ${currentUser.r === 'lector' ? 'disabled' : ''} class="w-16 p-2 bg-yellow-50 rounded-lg outline-none focus:ring-2 focus:ring-yellow-400"></td>
+                    <td class="py-6"><input type="number" value="0" onchange="updateExcel('${m}', this, 'exam')" ${currentUser.r === 'lector' ? 'disabled' : ''} class="w-16 p-2 bg-yellow-50 rounded-lg outline-none focus:ring-2 focus:ring-yellow-400"></td>
+                    <td class="py-6 text-right font-bold text-indigo-600">0.0</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function updateExcel(materia, input, campo) {
+            // Aquí se enviaría el dato al Excel en tiempo real
+            console.log(`Actualizando ${materia} - ${campo}: ${input.value}`);
+            // await fetch(API_URL, { method: 'POST', body: JSON.stringify({action: "update", materia, val: input.value, prof: currentUser.n}) });
+        }
+    </script>
+</body>
+</html>
