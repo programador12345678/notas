@@ -5,7 +5,7 @@ const database = firebase.database();
 const usuarios = {
   "fatima.flores": { pass: "Ccsa2026.", rol: "editor", materias: ["Lenguaje", "Matemáticas", "Estudios Sociales", "Física Química", "Biología", "Orientación Para La Vida", "Moral Urbanidad y Cívica"] },
   "jorge.flores": { pass: "Atb2026.", rol: "editor", materias: ["Inglés", "Reading and Writing", "Conversation", "Informática", "Seminario", "Educación Física"] },
-  "jorge.flores1": { pass: "FJovel26.", rol: "lector" },
+  "jorge.flores1": { pass: "JFlores2026.", rol: "lector" },
   "carmen.jovel": { pass: "CJovel2026.", rol: "lector" },
   "admin.notas": { pass: "Admin2026.", rol: "admin" }
 };
