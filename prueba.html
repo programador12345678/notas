@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GradeSystem 2026</title>
+    <title>GradeSystem Pro | 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -13,112 +13,128 @@
         :root { --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --border: #e2e8f0; --accent: #4f46e5; }
         .dark-mode { --bg: #020617; --card: #0f172a; --text: #f8fafc; --border: #1e293b; --accent: #6366f1; }
         
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.4s; min-height: 100vh; }
-        .glass { background: var(--card); border: 1px solid var(--border); backdrop-filter: blur(10px); }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.4s; min-height: 100vh; overflow-x: hidden; }
+        .glass { background: var(--card); border: 1px solid var(--border); backdrop-filter: blur(15px); }
         .hidden { display: none !important; }
-        input, select { background: transparent !important; border: 1px solid var(--border) !important; color: var(--text) !important; border-radius: 12px; padding: 12px; }
-        .btn-primary { background: var(--accent); color: white; transition: 0.3s; }
-        .btn-primary:hover { opacity: 0.9; transform: translateY(-2px); }
+        input, select { background: var(--bg) !important; border: 1px solid var(--border) !important; color: var(--text) !important; border-radius: 12px; padding: 12px; width: 100%; transition: 0.3s; }
+        input:focus { border-color: var(--accent) !important; ring: 2px solid var(--accent); }
+        .btn-primary { background: var(--accent); color: white; transition: 0.3s; font-weight: 700; border-radius: 12px; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        
+        /* Scrollbar estética */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="light">
 
     <div id="temp-pass-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4">
-        <div class="glass p-8 rounded-[2.5rem] w-full max-w-md text-center">
-            <h3 class="text-2xl font-bold mb-2 lang" data-es="Contraseña Temporal Detectada" data-en="Temporary Password Detected">Contraseña Temporal Detectada</h3>
-            <p class="opacity-60 mb-6 lang" data-es="Por seguridad, debes crear una nueva contraseña propia." data-en="For security, you must create your own new password.">Por seguridad, debes crear una nueva contraseña propia.</p>
-            <input type="password" id="forced-new-pass" class="w-full mb-4" placeholder="Nueva Contraseña / New Password">
-            <button onclick="saveForcedPass()" class="w-full btn-primary py-4 rounded-2xl font-bold lang" data-es="Actualizar y Entrar" data-en="Update and Enter">Actualizar y Entrar</button>
+        <div class="glass p-8 rounded-[2.5rem] w-full max-w-md text-center shadow-2xl">
+            <h3 class="text-2xl font-bold mb-2 lang" data-es="Nueva Contraseña" data-en="New Password">Nueva Contraseña</h3>
+            <p class="opacity-60 mb-6 text-sm lang" data-es="Tu contraseña es temporal. Crea una nueva para continuar." data-en="Your password is temporary. Create a new one to continue.">Tu contraseña es temporal. Crea una nueva para continuar.</p>
+            <input type="password" id="forced-new-pass" class="mb-4 text-center" placeholder="********">
+            <button onclick="saveForcedPass()" class="w-full btn-primary py-4 lang" data-es="Actualizar" data-en="Update">Actualizar</button>
         </div>
     </div>
 
-    <nav class="fixed top-4 right-4 z-[110] flex gap-2">
-        <button id="profile-btn" onclick="toggleModal('profile-modal')" class="hidden glass p-3 rounded-full shadow-xl font-bold">👤</button>
-        <button onclick="toggleModal('custom-menu')" class="glass p-3 rounded-full shadow-xl font-bold">⚙️</button>
+    <nav class="fixed top-4 right-4 z-[110] flex gap-3">
+        <button id="profile-btn" onclick="toggleModal('profile-modal')" class="hidden glass p-3 rounded-full shadow-lg">👤</button>
+        <button onclick="toggleModal('custom-menu')" class="glass p-3 rounded-full shadow-lg">⚙️</button>
         <button id="logout-btn" onclick="logout()" class="hidden bg-red-500 text-white px-6 py-3 rounded-full font-bold shadow-lg lang" data-es="Salir" data-en="Logout">Salir</button>
     </nav>
 
     <div id="custom-menu" class="fixed top-20 right-4 w-64 glass rounded-[2rem] shadow-2xl p-6 hidden z-[120]">
         <div class="space-y-4">
-            <div>
-                <label class="block text-xs font-bold mb-2 opacity-50 lang" data-es="APARIENCIA" data-en="APPEARANCE">APARIENCIA</label>
-                <select onchange="setTheme(this.value)" id="theme-sel" class="w-full">
-                    <option value="light">☀️ Light</option>
-                    <option value="dark">🌙 Dark</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-xs font-bold mb-2 opacity-50 lang" data-es="IDIOMA" data-en="LANGUAGE">IDIOMA</label>
-                <select onchange="setLang(this.value)" id="lang-sel" class="w-full">
-                    <option value="es">Español</option>
-                    <option value="en">English</option>
-                </select>
-            </div>
+            <label class="block text-[10px] font-black opacity-40 tracking-widest lang" data-es="AJUSTES" data-en="SETTINGS">AJUSTES</label>
+            <select onchange="setTheme(this.value)" id="theme-sel">
+                <option value="light">☀️ Light</option>
+                <option value="dark">🌙 Dark</option>
+            </select>
+            <select onchange="setLang(this.value)" id="lang-sel">
+                <option value="es">Español</option>
+                <option value="en">English</option>
+            </select>
         </div>
     </div>
 
-    <div id="profile-modal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[150] hidden flex items-center justify-center p-4">
-        <div class="glass p-8 rounded-[2.5rem] w-full max-w-sm">
-            <h3 class="text-xl font-bold mb-4 lang" data-es="Mi Perfil" data-en="My Profile">Mi Perfil</h3>
-            <input type="password" id="voluntary-pass" class="w-full mb-4" placeholder="Nueva Contraseña">
-            <button onclick="changeVoluntaryPass()" class="w-full btn-primary py-2 rounded-xl font-bold lang" data-es="Cambiar Contraseña" data-en="Change Password">Cambiar Contraseña</button>
-            <button onclick="toggleModal('profile-modal')" class="w-full mt-2 opacity-50 font-bold lang" data-es="Cancelar" data-en="Cancel">Cancelar</button>
-        </div>
-    </div>
-
-    <div id="login-sec" class="min-h-screen flex flex-col items-center justify-center p-6 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-100 via-transparent to-transparent dark:from-indigo-950">
-        <div class="glass p-10 rounded-[3rem] shadow-2xl w-full max-w-md text-center border-t-4 border-indigo-500">
-            <h2 class="text-4xl font-extrabold mb-2 text-indigo-600">GradeSystem</h2>
-            <p class="text-sm opacity-50 mb-8 font-bold">2026 OFFICIAL VERSION</p>
-            <input type="text" id="user-in" class="w-full mb-4 outline-none border" placeholder="Usuario / Username">
-            <input type="password" id="pass-in" class="w-full mb-8 outline-none border" placeholder="Contraseña / Password">
-            <button onclick="login()" class="w-full btn-primary py-4 rounded-2xl font-bold text-lg lang" data-es="Iniciar Sesión" data-en="Sign In">Iniciar Sesión</button>
+    <div id="login-sec" class="min-h-screen flex items-center justify-center p-6">
+        <div class="glass p-10 rounded-[3rem] shadow-2xl w-full max-w-md text-center border-b-8 border-indigo-600">
+            <h1 class="text-4xl font-black text-indigo-600 mb-8 tracking-tighter">GradeSystem</h1>
+            <div class="space-y-4">
+                <input type="text" id="user-in" placeholder="Usuario / Username">
+                <input type="password" id="pass-in" placeholder="Contraseña / Password">
+                <button onclick="login()" class="w-full btn-primary py-4 text-lg lang" data-es="Entrar" data-en="Login">Entrar</button>
+            </div>
             <p id="err" class="text-red-500 mt-4 text-xs font-bold"></p>
         </div>
-        <footer class="mt-10 opacity-30 text-xs font-bold">©2026 Sistema de notas. Derechos reservados.</footer>
     </div>
 
-    <div id="sys-sec" class="hidden p-4 md:p-10">
-        <div id="dual-header" class="max-w-6xl mx-auto mb-10 hidden">
-            <div class="glass p-6 rounded-[2.5rem] flex flex-wrap justify-center gap-4">
-                <button onclick="viewGroup('fatima.flores')" class="px-8 py-3 rounded-2xl font-bold border hover:bg-indigo-500 hover:text-white transition">Fatima Flores</button>
-                <button onclick="viewGroup('jorge.flores')" class="px-8 py-3 rounded-2xl font-bold border hover:bg-indigo-500 hover:text-white transition">Jorge Flores</button>
-                <button id="mgmt-btn" onclick="toggleModal('mgmt-panel')" class="bg-yellow-400 text-indigo-900 px-8 py-3 rounded-2xl font-bold hidden lang" data-es="GESTIÓN" data-en="MANAGEMENT">GESTIÓN</button>
+    <div id="sys-sec" class="hidden p-4 md:p-10 animate-fade-in">
+        
+        <div id="dual-header" class="max-w-6xl mx-auto mb-8 hidden">
+            <div class="glass p-4 rounded-[2.5rem] flex flex-wrap justify-center gap-3">
+                <button onclick="viewGroup('fatima.flores')" class="px-8 py-3 rounded-2xl font-bold border-2 border-transparent hover:border-indigo-500 transition-all">Fatima Flores</button>
+                <button onclick="viewGroup('jorge.flores')" class="px-8 py-3 rounded-2xl font-bold border-2 border-transparent hover:border-indigo-500 transition-all">Jorge Flores</button>
+                <button id="mgmt-btn" onclick="openMgmt()" class="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold hidden lang" data-es="GESTIÓN" data-en="MANAGEMENT">GESTIÓN</button>
             </div>
         </div>
 
-        <div id="mgmt-panel" class="max-w-7xl mx-auto mb-10 hidden glass p-10 rounded-[3.5rem] shadow-3xl border-2 border-indigo-500/20">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                <div class="space-y-6">
-                    <h3 class="text-xl font-black text-indigo-500 flex items-center gap-2">👤 <span class="lang" data-es="Usuarios" data-en="Users">Usuarios</span></h3>
-                    <div id="user-admin-list" class="space-y-3 max-h-96 overflow-y-auto pr-2"></div>
-                    <div class="p-6 bg-indigo-50/50 dark:bg-white/5 rounded-[2rem] border border-indigo-100 dark:border-white/10">
-                        <input type="text" id="new-u-id" placeholder="ID (ana.perez)" class="w-full mb-2 text-sm">
-                        <input type="text" id="new-u-pass" placeholder="Password" class="w-full mb-2 text-sm">
-                        <select id="new-u-role" class="w-full mb-2 text-sm">
-                            <option value="lector">Lector / Reader</option>
-                            <option value="editor">Editor</option>
-                        </select>
-                        <select id="new-u-access" class="w-full mb-4 text-sm">
-                            <option value="fatima.flores">Fatima</option>
-                            <option value="jorge.flores">Jorge</option>
-                            <option value="both">Ambos / Both</option>
-                        </select>
-                        <button onclick="addUser()" class="w-full btn-primary py-3 rounded-xl font-bold lang" data-es="Agregar" data-en="Add User">Agregar</button>
+        <div id="mgmt-panel" class="fixed inset-0 z-[150] bg-white dark:bg-slate-950 hidden overflow-y-auto p-4 md:p-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-10">
+                    <h2 class="text-3xl font-black text-indigo-600 lang" data-es="Panel de Control" data-en="Control Panel">Panel de Control</h2>
+                    <button onclick="closeMgmt()" class="bg-red-100 text-red-600 p-4 rounded-full font-bold">✕</button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="glass p-8 rounded-[3rem] shadow-xl">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2">✨ <span class="lang" data-es="Nuevo Usuario" data-en="New User">Nuevo Usuario</span></h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-[10px] font-bold ml-2 opacity-50 lang" data-es="ID DE USUARIO" data-en="USER ID">ID DE USUARIO</label>
+                                <input type="text" id="new-u-id" placeholder="ej: jorge.flores">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold ml-2 opacity-50 lang" data-es="CONTRASEÑA INICIAL" data-en="INITIAL PASSWORD">CONTRASEÑA INICIAL</label>
+                                <input type="text" id="new-u-pass" placeholder="123456">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[10px] font-bold ml-2 opacity-50 lang" data-es="ROL" data-en="ROLE">ROL</label>
+                                    <select id="new-u-role">
+                                        <option value="editor">Editor</option>
+                                        <option value="lector">Lector</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold ml-2 opacity-50 lang" data-es="ACCESO" data-en="ACCESS">ACCESO</label>
+                                    <select id="new-u-access">
+                                        <option value="fatima.flores">Fatima</option>
+                                        <option value="jorge.flores">Jorge</option>
+                                        <option value="both">Ambos</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button onclick="addUser()" class="w-full btn-primary py-4 mt-4 lang" data-es="Registrar Usuario" data-en="Register User">Registrar Usuario</button>
+                        </div>
+
+                        <div id="user-admin-list" class="mt-8 space-y-2 border-t pt-6">
+                            <p class="text-[10px] font-black opacity-30 mb-4 lang" data-es="USUARIOS ACTIVOS" data-en="ACTIVE USERS">USUARIOS ACTIVOS</p>
+                            </div>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="mgmt-mats-container">
+                            </div>
                     </div>
                 </div>
-
-                <div class="lg:col-span-2 space-y-6">
-                    <h3 class="text-xl font-black text-indigo-500 flex items-center gap-2">📚 <span class="lang" data-es="Materias y Borrado" data-en="Subjects & Reset">Materias y Borrado</span></h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="mgmt-mats-container"></div>
-                </div>
             </div>
         </div>
 
-        <main class="max-w-6xl mx-auto glass rounded-[3rem] shadow-2xl overflow-hidden">
-            <div class="overflow-x-auto">
+        <main id="main-table-view" class="max-w-6xl mx-auto">
+            <div class="glass rounded-[3rem] shadow-2xl overflow-hidden">
                 <table class="w-full text-left">
-                    <thead class="bg-indigo-500 text-white">
+                    <thead class="bg-indigo-600 text-white">
                         <tr>
                             <th class="p-6 lang" data-es="Materia" data-en="Subject">Materia</th>
                             <th class="p-6 lang" data-es="Cotidiana" data-en="Daily">Cotidiana</th>
@@ -129,8 +145,8 @@
                     </thead>
                     <tbody id="table-body" class="divide-y divide-gray-100 dark:divide-white/5"></tbody>
                 </table>
+                <div id="empty-msg" class="p-20 text-center opacity-30 font-black text-2xl lang" data-es="SELECCIONE UN PERFIL" data-en="SELECT A PROFILE">SELECCIONE UN PERFIL</div>
             </div>
-            <div id="empty-msg" class="p-20 text-center opacity-30 font-bold text-xl lang" data-es="Seleccione un perfil arriba" data-en="Select a profile above">Seleccione un perfil arriba</div>
         </main>
     </div>
 
@@ -139,7 +155,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let USERS = JSON.parse(localStorage.getItem('db_final_v8')) || {
+        let USERS = JSON.parse(localStorage.getItem('db_final_v9')) || {
             "admin.notas": { pass: "Admin2026.", rol: "admin", name: "Administrator", access: "all", isTemp: false },
             "fatima.flores": { pass: "Ccsa2026.", rol: "editor", name: "Fatima Flores", access: "fatima.flores", mats: [], isTemp: false },
             "jorge.flores": { pass: "Atb2026.", rol: "editor", name: "Jorge Flores", access: "jorge.flores", mats: [], isTemp: false }
@@ -148,71 +164,65 @@
         let userAct = null;
         let currentTarget = "";
 
-        function save() { localStorage.setItem('db_final_v8', JSON.stringify(USERS)); }
-        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); if(id==='mgmt-panel') renderMgmt(); }
-
-        // --- LÓGICA DE CONTRASEÑA ---
-        function saveForcedPass() {
-            const p = document.getElementById('forced-new-pass').value;
-            if(p.length < 4) return;
-            userAct.pass = p;
-            userAct.isTemp = false;
-            save();
-            document.getElementById('temp-pass-modal').classList.add('hidden');
-            initSys();
+        function save() { localStorage.setItem('db_final_v9', JSON.stringify(USERS)); }
+        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
+        
+        function openMgmt() {
+            document.getElementById('main-table-view').classList.add('hidden');
+            document.getElementById('mgmt-panel').classList.remove('hidden');
+            renderMgmt();
         }
 
-        function changeVoluntaryPass() {
-            const p = document.getElementById('voluntary-pass').value;
-            if(p.length < 4) return alert("Min 4 chars");
-            userAct.pass = p;
-            save();
-            toggleModal('profile-modal');
-            alert("Updated!");
+        function closeMgmt() {
+            document.getElementById('mgmt-panel').classList.add('hidden');
+            document.getElementById('main-table-view').classList.remove('hidden');
         }
 
-        // --- GESTIÓN ADMIN ---
+        // --- GESTION ---
         function renderMgmt() {
             const uList = document.getElementById('user-admin-list');
             uList.innerHTML = Object.keys(USERS).map(u => `
-                <div class="glass p-4 rounded-2xl flex flex-col gap-2">
-                    <div class="flex justify-between font-bold text-sm">
-                        <span>${u}</span>
-                        <button onclick="deleteUser('${u}')" class="text-red-500">×</button>
+                <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-white/5 rounded-xl border">
+                    <div class="text-[10px]">
+                        <p class="font-bold text-indigo-600">${u}</p>
+                        <p class="opacity-50">PW: ${USERS[u].pass} ${USERS[u].isTemp ? '⚠️' : ''}</p>
                     </div>
                     <div class="flex gap-2">
-                        <input type="text" id="pass-edit-${u}" value="${USERS[u].pass}" class="text-[10px] p-1 flex-1">
-                        <button onclick="adminChangePass('${u}')" class="bg-indigo-500 text-white px-2 rounded text-[10px] font-bold lang" data-es="Reset" data-en="Reset">Reset</button>
+                        <button onclick="adminResetPass('${u}')" class="text-indigo-500 font-bold text-[9px]">RESET</button>
+                        ${u !== 'admin.notas' ? `<button onclick="deleteUser('${u}')" class="text-red-500 font-bold text-[9px]">ELIMINAR</button>` : ''}
                     </div>
-                    <span class="text-[9px] opacity-50 uppercase">${USERS[u].access} | ${USERS[u].rol} ${USERS[u].isTemp ? '⚠️ TEMPORAL' : ''}</span>
                 </div>
             `).join('');
 
             const cont = document.getElementById('mgmt-mats-container');
             cont.innerHTML = ["fatima.flores", "jorge.flores"].map(u => `
-                <div class="glass p-6 rounded-[2.5rem]">
-                    <div class="flex justify-between items-center mb-4">
-                        <h4 class="font-bold text-indigo-500">${USERS[u].name}</h4>
-                        <button onclick="resetGrades('${u}')" class="bg-red-500 text-white px-3 py-1 rounded-xl text-[10px] font-bold">BORRAR NOTAS</button>
+                <div class="glass p-8 rounded-[3rem] border-t-4 border-indigo-500">
+                    <div class="flex justify-between items-center mb-6">
+                        <h4 class="font-black text-xl">${USERS[u].name}</h4>
+                        <button onclick="resetGrades('${u}')" class="text-[10px] bg-red-100 text-red-600 px-3 py-1 rounded-lg font-bold">LIMPIAR NOTAS</button>
                     </div>
-                    <div class="flex gap-2 mb-4">
-                        <input type="text" id="in-${u}" class="flex-1 p-2 text-sm" placeholder="Nueva Materia">
-                        <button onclick="addMat('${u}')" class="bg-green-500 text-white px-4 rounded-xl">+</button>
+                    <div class="flex gap-2 mb-6">
+                        <input type="text" id="in-${u}" placeholder="Nombre Materia" class="text-sm">
+                        <button onclick="addMat('${u}')" class="bg-indigo-600 text-white px-6 rounded-xl font-bold">+</button>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        ${USERS[u].mats.map(m => `<span class="bg-indigo-100 dark:bg-white/10 px-3 py-1 rounded-full text-xs flex items-center gap-2">${m}<button onclick="remMat('${u}','${m}')" class="text-red-500 font-bold">×</button></span>`).join('')}
+                    <div class="space-y-2">
+                        ${USERS[u].mats.map(m => `
+                            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-white/5 rounded-xl text-sm">
+                                <span>${m}</span>
+                                <button onclick="remMat('${u}','${m}')" class="text-red-400 font-bold">✕</button>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
             `).join('');
             setLang(localStorage.getItem('lang') || 'es');
         }
 
-        function adminChangePass(u) {
-            const newP = document.getElementById(`pass-edit-${u}`).value;
-            USERS[u].pass = newP;
-            USERS[u].isTemp = true; // El admin la cambia -> se vuelve temporal
+        function adminResetPass(u) {
+            USERS[u].pass = "123456";
+            USERS[u].isTemp = true;
             save(); renderMgmt();
-            alert("Contraseña seteada como TEMPORAL");
+            alert("Pass temporal: 123456");
         }
 
         function addUser() {
@@ -223,14 +233,16 @@
             if(!id || !ps) return;
             USERS[id] = { pass: ps, rol: rl, name: id, access: ac, mats: [], isTemp: true };
             save(); renderMgmt();
+            document.getElementById('new-u-id').value = "";
+            document.getElementById('new-u-pass').value = "";
         }
 
         function deleteUser(u) { if(u !== 'admin.notas') { delete USERS[u]; save(); renderMgmt(); } }
         function addMat(u) { const v = document.getElementById(`in-${u}`).value; if(v){ USERS[u].mats.push(v); save(); renderMgmt(); } }
         function remMat(u, m) { USERS[u].mats = USERS[u].mats.filter(i => i !== m); save(); renderMgmt(); }
-        function resetGrades(u) { if(confirm("¿Borrar todas las notas?")) db.ref(`v8/notas/${u}`).remove(); }
+        function resetGrades(u) { if(confirm("¿Borrar notas?")) db.ref(`v9/notas/${u}`).remove(); }
 
-        // --- CORE ---
+        // --- LOGICA ---
         function login() {
             const u = document.getElementById('user-in').value;
             const p = document.getElementById('pass-in').value;
@@ -242,21 +254,28 @@
                     localStorage.setItem('session', u);
                     initSys();
                 }
-            } else { document.getElementById('err').innerText = "Acceso Denegado / Access Denied"; }
+            } else { document.getElementById('err').innerText = "Incorrecto"; }
+        }
+
+        function saveForcedPass() {
+            const p = document.getElementById('forced-new-pass').value;
+            if(p.length < 4) return;
+            userAct.pass = p;
+            userAct.isTemp = false;
+            save();
+            localStorage.setItem('session', document.getElementById('user-in').value);
+            location.reload();
         }
 
         function initSys() {
             document.getElementById('login-sec').classList.add('hidden');
             document.getElementById('sys-sec').classList.remove('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
-            
-            // Perfil solo para no-admins
             if(userAct.rol !== 'admin') document.getElementById('profile-btn').classList.remove('hidden');
 
             if(userAct.rol === 'admin' || userAct.access === 'both') {
                 document.getElementById('dual-header').classList.remove('hidden');
                 if(userAct.rol === 'admin') document.getElementById('mgmt-btn').classList.remove('hidden');
-                document.getElementById('table-body').innerHTML = "";
                 document.getElementById('empty-msg').classList.remove('hidden');
             } else {
                 viewGroup(userAct.access);
@@ -267,21 +286,21 @@
             currentTarget = uKey;
             document.getElementById('empty-msg').classList.add('hidden');
             const body = document.getElementById('table-body');
-            body.innerHTML = USERS[uKey].mats.length > 0 ? USERS[uKey].mats.map(m => `
+            body.innerHTML = USERS[uKey].mats.map(m => `
                 <tr data-m="${m}">
-                    <td class="p-6 font-bold">${m}</td>
+                    <td class="p-6 font-bold text-indigo-600">${m}</td>
                     <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="coti" onkeypress="return isNum(event)">-</td>
                     <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="inte" onkeypress="return isNum(event)">-</td>
                     <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="exam" onkeypress="return isNum(event)">-</td>
-                    <td class="p-6 text-right font-black text-xl text-indigo-600">0.0</td>
+                    <td class="p-6 text-right font-black text-xl text-indigo-600 bg-indigo-50/30">0.0</td>
                 </tr>
-            `).join('') : `<tr><td colspan="5" class="p-10 text-center opacity-30">No subjects found.</td></tr>`;
+            `).join('');
 
             document.querySelectorAll('.editable-cell').forEach(td => {
                 td.onblur = (e) => {
                     const val = e.target.innerText.replace(/[^0-9.]/g, '');
                     e.target.innerText = val || "-";
-                    db.ref(`v8/notas/${currentTarget}/${e.target.parentElement.dataset.m}/${e.target.dataset.c}`).set(val);
+                    db.ref(`v9/notas/${currentTarget}/${e.target.parentElement.dataset.m}/${e.target.dataset.c}`).set(val);
                 };
             });
             sync();
@@ -290,7 +309,7 @@
         function isNum(e) { return (e.which != 46 || e.target.innerText.indexOf('.') != -1) && (e.which < 48 || e.which > 57) ? false : true; }
 
         function sync() {
-            db.ref(`v8/notas/${currentTarget}`).on('value', snap => {
+            db.ref(`v9/notas/${currentTarget}`).on('value', snap => {
                 const data = snap.val() || {};
                 document.querySelectorAll('#table-body tr').forEach(row => {
                     const m = row.dataset.m;
@@ -309,8 +328,6 @@
         function setTheme(t) { t === 'dark' ? document.body.classList.add('dark-mode') : document.body.classList.remove('dark-mode'); localStorage.setItem('theme', t); }
         function setLang(l) { 
             document.querySelectorAll('.lang').forEach(el => el.innerText = el.getAttribute(`data-${l}`)); 
-            document.getElementById('user-in').placeholder = l === 'es' ? "Usuario" : "Username";
-            document.getElementById('pass-in').placeholder = l === 'es' ? "Contraseña" : "Password";
             localStorage.setItem('lang', l); 
         }
 
