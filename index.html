@@ -13,7 +13,7 @@
         :root { --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --border: #e2e8f0; --accent: #4f46e5; }
         .dark-mode { --bg: #020617; --card: #0f172a; --text: #f8fafc; --border: #1e293b; --accent: #6366f1; }
         
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.4s; min-height: 100vh; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.4s; min-height: 100vh; display: flex; flex-direction: column; }
         .glass { background: var(--card); border: 1px solid var(--border); backdrop-filter: blur(15px); }
         .hidden { display: none !important; }
         
@@ -26,113 +26,122 @@
 
         #mgmt-panel { background-color: var(--bg); color: var(--text); }
         .user-card { border-left: 4px solid var(--accent); }
+        
+        /* Asegura que el contenido ocupe el espacio para empujar el footer */
+        .content-wrap { flex: 1; }
     </style>
 </head>
 <body class="light">
 
-    <div id="profile-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[150] hidden flex items-center justify-center p-4">
-        <div class="glass p-8 rounded-[2.5rem] w-full max-w-sm shadow-2xl">
-            <h3 class="text-xl font-bold mb-6 lang" data-es="Mi Seguridad" data-en="My Security">Mi Seguridad</h3>
-            <div id="admin-lock" class="hidden text-xs text-orange-500 font-bold mb-4 lang" data-es="🔒 El administrador principal no puede auto-editarse." data-en="🔒 Main admin cannot auto-edit."></div>
-            <div id="pass-fields-box">
-                <label class="text-[10px] font-bold opacity-50 ml-2 lang" data-es="NUEVA CONTRASEÑA" data-en="NEW PASSWORD">NUEVA CONTRASEÑA</label>
-                <input type="password" id="voluntary-pass" placeholder="********" class="mb-4">
-                <button onclick="changeVoluntaryPass()" class="w-full btn-primary py-3 lang" data-es="Guardar" data-en="Save">Guardar</button>
-            </div>
-            <button onclick="toggleModal('profile-modal')" class="w-full opacity-40 font-bold text-sm mt-4 lang" data-es="Cerrar" data-en="Close">Cerrar</button>
-        </div>
-    </div>
-
-    <nav class="fixed top-6 right-6 z-[110] flex gap-3">
-        <button id="profile-btn" onclick="openProfile()" class="hidden glass p-4 rounded-full shadow-xl">👤</button>
-        <button onclick="toggleModal('custom-menu')" class="glass p-4 rounded-full shadow-xl">⚙️</button>
-        <button id="logout-btn" onclick="logout()" class="hidden bg-red-500 text-white px-8 py-4 rounded-full font-bold shadow-xl lang" data-es="Salir" data-en="Logout">Salir</button>
-    </nav>
-
-    <div id="custom-menu" class="fixed top-24 right-6 w-64 glass rounded-[2rem] shadow-2xl p-6 hidden z-[120]">
-        <div class="space-y-4">
-            <select onchange="setTheme(this.value)" id="theme-sel">
-                <option value="light">☀️ Light</option>
-                <option value="dark">🌙 Dark</option>
-            </select>
-            <select onchange="setLang(this.value)" id="lang-sel">
-                <option value="es">Español</option>
-                <option value="en">English</option>
-            </select>
-        </div>
-    </div>
-
-    <div id="login-sec" class="min-h-screen flex items-center justify-center p-6">
-        <div class="glass p-10 rounded-[3rem] shadow-2xl w-full max-w-sm text-center">
-            <h1 class="text-3xl font-black text-indigo-600 mb-8 italic">Sistema de Notas</h1>
-            <input type="text" id="user-in" placeholder="Usuario" class="mb-3 text-center">
-            <input type="password" id="pass-in" placeholder="Contraseña" class="mb-6 text-center">
-            <button onclick="login()" class="w-full btn-primary py-4 text-lg lang" data-es="Entrar" data-en="Sign In">Entrar</button>
-            <p id="err" class="text-red-500 mt-4 text-xs font-bold"></p>
-        </div>
-    </div>
-
-    <div id="sys-sec" class="hidden p-6 md:p-12">
-        <div id="dual-header" class="max-w-6xl mx-auto mb-10 hidden">
-            <div class="glass p-4 rounded-full flex flex-wrap justify-between items-center px-8 shadow-lg">
-                <div class="flex gap-2">
-                    <button onclick="viewGroup('fatima.flores')" class="px-6 py-3 rounded-full font-bold hover:bg-indigo-600 hover:text-white transition">Fatima Flores</button>
-                    <button onclick="viewGroup('jorge.flores')" class="px-6 py-3 rounded-full font-bold hover:bg-indigo-600 hover:text-white transition">Jorge Flores</button>
+    <div class="content-wrap">
+        <div id="profile-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[150] hidden flex items-center justify-center p-4">
+            <div class="glass p-8 rounded-[2.5rem] w-full max-w-sm shadow-2xl">
+                <h3 class="text-xl font-bold mb-6 lang" data-es="Mi Seguridad" data-en="My Security">Mi Seguridad</h3>
+                <div id="admin-lock" class="hidden text-xs text-orange-500 font-bold mb-4 lang" data-es="🔒 El administrador principal no puede auto-editarse." data-en="🔒 Main admin cannot auto-edit."></div>
+                <div id="pass-fields-box">
+                    <label class="text-[10px] font-bold opacity-50 ml-2 lang" data-es="NUEVA CONTRASEÑA" data-en="NEW PASSWORD">NUEVA CONTRASEÑA</label>
+                    <input type="password" id="voluntary-pass" placeholder="********" class="mb-4">
+                    <button onclick="changeVoluntaryPass()" class="w-full btn-primary py-3 lang" data-es="Guardar" data-en="Save">Guardar</button>
                 </div>
-                <button id="mgmt-btn" onclick="openMgmt()" class="bg-indigo-600 text-white px-10 py-3 rounded-full font-black hidden lang" data-es="GESTIÓN" data-en="MANAGEMENT">GESTIÓN</button>
+                <button onclick="toggleModal('profile-modal')" class="w-full opacity-40 font-bold text-sm mt-4 lang" data-es="Cerrar" data-en="Close">Cerrar</button>
             </div>
         </div>
 
-        <div id="mgmt-panel" class="fixed inset-0 z-[150] hidden overflow-y-auto p-6 md:p-12">
-            <div class="max-w-7xl mx-auto">
-                <div class="flex justify-between items-center mb-10">
-                    <h2 class="text-3xl font-black text-indigo-600 lang" data-es="Control de Usuarios" data-en="User Control">Control de Usuarios</h2>
-                    <button onclick="closeMgmt()" class="bg-red-500 text-white w-10 h-10 rounded-full font-bold">✕</button>
-                </div>
+        <nav class="fixed top-6 right-6 z-[110] flex gap-3">
+            <button id="profile-btn" onclick="openProfile()" class="hidden glass p-4 rounded-full shadow-xl">👤</button>
+            <button onclick="toggleModal('custom-menu')" class="glass p-4 rounded-full shadow-xl">⚙️</button>
+            <button id="logout-btn" onclick="logout()" class="hidden bg-red-500 text-white px-8 py-4 rounded-full font-bold shadow-xl lang" data-es="Salir" data-en="Logout">Salir</button>
+        </nav>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <div class="lg:col-span-4 space-y-6">
-                        <div class="glass p-8 rounded-[2.5rem] shadow-lg">
-                            <h3 class="font-bold mb-4 lang" data-es="Registrar Nuevo" data-en="Register New">Registrar Nuevo</h3>
-                            <div class="space-y-3">
-                                <input type="text" id="new-u-id" placeholder="ID Usuario">
-                                <input type="text" id="new-u-pass" placeholder="Password">
-                                <select id="new-u-role">
-                                    <option value="editor">Editor</option>
-                                    <option value="lector">Lector</option>
-                                </select>
-                                <select id="new-u-access">
-                                    <option value="fatima.flores">Fatima</option>
-                                    <option value="jorge.flores">Jorge</option>
-                                    <option value="both">Ambos</option>
-                                </select>
-                                <button onclick="addUser()" class="w-full btn-primary py-3 lang" data-es="Agregar" data-en="Add">Agregar</button>
-                            </div>
-                        </div>
-                        <div id="user-admin-list" class="space-y-3"></div>
+        <div id="custom-menu" class="fixed top-24 right-6 w-64 glass rounded-[2rem] shadow-2xl p-6 hidden z-[120]">
+            <div class="space-y-4">
+                <select onchange="setTheme(this.value)" id="theme-sel">
+                    <option value="light">☀️ Light</option>
+                    <option value="dark">🌙 Dark</option>
+                </select>
+                <select onchange="setLang(this.value)" id="lang-sel">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="login-sec" class="min-h-screen flex items-center justify-center p-6">
+            <div class="glass p-10 rounded-[3rem] shadow-2xl w-full max-w-sm text-center">
+                <h1 class="text-3xl font-black text-indigo-600 mb-8 italic">Sistema de Notas</h1>
+                <input type="text" id="user-in" placeholder="Usuario" class="mb-3 text-center">
+                <input type="password" id="pass-in" placeholder="Contraseña" class="mb-6 text-center">
+                <button onclick="login()" class="w-full btn-primary py-4 text-lg lang" data-es="Entrar" data-en="Sign In">Entrar</button>
+                <p id="err" class="text-red-500 mt-4 text-xs font-bold"></p>
+            </div>
+        </div>
+
+        <div id="sys-sec" class="hidden p-6 md:p-12">
+            <div id="dual-header" class="max-w-6xl mx-auto mb-10 hidden">
+                <div class="glass p-4 rounded-full flex flex-wrap justify-between items-center px-8 shadow-lg">
+                    <div class="flex gap-2">
+                        <button onclick="viewGroup('fatima.flores')" class="px-6 py-3 rounded-full font-bold hover:bg-indigo-600 hover:text-white transition">Fatima Flores</button>
+                        <button onclick="viewGroup('jorge.flores')" class="px-6 py-3 rounded-full font-bold hover:bg-indigo-600 hover:text-white transition">Jorge Flores</button>
                     </div>
-                    <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6" id="mgmt-mats-container"></div>
+                    <button id="mgmt-btn" onclick="openMgmt()" class="bg-indigo-600 text-white px-10 py-3 rounded-full font-black hidden lang" data-es="GESTIÓN" data-en="MANAGEMENT">GESTIÓN</button>
                 </div>
             </div>
-        </div>
 
-        <main id="main-table-view" class="max-w-6xl mx-auto">
-            <div class="glass rounded-[3rem] shadow-2xl overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-indigo-600 text-white">
-                        <tr>
-                            <th class="p-6 lang" data-es="Materia" data-en="Subject">Materias</th>
-                            <th class="p-6">Cotidiana</th>
-                            <th class="p-6">Integradora</th>
-                            <th class="p-6">Examen</th>
-                            <th class="p-6 text-right lang" data-es="Final" data-en="Final">Final</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-body" class="divide-y dark:divide-white/5"></tbody>
-                </table>
+            <div id="mgmt-panel" class="fixed inset-0 z-[150] hidden overflow-y-auto p-6 md:p-12">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center mb-10">
+                        <h2 class="text-3xl font-black text-indigo-600 lang" data-es="Control de Usuarios" data-en="User Control">Control de Usuarios</h2>
+                        <button onclick="closeMgmt()" class="bg-red-500 text-white w-10 h-10 rounded-full font-bold">✕</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div class="lg:col-span-4 space-y-6">
+                            <div class="glass p-8 rounded-[2.5rem] shadow-lg">
+                                <h3 class="font-bold mb-4 lang" data-es="Registrar Nuevo" data-en="Register New">Registrar Nuevo</h3>
+                                <div class="space-y-3">
+                                    <input type="text" id="new-u-id" placeholder="ID Usuario">
+                                    <input type="text" id="new-u-pass" placeholder="Password">
+                                    <select id="new-u-role">
+                                        <option value="editor">Editor</option>
+                                        <option value="lector">Lector</option>
+                                    </select>
+                                    <select id="new-u-access">
+                                        <option value="fatima.flores">Fatima</option>
+                                        <option value="jorge.flores">Jorge</option>
+                                        <option value="both">Ambos</option>
+                                    </select>
+                                    <button onclick="addUser()" class="w-full btn-primary py-3 lang" data-es="Agregar" data-en="Add">Agregar</button>
+                                </div>
+                            </div>
+                            <div id="user-admin-list" class="space-y-3"></div>
+                        </div>
+                        <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6" id="mgmt-mats-container"></div>
+                    </div>
+                </div>
             </div>
-        </main>
+
+            <main id="main-table-view" class="max-w-6xl mx-auto">
+                <div class="glass rounded-[3rem] shadow-2xl overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-indigo-600 text-white">
+                            <tr>
+                                <th class="p-6 lang" data-es="Materia" data-en="Subject">Materia</th>
+                                <th class="p-6">Coti.</th>
+                                <th class="p-6">Inte.</th>
+                                <th class="p-6">Examen</th>
+                                <th class="p-6 text-right lang" data-es="Final" data-en="Final">Final</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y dark:divide-white/5"></tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
     </div>
+
+    <footer class="w-full py-8 text-center opacity-50 text-xs font-semibold">
+        <p>©2026 Sistema de notas. Derechos reservados.</p>
+    </footer>
 
     <script>
         const firebaseConfig = { databaseURL: "https://notas-sv1.firebaseapp.com/" };
