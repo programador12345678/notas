@@ -64,7 +64,7 @@
 
     <div id="login-sec" class="min-h-screen flex items-center justify-center p-6">
         <div class="glass p-10 rounded-[3rem] shadow-2xl w-full max-w-sm text-center">
-            <h1 class="text-4xl font-black text-indigo-600 mb-8 italic">Sistema de Notas / Note System</h1>
+            <h1 class="text-3xl font-black text-indigo-600 mb-8 italic">Sistema de Notas</h1>
             <input type="text" id="user-in" placeholder="Usuario" class="mb-3 text-center">
             <input type="password" id="pass-in" placeholder="Contraseña" class="mb-6 text-center">
             <button onclick="login()" class="w-full btn-primary py-4 text-lg lang" data-es="Entrar" data-en="Sign In">Entrar</button>
@@ -179,21 +179,24 @@
 
         function renderMgmt() {
             const uList = document.getElementById('user-admin-list');
-            uList.innerHTML = Object.keys(USERS).map(u => `
+            uList.innerHTML = Object.keys(USERS).map(u => {
+                const isAdminAccount = u === 'admin.notas';
+                return `
                 <div class="glass p-4 rounded-2xl user-card">
                     <div class="flex justify-between items-center mb-2">
-                        <span class="font-bold text-xs">${u}</span>
-                        <button onclick="deleteUser('${u}')" class="text-red-500 text-xs">✕</button>
+                        <span class="font-bold text-xs">${u} ${isAdminAccount ? '⭐' : ''}</span>
+                        ${!isAdminAccount ? `<button onclick="deleteUser('${u}')" class="text-red-500 text-xs">✕</button>` : ''}
                     </div>
                     <div class="flex gap-2">
                         <input type="text" value="${USERS[u].pass}" onchange="updatePass('${u}', this.value)" class="text-[10px] p-1 h-8">
-                        <select onchange="updateRole('${u}', this.value)" class="text-[10px] p-1 h-8">
+                        <select onchange="updateRole('${u}', this.value)" ${isAdminAccount ? 'disabled' : ''} class="text-[10px] p-1 h-8 ${isAdminAccount ? 'opacity-50 cursor-not-allowed' : ''}">
+                            <option value="admin" ${USERS[u].rol==='admin'?'selected':''}>Admin</option>
                             <option value="editor" ${USERS[u].rol==='editor'?'selected':''}>Editor</option>
                             <option value="lector" ${USERS[u].rol==='lector'?'selected':''}>Lector</option>
                         </select>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
 
             const cont = document.getElementById('mgmt-mats-container');
             cont.innerHTML = ["fatima.flores", "jorge.flores"].map(u => `
@@ -209,7 +212,7 @@
             setLang(localStorage.getItem('lang') || 'es');
         }
 
-        function updateRole(u, r) { USERS[u].rol = r; save(); }
+        function updateRole(u, r) { if(u !== 'admin.notas') { USERS[u].rol = r; save(); } }
         function updatePass(u, p) { USERS[u].pass = p; save(); }
 
         function addUser() {
@@ -223,7 +226,6 @@
         function deleteUser(u) { if(u !== 'admin.notas') { delete USERS[u]; save(); renderMgmt(); } }
         function addMat(u) { const v = document.getElementById(`in-${u}`).value; if(v){ USERS[u].mats.push(v); save(); renderMgmt(); } }
         function remMat(u, m) { USERS[u].mats = USERS[u].mats.filter(i => i !== m); save(); renderMgmt(); }
-        function resetGrades(u) { if(confirm("¿Borrar?")) db.ref(`v12/notas/${u}`).remove(); }
 
         function login() {
             const u = document.getElementById('user-in').value.toLowerCase();
@@ -252,9 +254,9 @@
             body.innerHTML = USERS[uKey].mats.map(m => `
                 <tr data-m="${m}">
                     <td class="p-6 font-bold text-indigo-600">${m}</td>
-                    <td class="p-6 editable-cell" contenteditable="${userAct.rol==='editor'}" data-c="coti" onkeypress="return isNum(event)">-</td>
-                    <td class="p-6 editable-cell" contenteditable="${userAct.rol==='editor'}" data-c="inte" onkeypress="return isNum(event)">-</td>
-                    <td class="p-6 editable-cell" contenteditable="${userAct.rol==='editor'}" data-c="exam" onkeypress="return isNum(event)">-</td>
+                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="coti" onkeypress="return isNum(event)">-</td>
+                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="inte" onkeypress="return isNum(event)">-</td>
+                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="exam" onkeypress="return isNum(event)">-</td>
                     <td class="p-6 text-right font-black text-2xl text-indigo-600">0.0</td>
                 </tr>
             `).join('');
