@@ -19,43 +19,41 @@
         
         input, select { 
             background: var(--bg) !important; border: 1px solid var(--border) !important; 
-            color: var(--text) !important; border-radius: 14px; padding: 12px; width: 100%; outline: none;
+            color: var(--text) !important; border-radius: 12px; padding: 10px; width: 100%; outline: none; font-size: 0.875rem;
         }
-        .btn-primary { background: var(--accent); color: white; transition: 0.3s; font-weight: 700; border-radius: 14px; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); }
+        .btn-primary { background: var(--accent); color: white; transition: 0.3s; font-weight: 700; border-radius: 12px; }
+        .btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
 
-        /* Estilo para el panel de gestión que hereda colores */
         #mgmt-panel { background-color: var(--bg); color: var(--text); }
+        .user-card { border-left: 4px solid var(--accent); }
     </style>
 </head>
 <body class="light">
 
     <div id="profile-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[150] hidden flex items-center justify-center p-4">
         <div class="glass p-8 rounded-[2.5rem] w-full max-w-sm shadow-2xl">
-            <h3 class="text-xl font-bold mb-6 lang" data-es="Seguridad de Cuenta" data-en="Account Security">Seguridad de Cuenta</h3>
-            <div class="space-y-4">
-                <div id="admin-pass-msg" class="hidden text-xs text-red-500 font-bold mb-2 lang" data-es="El Admin no puede cambiar su clave desde aquí." data-en="Admin cannot change password from here."></div>
-                <div id="pass-fields">
-                    <label class="text-[10px] font-bold opacity-50 ml-2 lang" data-es="NUEVA CONTRASEÑA" data-en="NEW PASSWORD">NUEVA CONTRASEÑA</label>
-                    <input type="password" id="voluntary-pass" placeholder="********">
-                    <button onclick="changeVoluntaryPass()" class="w-full btn-primary py-3 mt-4 lang" data-es="Guardar Cambios" data-en="Save Changes">Guardar Cambios</button>
-                </div>
-                <button onclick="toggleModal('profile-modal')" class="w-full opacity-40 font-bold text-sm mt-2 lang" data-es="Cerrar" data-en="Close">Cerrar</button>
+            <h3 class="text-xl font-bold mb-6 lang" data-es="Mi Seguridad" data-en="My Security">Mi Seguridad</h3>
+            <div id="admin-lock" class="hidden text-xs text-orange-500 font-bold mb-4 lang" data-es="🔒 El administrador principal no puede auto-editarse." data-en="🔒 Main admin cannot auto-edit."></div>
+            <div id="pass-fields-box">
+                <label class="text-[10px] font-bold opacity-50 ml-2 lang" data-es="NUEVA CONTRASEÑA" data-en="NEW PASSWORD">NUEVA CONTRASEÑA</label>
+                <input type="password" id="voluntary-pass" placeholder="********" class="mb-4">
+                <button onclick="changeVoluntaryPass()" class="w-full btn-primary py-3 lang" data-es="Guardar" data-en="Save">Guardar</button>
             </div>
+            <button onclick="toggleModal('profile-modal')" class="w-full opacity-40 font-bold text-sm mt-4 lang" data-es="Cerrar" data-en="Close">Cerrar</button>
         </div>
     </div>
 
     <nav class="fixed top-6 right-6 z-[110] flex gap-3">
-        <button id="profile-btn" onclick="openProfile()" class="hidden glass p-4 rounded-full shadow-xl hover:scale-110 transition">👤</button>
-        <button onclick="toggleModal('custom-menu')" class="glass p-4 rounded-full shadow-xl hover:scale-110 transition">⚙️</button>
+        <button id="profile-btn" onclick="openProfile()" class="hidden glass p-4 rounded-full shadow-xl">👤</button>
+        <button onclick="toggleModal('custom-menu')" class="glass p-4 rounded-full shadow-xl">⚙️</button>
         <button id="logout-btn" onclick="logout()" class="hidden bg-red-500 text-white px-8 py-4 rounded-full font-bold shadow-xl lang" data-es="Salir" data-en="Logout">Salir</button>
     </nav>
 
-    <div id="custom-menu" class="fixed top-24 right-6 w-72 glass rounded-[2.5rem] shadow-2xl p-8 hidden z-[120]">
-        <div class="space-y-6">
+    <div id="custom-menu" class="fixed top-24 right-6 w-64 glass rounded-[2rem] shadow-2xl p-6 hidden z-[120]">
+        <div class="space-y-4">
             <select onchange="setTheme(this.value)" id="theme-sel">
-                <option value="light">☀️ Light / Claro</option>
-                <option value="dark">🌙 Dark / Oscuro</option>
+                <option value="light">☀️ Light</option>
+                <option value="dark">🌙 Dark</option>
             </select>
             <select onchange="setLang(this.value)" id="lang-sel">
                 <option value="es">Español</option>
@@ -65,20 +63,18 @@
     </div>
 
     <div id="login-sec" class="min-h-screen flex items-center justify-center p-6">
-        <div class="glass p-12 rounded-[3.5rem] shadow-2xl w-full max-w-md text-center border-t-8 border-indigo-600">
+        <div class="glass p-10 rounded-[3rem] shadow-2xl w-full max-w-sm text-center">
             <h1 class="text-4xl font-black text-indigo-600 mb-8 italic">GradeSystem</h1>
-            <div class="space-y-4">
-                <input type="text" id="user-in" placeholder="Usuario / Username" class="text-center">
-                <input type="password" id="pass-in" placeholder="Contraseña / Password" class="text-center">
-                <button onclick="login()" class="w-full btn-primary py-4 text-xl lang" data-es="Iniciar" data-en="Start">Iniciar</button>
-            </div>
+            <input type="text" id="user-in" placeholder="Usuario" class="mb-3 text-center">
+            <input type="password" id="pass-in" placeholder="Contraseña" class="mb-6 text-center">
+            <button onclick="login()" class="w-full btn-primary py-4 text-lg lang" data-es="Entrar" data-en="Sign In">Entrar</button>
             <p id="err" class="text-red-500 mt-4 text-xs font-bold"></p>
         </div>
     </div>
 
     <div id="sys-sec" class="hidden p-6 md:p-12">
         <div id="dual-header" class="max-w-6xl mx-auto mb-10 hidden">
-            <div class="glass p-4 rounded-full flex flex-wrap justify-between items-center px-8">
+            <div class="glass p-4 rounded-full flex flex-wrap justify-between items-center px-8 shadow-lg">
                 <div class="flex gap-2">
                     <button onclick="viewGroup('fatima.flores')" class="px-6 py-3 rounded-full font-bold hover:bg-indigo-600 hover:text-white transition">Fatima Flores</button>
                     <button onclick="viewGroup('jorge.flores')" class="px-6 py-3 rounded-full font-bold hover:bg-indigo-600 hover:text-white transition">Jorge Flores</button>
@@ -90,87 +86,84 @@
         <div id="mgmt-panel" class="fixed inset-0 z-[150] hidden overflow-y-auto p-6 md:p-12">
             <div class="max-w-7xl mx-auto">
                 <div class="flex justify-between items-center mb-10">
-                    <h2 class="text-3xl font-black text-indigo-600 lang" data-es="Panel Administrativo" data-en="Admin Panel">Panel Administrativo</h2>
-                    <button onclick="closeMgmt()" class="bg-indigo-100 dark:bg-indigo-900/30 p-4 rounded-full font-bold">✕</button>
+                    <h2 class="text-3xl font-black text-indigo-600 lang" data-es="Control de Usuarios" data-en="User Control">Control de Usuarios</h2>
+                    <button onclick="closeMgmt()" class="bg-red-500 text-white w-10 h-10 rounded-full font-bold">✕</button>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     <div class="lg:col-span-4 space-y-6">
-                        <div class="glass p-8 rounded-[3rem] shadow-xl">
-                            <h3 class="text-lg font-bold mb-6 lang" data-es="Nuevo Usuario" data-en="New User">Nuevo Usuario</h3>
-                            <div class="space-y-4">
-                                <input type="text" id="new-u-id" placeholder="ID">
+                        <div class="glass p-8 rounded-[2.5rem] shadow-lg">
+                            <h3 class="font-bold mb-4 lang" data-es="Registrar Nuevo" data-en="Register New">Registrar Nuevo</h3>
+                            <div class="space-y-3">
+                                <input type="text" id="new-u-id" placeholder="ID Usuario">
                                 <input type="text" id="new-u-pass" placeholder="Password">
                                 <select id="new-u-role">
                                     <option value="editor">Editor</option>
-                                    <option value="lector">Lector / Reader</option>
+                                    <option value="lector">Lector</option>
                                 </select>
                                 <select id="new-u-access">
                                     <option value="fatima.flores">Fatima</option>
                                     <option value="jorge.flores">Jorge</option>
-                                    <option value="both">Ambos / Both</option>
+                                    <option value="both">Ambos</option>
                                 </select>
-                                <button onclick="addUser()" class="w-full btn-primary py-4 lang" data-es="Crear Usuario" data-en="Create User">Crear Usuario</button>
+                                <button onclick="addUser()" class="w-full btn-primary py-3 lang" data-es="Agregar" data-en="Add">Agregar</button>
                             </div>
                         </div>
-                        <div id="user-admin-list" class="space-y-2 max-h-60 overflow-y-auto"></div>
+                        <div id="user-admin-list" class="space-y-3"></div>
                     </div>
-
                     <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6" id="mgmt-mats-container"></div>
                 </div>
             </div>
         </div>
 
         <main id="main-table-view" class="max-w-6xl mx-auto">
-            <div class="glass rounded-[3.5rem] shadow-2xl overflow-hidden">
+            <div class="glass rounded-[3rem] shadow-2xl overflow-hidden">
                 <table class="w-full text-left">
                     <thead class="bg-indigo-600 text-white">
                         <tr>
                             <th class="p-6 lang" data-es="Materia" data-en="Subject">Materia</th>
-                            <th class="p-6 lang" data-es="Cotidiana" data-en="Daily">Cotidiana</th>
-                            <th class="p-6 lang" data-es="Integradora" data-en="Integrative">Integradora</th>
-                            <th class="p-6 lang" data-es="Examen" data-en="Exam">Examen</th>
+                            <th class="p-6">Coti.</th>
+                            <th class="p-6">Inte.</th>
+                            <th class="p-6">Examen</th>
                             <th class="p-6 text-right lang" data-es="Final" data-en="Final">Final</th>
                         </tr>
                     </thead>
                     <tbody id="table-body" class="divide-y dark:divide-white/5"></tbody>
                 </table>
-                <div id="empty-msg" class="p-20 text-center opacity-30 font-black text-xl lang" data-es="ELIGA UN PERFIL" data-en="CHOOSE A PROFILE">ELIGA UN PERFIL</div>
             </div>
         </main>
     </div>
 
     <script>
-        // REEMPLAZA CON TU URL DE FIREBASE
-        const firebaseConfig = { databaseURL: "https://notas-sv1-default-rtdb.firebaseio.com/" };
+        const firebaseConfig = { databaseURL: "https://notas-sv1.firebaseapp.com/" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let USERS = JSON.parse(localStorage.getItem('db_v11')) || {
-            "admin.notas": { pass: "Admin2026.", rol: "admin", name: "Admin", access: "all", isTemp: false },
-            "fatima.flores": { pass: "Ccsa2026.", rol: "editor", name: "Fatima Flores", access: "fatima.flores", mats: [], isTemp: false },
-            "jorge.flores": { pass: "Atb2026.", rol: "editor", name: "Jorge Flores", access: "jorge.flores", mats: [], isTemp: false }
+        let USERS = JSON.parse(localStorage.getItem('db_v12')) || {
+            "admin.notas": { pass: "Admin2026.", rol: "admin", name: "Admin", access: "all", mats: [] },
+            "fatima.flores": { pass: "123", rol: "editor", name: "Fatima Flores", access: "fatima.flores", mats: [] },
+            "jorge.flores": { pass: "123", rol: "editor", name: "Jorge Flores", access: "jorge.flores", mats: [] }
         };
 
         let userAct = null;
         let currentTarget = "";
 
-        function save() { localStorage.setItem('db_v11', JSON.stringify(USERS)); }
+        function save() { localStorage.setItem('db_v12', JSON.stringify(USERS)); }
         function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
 
         function openProfile() {
             toggleModal('profile-modal');
-            const isAdmin = userAct.rol === 'admin';
-            document.getElementById('admin-pass-msg').classList.toggle('hidden', !isAdmin);
-            document.getElementById('pass-fields').classList.toggle('hidden', isAdmin);
+            const isA = userAct.rol === 'admin';
+            document.getElementById('admin-lock').classList.toggle('hidden', !isA);
+            document.getElementById('pass-fields-box').classList.toggle('hidden', isA);
         }
 
         function changeVoluntaryPass() {
             const p = document.getElementById('voluntary-pass').value;
-            if(p.length < 4) return alert("Min 4 chars");
+            if(p.length < 4) return;
             USERS[localStorage.getItem('session')].pass = p;
             save(); toggleModal('profile-modal');
-            alert("Contraseña Actualizada / Password Updated");
+            alert("Ok!");
         }
 
         function openMgmt() {
@@ -187,41 +180,50 @@
         function renderMgmt() {
             const uList = document.getElementById('user-admin-list');
             uList.innerHTML = Object.keys(USERS).map(u => `
-                <div class="glass p-3 rounded-xl flex justify-between text-xs">
-                    <span><b>${u}</b> (${USERS[u].pass})</span>
-                    <button onclick="deleteUser('${u}')" class="text-red-500 font-bold">✕</button>
+                <div class="glass p-4 rounded-2xl user-card">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-xs">${u}</span>
+                        <button onclick="deleteUser('${u}')" class="text-red-500 text-xs">✕</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" value="${USERS[u].pass}" onchange="updatePass('${u}', this.value)" class="text-[10px] p-1 h-8">
+                        <select onchange="updateRole('${u}', this.value)" class="text-[10px] p-1 h-8">
+                            <option value="editor" ${USERS[u].rol==='editor'?'selected':''}>Editor</option>
+                            <option value="lector" ${USERS[u].rol==='lector'?'selected':''}>Lector</option>
+                        </select>
+                    </div>
                 </div>
             `).join('');
 
             const cont = document.getElementById('mgmt-mats-container');
             cont.innerHTML = ["fatima.flores", "jorge.flores"].map(u => `
-                <div class="glass p-8 rounded-[3rem]">
-                    <div class="flex justify-between items-center mb-6">
-                        <h4 class="font-bold text-xl">${USERS[u].name}</h4>
-                        <button onclick="resetGrades('${u}')" class="text-[10px] bg-red-500 text-white px-3 py-1 rounded-lg">RESET</button>
-                    </div>
+                <div class="glass p-8 rounded-[2.5rem]">
+                    <h4 class="font-bold mb-4">${USERS[u].name}</h4>
                     <div class="flex gap-2 mb-4">
                         <input type="text" id="in-${u}" placeholder="Materia">
                         <button onclick="addMat('${u}')" class="bg-indigo-600 text-white px-4 rounded-xl font-bold">+</button>
                     </div>
-                    <div class="flex flex-wrap gap-2">${USERS[u].mats.map(m => `<span class="bg-indigo-50 dark:bg-white/5 p-2 rounded-lg text-xs font-bold">${m} <button onclick="remMat('${u}','${m}')" class="text-red-500 ml-1">✕</button></span>`).join('')}</div>
+                    <div class="flex flex-wrap gap-2">${USERS[u].mats.map(m => `<span class="bg-indigo-100 dark:bg-white/10 p-2 rounded-lg text-[10px] font-bold">${m} <button onclick="remMat('${u}','${m}')" class="text-red-500">✕</button></span>`).join('')}</div>
                 </div>
             `).join('');
             setLang(localStorage.getItem('lang') || 'es');
         }
+
+        function updateRole(u, r) { USERS[u].rol = r; save(); }
+        function updatePass(u, p) { USERS[u].pass = p; save(); }
 
         function addUser() {
             const id = document.getElementById('new-u-id').value.toLowerCase();
             const ps = document.getElementById('new-u-pass').value;
             const rl = document.getElementById('new-u-role').value;
             const ac = document.getElementById('new-u-access').value;
-            if(id && ps) { USERS[id] = { pass: ps, rol: rl, name: id, access: ac, mats: [], isTemp: false }; save(); renderMgmt(); }
+            if(id && ps) { USERS[id] = { pass: ps, rol: rl, name: id, access: ac, mats: [] }; save(); renderMgmt(); }
         }
 
         function deleteUser(u) { if(u !== 'admin.notas') { delete USERS[u]; save(); renderMgmt(); } }
         function addMat(u) { const v = document.getElementById(`in-${u}`).value; if(v){ USERS[u].mats.push(v); save(); renderMgmt(); } }
         function remMat(u, m) { USERS[u].mats = USERS[u].mats.filter(i => i !== m); save(); renderMgmt(); }
-        function resetGrades(u) { if(confirm("¿Borrar?")) db.ref(`v11/notas/${u}`).remove(); }
+        function resetGrades(u) { if(confirm("¿Borrar?")) db.ref(`v12/notas/${u}`).remove(); }
 
         function login() {
             const u = document.getElementById('user-in').value.toLowerCase();
@@ -230,7 +232,7 @@
                 userAct = USERS[u];
                 localStorage.setItem('session', u);
                 initSys();
-            } else { document.getElementById('err').innerText = "Incorrecto"; }
+            } else { document.getElementById('err').innerText = "Error"; }
         }
 
         function initSys() {
@@ -246,24 +248,21 @@
 
         function viewGroup(uKey) {
             currentTarget = uKey;
-            document.getElementById('empty-msg').classList.add('hidden');
             const body = document.getElementById('table-body');
             body.innerHTML = USERS[uKey].mats.map(m => `
                 <tr data-m="${m}">
                     <td class="p-6 font-bold text-indigo-600">${m}</td>
-                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="coti" onkeypress="return isNum(event)">-</td>
-                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="inte" onkeypress="return isNum(event)">-</td>
-                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="exam" onkeypress="return isNum(event)">-</td>
-                    <td class="p-6 text-right font-black text-2xl text-indigo-600 bg-indigo-50/20">0.0</td>
+                    <td class="p-6 editable-cell" contenteditable="${userAct.rol==='editor'}" data-c="coti" onkeypress="return isNum(event)">-</td>
+                    <td class="p-6 editable-cell" contenteditable="${userAct.rol==='editor'}" data-c="inte" onkeypress="return isNum(event)">-</td>
+                    <td class="p-6 editable-cell" contenteditable="${userAct.rol==='editor'}" data-c="exam" onkeypress="return isNum(event)">-</td>
+                    <td class="p-6 text-right font-black text-2xl text-indigo-600">0.0</td>
                 </tr>
             `).join('');
 
             document.querySelectorAll('.editable-cell').forEach(td => {
                 td.onblur = (e) => {
                     let v = e.target.innerText.replace(/[^0-9.]/g, '');
-                    if(v > 10) v = 10;
-                    e.target.innerText = v || "-";
-                    db.ref(`v11/notas/${currentTarget}/${e.target.parentElement.dataset.m}/${e.target.dataset.c}`).set(v);
+                    db.ref(`v12/notas/${currentTarget}/${e.target.parentElement.dataset.m}/${e.target.dataset.c}`).set(v);
                 };
             });
             sync();
@@ -271,7 +270,7 @@
 
         function isNum(e) { return (e.which != 46 || e.target.innerText.indexOf('.') != -1) && (e.which < 48 || e.which > 57) ? false : true; }
         function sync() {
-            db.ref(`v11/notas/${currentTarget}`).on('value', snap => {
+            db.ref(`v12/notas/${currentTarget}`).on('value', snap => {
                 const data = snap.val() || {};
                 document.querySelectorAll('#table-body tr').forEach(row => {
                     const m = row.dataset.m;
@@ -297,8 +296,6 @@
             const t = localStorage.getItem('theme') || 'light';
             const l = localStorage.getItem('lang') || 'es';
             setTheme(t); setLang(l);
-            document.getElementById('theme-sel').value = t;
-            document.getElementById('lang-sel').value = l;
             const s = localStorage.getItem('session');
             if(s && USERS[s]) { userAct = USERS[s]; initSys(); }
         };
