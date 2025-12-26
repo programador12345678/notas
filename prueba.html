@@ -10,69 +10,79 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <style>
-        body { font-family: 'Poppins', sans-serif; transition: all 0.3s ease; }
-        
-        /* Variables de colores */
+        /* Definición de variables para cambios globales */
         :root {
-            --primary: #5549e6;
-            --bg-light: #f1f5f9;
-            --card-light: #ffffff;
-            --text-light: #1e293b;
-            
-            --bg-dark: #0f172a;
-            --card-dark: #1e293b;
-            --text-dark: #f1f5f9;
+            --bg-body: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --border-color: #e2e8f0;
+            --input-bg: #f8fafc;
         }
 
-        .dark {
-            background-color: var(--bg-dark);
-            color: var(--text-dark);
+        /* Colores cuando el modo oscuro está activo */
+        .dark-mode {
+            --bg-body: #0f172a; /* Fondo total oscuro */
+            --bg-card: #1e293b; /* Tarjetas oscuras */
+            --text-main: #f8fafc; /* Texto claro */
+            --border-color: #334155;
+            --input-bg: #334155;
         }
 
-        .dark .glass-card {
-            background-color: var(--card-dark);
-            border-color: #334155;
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main);
+            transition: background-color 0.4s ease, color 0.4s ease;
+            margin: 0;
+            min-height: 100vh;
         }
 
-        .dark input {
-            background-color: #334155;
-            color: white;
-            border-color: #475569;
+        .glass-card, .navbar, .table-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.4s ease;
         }
 
-        .dark .navbar, .dark .table-card {
-            background-color: var(--card-dark);
-            color: white;
+        input, select {
+            background-color: var(--input-bg) !important;
+            color: var(--text-main) !important;
+            border: 1px solid var(--border-color) !important;
         }
 
-        .hidden { display: none !important; }
-        
-        /* Animación suave para el panel de personalización */
-        #custom-menu { transform: translateY(-10px); opacity: 0; transition: 0.3s; pointer-events: none; }
+        #custom-menu { 
+            transform: translateY(-10px); 
+            opacity: 0; 
+            transition: 0.3s ease; 
+            pointer-events: none; 
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+        }
         #custom-menu.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800">
+<body class="light">
 
     <div class="fixed top-4 right-4 z-50">
-        <button onclick="toggleCustomMenu()" class="bg-white dark:bg-slate-800 p-3 rounded-full shadow-lg border border-gray-200 dark:border-slate-700 hover:scale-110 transition">
+        <button onclick="toggleCustomMenu()" class="glass-card p-3 rounded-full shadow-xl hover:scale-110 transition flex items-center gap-2 font-bold">
             ⚙️ <span id="lang-custom-btn">Personalizar</span>
         </button>
         
-        <div id="custom-menu" class="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-4 border border-gray-100 dark:border-slate-700">
-            <p class="text-xs font-bold text-gray-400 uppercase mb-3 tracking-widest" id="lang-settings">Ajustes</p>
+        <div id="custom-menu" class="absolute right-0 mt-2 w-56 rounded-2xl shadow-2xl p-5">
+            <p class="text-xs font-bold text-indigo-500 uppercase mb-4 tracking-widest" id="lang-settings">Ajustes</p>
             
             <div class="mb-4">
-                <label class="block text-sm mb-1" id="lang-theme">Modo:</label>
-                <select onchange="setTheme(this.value)" id="theme-select" class="w-full p-2 rounded-lg bg-gray-100 dark:bg-slate-700 text-sm outline-none">
+                <label class="block text-sm font-semibold mb-2" id="lang-theme">Modo de Pantalla:</label>
+                <select onchange="setTheme(this.value)" id="theme-select" class="w-full p-2 rounded-xl outline-none cursor-pointer">
                     <option value="light">☀️ Claro / Light</option>
                     <option value="dark">🌙 Oscuro / Dark</option>
                 </select>
             </div>
 
             <div>
-                <label class="block text-sm mb-1" id="lang-language">Idioma:</label>
-                <select onchange="setLanguage(this.value)" id="lang-select" class="w-full p-2 rounded-lg bg-gray-100 dark:bg-slate-700 text-sm outline-none">
+                <label class="block text-sm font-semibold mb-2" id="lang-language">Idioma:</label>
+                <select onchange="setLanguage(this.value)" id="lang-select" class="w-full p-2 rounded-xl outline-none cursor-pointer">
                     <option value="es">Español</option>
                     <option value="en">English</option>
                 </select>
@@ -81,53 +91,49 @@
     </div>
 
     <div id="login" class="min-h-screen flex items-center justify-center p-6">
-        <div class="glass-card bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center border border-gray-100">
-            <h2 class="text-3xl font-bold mb-2" id="lang-login-title">Sistema de Notas</h2>
-            <p class="text-gray-400 mb-8" id="lang-login-subtitle">Inicia sesión para continuar</p>
+        <div class="glass-card p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center">
+            <h2 class="text-4xl font-extrabold mb-2 text-indigo-600" id="lang-login-title">Sistema de Notas</h2>
+            <p class="opacity-60 mb-8" id="lang-login-subtitle">Inicia sesión para continuar</p>
             
-            <input type="text" id="usuario" placeholder="Usuario" class="w-full p-4 mb-4 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
-            <input type="password" id="contrasena" placeholder="Contraseña" class="w-full p-4 mb-6 border border-gray-100 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
+            <input type="text" id="usuario" placeholder="Usuario" class="w-full p-4 mb-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
+            <input type="password" id="contrasena" placeholder="Contraseña" class="w-full p-4 mb-8 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition">
             
-            <button id="login-btn" class="w-full bg-[#5549e6] text-white py-4 rounded-2xl font-bold text-lg hover:opacity-90 shadow-lg shadow-indigo-100" id="lang-btn-login">Entrar</button>
-            <p id="error-msg" class="text-red-500 mt-4 text-sm"></p>
+            <button id="login-btn" class="w-full bg-[#5549e6] text-white py-4 rounded-2xl font-bold text-lg hover:brightness-110 shadow-lg transition">Entrar</button>
+            <p id="error-msg" class="text-red-500 mt-4 text-sm font-semibold"></p>
         </div>
     </div>
 
-    <div id="sistema" class="hidden min-h-screen">
-        <nav class="navbar bg-white p-6 flex justify-between items-center shadow-sm border-b border-gray-100 dark:border-slate-800">
-            <span id="welcome" class="font-semibold text-lg"></span>
-            <button id="logout" class="text-red-500 font-bold border-2 border-red-500 px-6 py-2 rounded-xl hover:bg-red-50" id="lang-logout">Cerrar Sesión</button>
+    <div id="sistema" class="hidden">
+        <nav class="navbar p-6 flex justify-between items-center shadow-md px-10">
+            <span id="welcome" class="font-bold text-xl tracking-tight"></span>
+            <button id="logout" class="text-red-500 font-bold border-2 border-red-500 px-6 py-2 rounded-xl hover:bg-red-500 hover:text-white transition">Salir</button>
         </nav>
 
-        <div id="panel-lectores" class="hidden max-w-5xl mx-auto mt-10 p-6">
-            <div class="bg-[#5549e6] p-10 rounded-[2rem] text-white text-center shadow-xl">
-                <h3 class="text-3xl font-bold mb-2" id="lang-welcome-back">¡Bienvenidos!</h3>
-                <p class="opacity-80 mb-8" id="lang-ask-notes">¿Qué notas desean ver hoy?</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button class="bg-white text-indigo-700 p-6 rounded-2xl font-bold hover:scale-105 transition shadow-lg" onclick="filtrarPorProfesor('fatima')">
-                        👩‍🏫 Fatima Flores
-                    </button>
-                    <button class="bg-white text-indigo-700 p-6 rounded-2xl font-bold hover:scale-105 transition shadow-lg" onclick="filtrarPorProfesor('jorge')">
-                        👨‍🏫 Jorge Flores
-                    </button>
+        <div id="panel-lectores" class="hidden max-w-5xl mx-auto mt-12 p-6">
+            <div class="bg-[#5549e6] p-12 rounded-[3rem] text-white text-center shadow-2xl">
+                <h3 class="text-4xl font-bold mb-4" id="lang-welcome-back">¡Bienvenidos!</h3>
+                <p class="opacity-80 text-lg mb-10" id="lang-ask-notes">¿Qué notas desean revisar hoy?</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <button class="bg-white text-indigo-700 p-8 rounded-[2rem] font-bold text-xl hover:scale-105 transition shadow-xl" onclick="filtrarPorProfesor('fatima')">👩‍🏫 Fatima Flores</button>
+                    <button class="bg-white text-indigo-700 p-8 rounded-[2rem] font-bold text-xl hover:scale-105 transition shadow-xl" onclick="filtrarPorProfesor('jorge')">👨‍🏫 Jorge Flores</button>
                 </div>
             </div>
         </div>
 
         <main class="max-w-6xl mx-auto p-6 md:p-10">
-            <div class="table-card bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-gray-100 dark:border-slate-800">
-                <div class="p-8 border-b border-gray-100 dark:border-slate-800 flex justify-between">
-                    <h2 id="titulo-tabla" class="text-2xl font-bold">Registro de Calificaciones</h2>
+            <div class="table-card rounded-[3rem] shadow-2xl overflow-hidden">
+                <div class="p-10 border-b border-gray-100 dark:border-slate-800">
+                    <h2 id="titulo-tabla" class="text-3xl font-extrabold">Registro de Calificaciones</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
                         <thead>
-                            <tr class="text-xs uppercase text-slate-400 font-bold tracking-widest border-b border-gray-100 dark:border-slate-800">
-                                <th class="p-6" id="lang-th-subject">Materia</th>
-                                <th class="p-6" id="lang-th-coti">Cotidiana</th>
-                                <th class="p-6" id="lang-th-inte">Integradora</th>
-                                <th class="p-6" id="lang-th-exam">Examen</th>
-                                <th class="p-6 text-right" id="lang-th-final">Nota Final</th>
+                            <tr class="text-xs uppercase opacity-50 font-black tracking-widest border-b border-gray-100">
+                                <th class="p-8" id="lang-th-subject">Materia</th>
+                                <th class="p-8" id="lang-th-coti">Cotidiana</th>
+                                <th class="p-8" id="lang-th-inte">Integradora</th>
+                                <th class="p-8" id="lang-th-exam">Examen</th>
+                                <th class="p-8 text-right" id="lang-th-final">Nota Final</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-cuerpo" class="divide-y divide-gray-50 dark:divide-slate-800"></tbody>
@@ -138,120 +144,55 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN FIREBASE
         const firebaseConfig = { databaseURL: "https://notassv-ce8e1-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // USUARIOS SEGÚN TUS DATOS
         const usuarios = {
-            "fatima.flores": { pass: "Ccsa2026.", rol: "editor", nombre: "Fatima", apellido: "Flores", materias: ["Lenguaje", "Matemáticas", "Sociales", "Ciencias", "OPV"] },
-            "jorge.flores": { pass: "Atb2026.", rol: "editor", nombre: "Jorge", apellido: "Flores", materias: ["Inglés", "Reading", "Conversation", "Informática", "Seminario"] },
+            "fatima.flores": { pass: "Ccsa2026.", rol: "editor", nombre: "Fatima", apellido: "Flores", materias: ["Lenguaje", "Matemáticas", "Sociales", "Ciencias", "OPV", "Moral", "Seminario"] },
+            "jorge.flores": { pass: "Atb2026.", rol: "editor", nombre: "Jorge", apellido: "Flores", materias: ["Inglés", "Reading", "Conversation", "Informática", "Ed. Física"] },
             "jorge.flores1": { pass: "JFlores2026.", rol: "lector", nombre: "Jorge", apellido: "Lector" },
             "carmen.jovel": { pass: "CJovel2026.", rol: "lector", nombre: "Carmen", apellido: "Jovel" },
-            "admin.notas": { pass: "Admin2026.", rol: "admin", nombre: "Administrador", apellido: "General" }
+            "admin.notas": { pass: "Admin2026.", rol: "admin", nombre: "Admin", apellido: "General" }
         };
 
-        // TRADUCCIONES
         const translations = {
-            es: {
-                loginTitle: "Sistema de Notas",
-                loginSubtitle: "Inicia sesión para continuar",
-                btnLogin: "Entrar",
-                customBtn: "Personalizar",
-                settings: "Ajustes",
-                theme: "Modo:",
-                language: "Idioma:",
-                logout: "Cerrar Sesión",
-                welcomeBack: "¡Bienvenidos!",
-                askNotes: "¿Qué notas desean ver hoy?",
-                thSubject: "Materia",
-                thCoti: "Cotidiana",
-                thInte: "Integradora",
-                thExam: "Examen",
-                thFinal: "Nota Final",
-                hello: "Hola"
-            },
-            en: {
-                loginTitle: "Grades System",
-                loginSubtitle: "Sign in to continue",
-                btnLogin: "Sign In",
-                customBtn: "Customize",
-                settings: "Settings",
-                theme: "Theme:",
-                language: "Language:",
-                logout: "Logout",
-                welcomeBack: "Welcome!",
-                askNotes: "Whose grades do you want to see?",
-                thSubject: "Subject",
-                thCoti: "Classwork",
-                thInte: "Integrative",
-                thExam: "Exam",
-                thFinal: "Final Grade",
-                hello: "Hello"
-            }
+            es: { loginTitle: "Sistema de Notas", loginSubtitle: "Inicia sesión para continuar", btnLogin: "Entrar", customBtn: "Personalizar", settings: "Ajustes", theme: "Modo de Pantalla:", language: "Idioma:", logout: "Salir", welcomeBack: "¡Bienvenidos!", askNotes: "¿Qué notas desean revisar hoy?", thSubject: "Materia", thCoti: "Cotidiana", thInte: "Integradora", thExam: "Examen", thFinal: "Nota Final", hello: "Hola" },
+            en: { loginTitle: "Grades System", loginSubtitle: "Sign in to continue", btnLogin: "Sign In", customBtn: "Customize", settings: "Settings", theme: "Screen Mode:", language: "Language:", logout: "Logout", welcomeBack: "Welcome!", askNotes: "Whose grades do you want to review?", thSubject: "Subject", thCoti: "Classwork", thInte: "Integrative", thExam: "Exam", thFinal: "Final Grade", hello: "Hello" }
         };
 
         let currentLang = 'es';
         let userLogged = null;
 
-        // FUNCIONES DE PERSONALIZACIÓN
-        function toggleCustomMenu() {
-            document.getElementById('custom-menu').classList.toggle('show');
-        }
+        function toggleCustomMenu() { document.getElementById('custom-menu').classList.toggle('show'); }
 
         function setTheme(theme) {
-            if(theme === 'dark') document.body.classList.add('dark');
-            else document.body.classList.remove('dark');
+            if(theme === 'dark') document.body.classList.add('dark-mode');
+            else document.body.classList.remove('dark-mode');
             localStorage.setItem('theme', theme);
         }
 
         function setLanguage(lang) {
             currentLang = lang;
             const t = translations[lang];
-            document.getElementById('lang-login-title').innerText = t.loginTitle;
-            document.getElementById('lang-login-subtitle').innerText = t.loginSubtitle;
-            document.getElementById('login-btn').innerText = t.btnLogin;
-            document.getElementById('lang-custom-btn').innerText = t.customBtn;
-            document.getElementById('lang-settings').innerText = t.settings;
-            document.getElementById('lang-theme').innerText = t.theme;
-            document.getElementById('lang-language').innerText = t.language;
-            document.getElementById('lang-logout').innerText = t.logout;
-            document.getElementById('lang-welcome-back').innerText = t.welcomeBack;
-            document.getElementById('lang-ask-notes').innerText = t.askNotes;
-            document.getElementById('lang-th-subject').innerText = t.thSubject;
-            document.getElementById('lang-th-coti').innerText = t.thCoti;
-            document.getElementById('lang-th-inte').innerText = t.thInte;
-            document.getElementById('lang-th-exam').innerText = t.thExam;
-            document.getElementById('lang-th-final').innerText = t.thFinal;
-            
-            if(userLogged) {
-                document.getElementById('welcome').innerText = `${t.hello}, ${userLogged.nombre} ${userLogged.apellido}`;
-            }
+            document.querySelectorAll('[id^="lang-"]').forEach(el => {
+                const key = el.id.replace('lang-', '').replace(/-([a-z])/g, g => g[1].toUpperCase());
+                if(t[key]) el.innerText = t[key];
+            });
+            if(userLogged) document.getElementById('welcome').innerText = `${t.hello}, ${userLogged.nombre} ${userLogged.apellido}`;
             localStorage.setItem('lang', lang);
         }
 
-        // LÓGICA DE LOGIN
         document.getElementById('login-btn').addEventListener('click', () => {
             const u = document.getElementById('usuario').value;
             const p = document.getElementById('contrasena').value;
-
             if (usuarios[u] && usuarios[u].pass === p) {
                 userLogged = usuarios[u];
                 document.getElementById('login').classList.add('hidden');
                 document.getElementById('sistema').classList.remove('hidden');
-                
-                // CAMBIO SOLICITADO: Nombre y Apellido
-                const greeting = translations[currentLang].hello;
-                document.getElementById('welcome').innerText = `${greeting}, ${userLogged.nombre} ${userLogged.apellido}`;
-
-                if (userLogged.rol === "lector") {
-                    document.getElementById('panel-lectores').classList.remove('hidden');
-                } else {
-                    // Admin ve todo, Editor solo lo suyo
-                    const mats = userLogged.rol === "admin" ? [...usuarios["fatima.flores"].materias, ...usuarios["jorge.flores"].materias] : userLogged.materias;
-                    dibujarTabla(mats);
-                }
+                setLanguage(currentLang);
+                if (userLogged.rol === "lector") document.getElementById('panel-lectores').classList.remove('hidden');
+                else dibujarTabla(userLogged.rol === "admin" ? [...usuarios["fatima.flores"].materias, ...usuarios["jorge.flores"].materias] : userLogged.materias);
             } else {
                 document.getElementById('error-msg').innerText = currentLang === 'es' ? "Credenciales inválidas" : "Invalid credentials";
             }
@@ -263,33 +204,24 @@
             dibujarTabla(profObj.materias);
         }
 
-        function dibujarTabla(listaMaterias) {
+        function dibujarTabla(lista) {
             const tbody = document.getElementById('tabla-cuerpo');
-            tbody.innerHTML = "";
-            listaMaterias.forEach(m => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-6 font-semibold">${m}</td>
-                    <td class="p-6 nota" data-m="${m}" data-c="cotidiana">-</td>
-                    <td class="p-6 nota" data-m="${m}" data-c="integradora">-</td>
-                    <td class="p-6 nota" data-m="${m}" data-c="examen">-</td>
-                    <td class="p-6 text-right font-bold text-indigo-600 dark:text-indigo-400">0.0</td>
-                `;
-                tbody.appendChild(tr);
-                if (userLogged.rol === "editor" || userLogged.rol === "admin") habilitarEdit(tr, m);
-            });
-            escucharFirebase();
-        }
-
-        function habilitarEdit(fila, m) {
-            fila.querySelectorAll('.nota').forEach(td => {
-                td.contentEditable = true;
-                td.classList.add('bg-yellow-50', 'dark:bg-slate-700', 'rounded-lg');
-                td.addEventListener('blur', (e) => {
-                    const campo = e.target.getAttribute('data-c');
-                    database.ref(`notas/${m}/${campo}`).set(e.target.innerText);
+            tbody.innerHTML = lista.map(m => `
+                <tr class="group hover:bg-gray-50 dark:hover:bg-slate-800/50 transition">
+                    <td class="p-8 font-bold text-lg">${m}</td>
+                    <td class="p-8 nota cursor-edit" data-m="${m}" data-c="cotidiana">-</td>
+                    <td class="p-8 nota cursor-edit" data-m="${m}" data-c="integradora">-</td>
+                    <td class="p-8 nota cursor-edit" data-m="${m}" data-c="examen">-</td>
+                    <td class="p-8 text-right font-black text-2xl text-indigo-500">0.0</td>
+                </tr>
+            `).join('');
+            if (userLogged.rol !== "lector") {
+                document.querySelectorAll('.nota').forEach(td => {
+                    td.contentEditable = true;
+                    td.addEventListener('blur', (e) => database.ref(`notas/${e.target.dataset.m}/${e.target.dataset.c}`).set(e.target.innerText));
                 });
-            });
+            }
+            escucharFirebase();
         }
 
         function escucharFirebase() {
@@ -310,14 +242,11 @@
 
         document.getElementById('logout').addEventListener('click', () => location.reload());
 
-        // Cargar preferencias guardadas
         window.onload = () => {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            const savedLang = localStorage.getItem('lang') || 'es';
-            setTheme(savedTheme);
-            setLanguage(savedLang);
-            document.getElementById('theme-select').value = savedTheme;
-            document.getElementById('lang-select').value = savedLang;
+            setTheme(localStorage.getItem('theme') || 'light');
+            setLanguage(localStorage.getItem('lang') || 'es');
+            document.getElementById('theme-select').value = localStorage.getItem('theme') || 'light';
+            document.getElementById('lang-select').value = localStorage.getItem('lang') || 'es';
         };
     </script>
 </body>
