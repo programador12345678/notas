@@ -1,26 +1,23 @@
 import { kv } from '@vercel/kv';
 
 export default async function handler(req, res) {
+    // Esto permite que tus dispositivos se conecten sin bloqueos
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    
     const { user } = req.query;
-    if (!user) return res.status(400).json({ error: "Usuario requerido" });
+    if (!user) return res.status(400).json({ error: "Falta el usuario" });
 
-    // GUARDAR DATOS (POST)
-    if (req.method === 'POST') {
-        try {
+    try {
+        if (req.method === 'POST') {
+            // GUARDA las notas que envías desde el teléfono
             await kv.set(`notas_${user}`, req.body);
             return res.status(200).json({ success: true });
-        } catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
-    }
-
-    // LEER DATOS (GET)
-    if (req.method === 'GET') {
-        try {
+        } else {
+            // LEE las notas guardadas para mostrarlas
             const data = await kv.get(`notas_${user}`);
             return res.status(200).json(data || {});
-        } catch (error) {
-            return res.status(500).json({ error: error.message });
         }
+    } catch (e) {
+        return res.status(500).json({ error: "Error de conexión con Vercel KV" });
     }
 }
