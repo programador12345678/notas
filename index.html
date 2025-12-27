@@ -12,6 +12,13 @@
         .glass { background: var(--card); border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .editable-cell:focus { background: #eef2ff; outline: 2px solid var(--accent); border-radius: 4px; }
         .hidden { display: none; }
+        .nota-baja { color: #ef4444 !important; font-weight: bold; } /* Rojo para notas < 6 */
+        
+        /* Animación para el estado de la nube */
+        @keyframes pulse-blue { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .syncing { animation: pulse-blue 1s infinite; color: #eab308; }
+        .sync-error { color: #ef4444; }
+        .sync-ok { color: #22c55e; }
     </style>
 </head>
 <body class="p-4 md:p-8">
@@ -19,14 +26,19 @@
     <div id="login-sec" class="min-h-screen flex items-center justify-center">
         <div class="glass p-8 rounded-[2rem] w-full max-w-sm text-center">
             <h1 class="text-2xl font-black text-indigo-600 mb-6 italic">Sistema de Notas</h1>
-            <input type="text" id="user-in" placeholder="Usuario" class="w-full p-3 mb-3 border rounded-xl text-center">
-            <button onclick="login()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold">Entrar</button>
+            <input type="text" id="user-in" placeholder="Tu Nombre de Usuario" class="w-full p-3 mb-3 border rounded-xl text-center outline-none focus:ring-2 focus:ring-indigo-400">
+            <button onclick="login()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition">Entrar al Sistema</button>
         </div>
     </div>
 
     <div id="app-sec" class="hidden max-w-4xl mx-auto">
         <header class="flex justify-between items-center mb-6">
-            <h2 id="welcome-msg" class="text-xl font-bold text-indigo-600"></h2>
+            <div>
+                <h2 id="welcome-msg" class="text-xl font-bold text-indigo-600"></h2>
+                <div id="sync-status" class="text-[10px] font-bold flex items-center gap-1 mt-1 opacity-80">
+                    <span id="sync-icon">●</span> <span id="sync-text">Sincronizado</span>
+                </div>
+            </div>
             <button onclick="logout()" class="bg-red-100 text-red-600 px-4 py-2 rounded-lg text-sm font-bold">Salir</button>
         </header>
 
@@ -40,11 +52,10 @@
                         <th class="p-4 text-right">Promedio</th>
                     </tr>
                 </thead>
-                <tbody id="table-body" class="divide-y divide-gray-100">
-                    </tbody>
+                <tbody id="table-body" class="divide-y divide-gray-100"></tbody>
             </table>
         </div>
-        <p class="text-center text-[10px] mt-4 opacity-50">Sincronizando con Vercel KV en tiempo real...</p>
+        <p class="text-center text-[10px] mt-4 opacity-40">Tus datos se guardan automáticamente en Vercel KV.</p>
     </div>
 
     <script>
@@ -65,8 +76,25 @@
             document.getElementById('app-sec').classList.remove('hidden');
             document.getElementById('welcome-msg').innerText = `Notas: ${currentUser}`;
             renderTable();
-            fetchData(); // Carga inicial
-            setInterval(fetchData, 3000); // Sincronización cada 3 segundos
+            fetchData();
+            setInterval(fetchData, 4000); // Sincroniza cada 4 segundos
+        }
+
+        function updateSyncStatus(state) {
+            const icon = document.getElementById('sync-icon');
+            const text = document.getElementById('sync-text');
+            const container = document.getElementById('sync-status');
+
+            if (state === 'syncing') {
+                container.className = "text-[10px] font-bold flex items-center gap-1 mt-1 syncing";
+                text.innerText = "Guardando...";
+            } else if (state === 'error') {
+                container.className = "text-[10px] font-bold flex items-center gap-1 mt-1 sync-error";
+                text.innerText = "Error de conexión";
+            } else {
+                container.className = "text-[10px] font-bold flex items-center gap-1 mt-1 sync-ok";
+                text.innerText = "Sincronizado";
+            }
         }
 
         function renderTable() {
@@ -74,15 +102,21 @@
             body.innerHTML = MATERIAS.map(m => `
                 <tr data-m="${m}">
                     <td class="p-4 font-semibold text-gray-700">${m}</td>
-                    <td class="p-4 text-center editable-cell" contenteditable="true" data-c="n1" onblur="saveData()">0</td>
-                    <td class="p-4 text-center editable-cell" contenteditable="true" data-c="n2" onblur="saveData()">0</td>
-                    <td class="p-4 text-right font-bold text-indigo-600">0.0</td>
+                    <td class="p-4 text-center editable-cell" contenteditable="true" data-c="n1" onblur="saveData(this)">0</td>
+                    <td class="p-4 text-center editable-cell" contenteditable="true" data-c="n2" onblur="saveData(this)">0</td>
+                    <td class="p-4 text-right font-black text-indigo-600 text-lg">0.0</td>
                 </tr>
             `).join('');
         }
 
-        // FUNCIÓN CLAVE: Guardar datos en Vercel
-        async function saveData() {
+        async function saveData(el) {
+            updateSyncStatus('syncing');
+            
+            // Validar que sea número y dar formato rojo si es < 6
+            const val = parseFloat(el.innerText) || 0;
+            if (val < 6) el.classList.add('nota-baja');
+            else el.classList.remove('nota-baja');
+
             const rows = document.querySelectorAll('#table-body tr');
             const data = {};
             
@@ -94,29 +128,49 @@
                 };
             });
 
-            await fetch(`/api/notas?user=${currentUser}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
+            try {
+                const res = await fetch(`/api/notas?user=${currentUser}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) updateSyncStatus('ok');
+                else updateSyncStatus('error');
+            } catch (e) {
+                updateSyncStatus('error');
+            }
         }
 
-        // FUNCIÓN CLAVE: Leer datos de Vercel
         async function fetchData() {
-            if (document.activeElement.getAttribute('contenteditable')) return; // No actualizar si estoy escribiendo
+            if (document.activeElement.getAttribute('contenteditable')) return;
 
-            const res = await fetch(`/api/notas?user=${currentUser}`);
-            const data = await res.json();
+            try {
+                const res = await fetch(`/api/notas?user=${currentUser}`);
+                const data = await res.json();
 
-            document.querySelectorAll('#table-body tr').forEach(row => {
-                const m = row.dataset.m;
-                if (data[m]) {
-                    row.cells[1].innerText = data[m].n1 || "0";
-                    row.cells[2].innerText = data[m].n2 || "0";
-                    const p = (parseFloat(data[m].n1 || 0) + parseFloat(data[m].n2 || 0)) / 2;
-                    row.cells[3].innerText = p.toFixed(1);
-                }
-            });
+                document.querySelectorAll('#table-body tr').forEach(row => {
+                    const m = row.dataset.m;
+                    if (data[m]) {
+                        // Nota 1
+                        row.cells[1].innerText = data[m].n1 || "0";
+                        if (parseFloat(data[m].n1) < 6) row.cells[1].classList.add('nota-baja');
+                        else row.cells[1].classList.remove('nota-baja');
+
+                        // Nota 2
+                        row.cells[2].innerText = data[m].n2 || "0";
+                        if (parseFloat(data[m].n2) < 6) row.cells[2].classList.add('nota-baja');
+                        else row.cells[2].classList.remove('nota-baja');
+
+                        // Promedio
+                        const p = (parseFloat(data[m].n1 || 0) + parseFloat(data[m].n2 || 0)) / 2;
+                        row.cells[3].innerText = p.toFixed(1);
+                        if (p < 6) row.cells[3].classList.add('nota-baja');
+                        else row.cells[3].classList.remove('nota-baja');
+                    }
+                });
+            } catch (e) {
+                console.log("Error al recibir datos");
+            }
         }
 
         function logout() {
