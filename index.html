@@ -1,629 +1,131 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Sistema de Notas / Note System | 2026</title>
-
+    <title>Sistema de Notas Neon | 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
-
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
-
-
     <style>
-
-        :root { --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --border: #e2e8f0; --accent: #4f46e5; }
-
-        .dark-mode { --bg: #020617; --card: #0f172a; --text: #f8fafc; --border: #1e293b; --accent: #6366f1; }
-
-        
-
-        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); transition: 0.4s; min-height: 100vh; display: flex; flex-direction: column; }
-
-        .glass { background: var(--card); border: 1px solid var(--border); backdrop-filter: blur(15px); }
-
+        :root { --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --accent: #4f46e5; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); }
+        .glass { background: var(--card); border: 1px solid #e2e8f0; }
         .hidden { display: none !important; }
-
-        
-
-        input, select { 
-
-            background: var(--bg) !important; border: 1px solid var(--border) !important; 
-
-            color: var(--text) !important; border-radius: 12px; padding: 10px; width: 100%; outline: none; font-size: 0.875rem;
-
-        }
-
-        .btn-primary { background: var(--accent); color: white; transition: 0.3s; font-weight: 700; border-radius: 12px; }
-
-        .btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
-
-
-
-        #mgmt-panel { background-color: var(--bg); color: var(--text); }
-
-        .user-card { border-left: 4px solid var(--accent); }
-
-        
-
-        /* Asegura que el contenido ocupe el espacio para empujar el footer */
-
-        .content-wrap { flex: 1; }
-
+        input[type=number] { background: transparent; width: 60px; text-align: center; border-bottom: 2px solid #e2e8f0; }
     </style>
-
 </head>
+<body class="p-6">
 
-<body class="light">
-
-
-
-    <div class="content-wrap">
-
-        <div id="profile-modal" class="fixed inset-0 bg-black/60 backdrop-blur-md z-[150] hidden flex items-center justify-center p-4">
-
-            <div class="glass p-8 rounded-[2.5rem] w-full max-w-sm shadow-2xl">
-
-                <h3 class="text-xl font-bold mb-6 lang" data-es="Mi Seguridad" data-en="My Security">Mi Seguridad</h3>
-
-                <div id="admin-lock" class="hidden text-xs text-orange-500 font-bold mb-4 lang" data-es="🔒 El administrador principal no puede auto-editarse." data-en="🔒 Main admin cannot auto-edit."></div>
-
-                <div id="pass-fields-box">
-
-                    <label class="text-[10px] font-bold opacity-50 ml-2 lang" data-es="NUEVA CONTRASEÑA" data-en="NEW PASSWORD">NUEVA CONTRASEÑA</label>
-
-                    <input type="password" id="voluntary-pass" placeholder="********" class="mb-4">
-
-                    <button onclick="changeVoluntaryPass()" class="w-full btn-primary py-3 lang" data-es="Guardar" data-en="Save">Guardar</button>
-
-                </div>
-
-                <button onclick="toggleModal('profile-modal')" class="w-full opacity-40 font-bold text-sm mt-4 lang" data-es="Cerrar" data-en="Close">Cerrar</button>
-
-            </div>
-
+    <div id="login-sec" class="min-h-screen flex items-center justify-center">
+        <div class="glass p-10 rounded-[3rem] shadow-2xl w-full max-w-sm text-center">
+            <h1 class="text-3xl font-black text-indigo-600 mb-8">Sistema de Notas</h1>
+            <input type="text" id="user-in" placeholder="Usuario" class="mb-3 w-full p-3 border rounded-xl text-center">
+            <input type="password" id="pass-in" placeholder="Contraseña" class="mb-6 w-full p-3 border rounded-xl text-center">
+            <button onclick="login()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:scale-105 transition">Entrar</button>
+            <p id="err" class="text-red-500 mt-4 font-bold text-sm"></p>
         </div>
-
-
-
-        <nav class="fixed top-6 right-6 z-[110] flex gap-3">
-
-            <button id="profile-btn" onclick="openProfile()" class="hidden glass p-4 rounded-full shadow-xl">👤</button>
-
-            <button onclick="toggleModal('custom-menu')" class="glass p-4 rounded-full shadow-xl">⚙️</button>
-
-            <button id="logout-btn" onclick="logout()" class="hidden bg-red-500 text-white px-8 py-4 rounded-full font-bold shadow-xl lang" data-es="Salir" data-en="Logout">Salir</button>
-
-        </nav>
-
-
-
-        <div id="custom-menu" class="fixed top-24 right-6 w-64 glass rounded-[2rem] shadow-2xl p-6 hidden z-[120]">
-
-            <div class="space-y-4">
-
-                <select onchange="setTheme(this.value)" id="theme-sel">
-
-                    <option value="light">☀️ Light</option>
-
-                    <option value="dark">🌙 Dark</option>
-
-                </select>
-
-                <select onchange="setLang(this.value)" id="lang-sel">
-
-                    <option value="es">Español</option>
-
-                    <option value="en">English</option>
-
-                </select>
-
-            </div>
-
-        </div>
-
-
-
-        <div id="login-sec" class="min-h-screen flex items-center justify-center p-6">
-
-            <div class="glass p-10 rounded-[3rem] shadow-2xl w-full max-w-sm text-center">
-
-                <h1 class="text-3xl font-black text-indigo-600 mb-8 italic">Sistema de Notas</h1>
-
-                <input type="text" id="user-in" placeholder="Usuario" class="mb-3 text-center">
-
-                <input type="password" id="pass-in" placeholder="Contraseña" class="mb-6 text-center">
-
-                <button onclick="login()" class="w-full btn-primary py-4 text-lg lang" data-es="Entrar" data-en="Sign In">Entrar</button>
-
-                <p id="err" class="text-red-500 mt-4 text-xs font-bold"></p>
-
-            </div>
-
-        </div>
-
-
-
-        <div id="sys-sec" class="hidden p-6 md:p-12">
-
-            <div id="dual-header" class="max-w-6xl mx-auto mb-10 hidden">
-
-                <div class="glass p-4 rounded-full flex flex-wrap justify-between items-center px-8 shadow-lg">
-
-                    <div class="flex gap-2">
-
-                        <button onclick="viewGroup('fatima.flores')" class="px-6 py-3 rounded-full font-bold hover:bg-indigo-600 hover:text-white transition">Fatima Flores</button>
-
-                        <button onclick="viewGroup('jorge.flores')" class="px-6 py-3 rounded-full font-bold hover:bg-indigo-600 hover:text-white transition">Jorge Flores</button>
-
-                    </div>
-
-                    <button id="mgmt-btn" onclick="openMgmt()" class="bg-indigo-600 text-white px-10 py-3 rounded-full font-black hidden lang" data-es="GESTIÓN" data-en="MANAGEMENT">GESTIÓN</button>
-
-                </div>
-
-            </div>
-
-
-
-            <div id="mgmt-panel" class="fixed inset-0 z-[150] hidden overflow-y-auto p-6 md:p-12">
-
-                <div class="max-w-7xl mx-auto">
-
-                    <div class="flex justify-between items-center mb-10">
-
-                        <h2 class="text-3xl font-black text-indigo-600 lang" data-es="Control de Usuarios" data-en="User Control">Control de Usuarios</h2>
-
-                        <button onclick="closeMgmt()" class="bg-red-500 text-white w-10 h-10 rounded-full font-bold">✕</button>
-
-                    </div>
-
-
-
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-
-                        <div class="lg:col-span-4 space-y-6">
-
-                            <div class="glass p-8 rounded-[2.5rem] shadow-lg">
-
-                                <h3 class="font-bold mb-4 lang" data-es="Registrar Nuevo" data-en="Register New">Registrar Nuevo</h3>
-
-                                <div class="space-y-3">
-
-                                    <input type="text" id="new-u-id" placeholder="ID Usuario">
-
-                                    <input type="text" id="new-u-pass" placeholder="Password">
-
-                                    <select id="new-u-role">
-
-                                        <option value="editor">Editor</option>
-
-                                        <option value="lector">Lector</option>
-
-                                    </select>
-
-                                    <select id="new-u-access">
-
-                                        <option value="fatima.flores">Fatima</option>
-
-                                        <option value="jorge.flores">Jorge</option>
-
-                                        <option value="both">Ambos</option>
-
-                                    </select>
-
-                                    <button onclick="addUser()" class="w-full btn-primary py-3 lang" data-es="Agregar" data-en="Add">Agregar</button>
-
-                                </div>
-
-                            </div>
-
-                            <div id="user-admin-list" class="space-y-3"></div>
-
-                        </div>
-
-                        <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6" id="mgmt-mats-container"></div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <main id="main-table-view" class="max-w-6xl mx-auto">
-
-                <div class="glass rounded-[3rem] shadow-2xl overflow-hidden">
-
-                    <table class="w-full text-left">
-
-                        <thead class="bg-indigo-600 text-white">
-
-                            <tr>
-
-                                <th class="p-6 lang" data-es="Materia" data-en="Subject">Materia</th>
-
-                                <th class="p-6">Coti.</th>
-
-                                <th class="p-6">Inte.</th>
-
-                                <th class="p-6">Examen</th>
-
-                                <th class="p-6 text-right lang" data-es="Final" data-en="Final">Final</th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody id="table-body" class="divide-y dark:divide-white/5"></tbody>
-
-                    </table>
-
-                </div>
-
-            </main>
-
-        </div>
-
     </div>
 
+    <div id="sys-sec" class="hidden max-w-6xl mx-auto">
+        <nav class="flex justify-between items-center mb-10">
+            <h2 id="welcome-msg" class="text-2xl font-bold"></h2>
+            <button onclick="logout()" class="bg-red-500 text-white px-6 py-2 rounded-full font-bold">Salir</button>
+        </nav>
 
+        <div id="selector-estudiantes" class="flex gap-4 mb-8 hidden">
+            <button onclick="cargarTabla('fatima.flores')" class="bg-white border-2 border-indigo-600 px-6 py-2 rounded-full font-bold">Fatima Flores</button>
+            <button onclick="cargarTabla('jorge.flores')" class="bg-white border-2 border-indigo-600 px-6 py-2 rounded-full font-bold">Jorge Flores</button>
+        </div>
 
-    <footer class="w-full py-8 text-center opacity-50 text-xs font-semibold">
-
-        <p>©2026 Sistema de notas. Derechos reservados.</p>
-
-    </footer>
-
-
+        <div class="glass rounded-[2.5rem] shadow-xl overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-indigo-600 text-white">
+                    <tr>
+                        <th class="p-6">Materia</th>
+                        <th class="p-6">Coti.</th>
+                        <th class="p-6">Inte.</th>
+                        <th class="p-6">Examen</th>
+                        <th class="p-6 text-right">Promedio</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body" class="divide-y divide-gray-100"></tbody>
+            </table>
+        </div>
+    </div>
 
     <script>
-
-        const firebaseConfig = { databaseURL: "https://notas-sv1.firebaseapp.com/" };
-
-        firebase.initializeApp(firebaseConfig);
-
-        const db = firebase.database();
-
-
-
-        let USERS = JSON.parse(localStorage.getItem('db_v12')) || {
-
-            "admin.notas": { pass: "Admin2026.", rol: "admin", name: "Admin", access: "all", mats: [] },
-
-            "fatima.flores": { pass: "123", rol: "editor", name: "Fatima Flores", access: "fatima.flores", mats: [] },
-
-            "jorge.flores": { pass: "123", rol: "editor", name: "Jorge Flores", access: "jorge.flores", mats: [] }
-
-        };
-
-
-
         let userAct = null;
-
         let currentTarget = "";
 
+        async function login() {
+            const fd = new FormData();
+            fd.append('user', document.getElementById('user-in').value);
+            fd.append('pass', document.getElementById('pass-in').value);
 
+            const res = await fetch('api.php?action=login', { method: 'POST', body: fd });
+            const data = await res.json();
 
-        function save() { localStorage.setItem('db_v12', JSON.stringify(USERS)); }
-
-        function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
-
-
-
-        function openProfile() {
-
-            toggleModal('profile-modal');
-
-            const isA = userAct.rol === 'admin';
-
-            document.getElementById('admin-lock').classList.toggle('hidden', !isA);
-
-            document.getElementById('pass-fields-box').classList.toggle('hidden', isA);
-
+            if (data.id) {
+                userAct = data;
+                localStorage.setItem('session_notas', JSON.stringify(data));
+                iniciarApp();
+            } else {
+                document.getElementById('err').innerText = data.error;
+            }
         }
 
-
-
-        function changeVoluntaryPass() {
-
-            const p = document.getElementById('voluntary-pass').value;
-
-            if(p.length < 4) return;
-
-            USERS[localStorage.getItem('session')].pass = p;
-
-            save(); toggleModal('profile-modal');
-
-            alert("Ok!");
-
-        }
-
-
-
-        function openMgmt() {
-
-            document.getElementById('main-table-view').classList.add('hidden');
-
-            document.getElementById('mgmt-panel').classList.remove('hidden');
-
-            renderMgmt();
-
-        }
-
-
-
-        function closeMgmt() {
-
-            document.getElementById('mgmt-panel').classList.add('hidden');
-
-            document.getElementById('main-table-view').classList.remove('hidden');
-
-        }
-
-
-
-        function renderMgmt() {
-
-            const uList = document.getElementById('user-admin-list');
-
-            uList.innerHTML = Object.keys(USERS).map(u => {
-
-                const isAdminAccount = u === 'admin.notas';
-
-                return `
-
-                <div class="glass p-4 rounded-2xl user-card">
-
-                    <div class="flex justify-between items-center mb-2">
-
-                        <span class="font-bold text-xs">${u} ${isAdminAccount ? '⭐' : ''}</span>
-
-                        ${!isAdminAccount ? `<button onclick="deleteUser('${u}')" class="text-red-500 text-xs">✕</button>` : ''}
-
-                    </div>
-
-                    <div class="flex gap-2">
-
-                        <input type="text" value="${USERS[u].pass}" onchange="updatePass('${u}', this.value)" class="text-[10px] p-1 h-8">
-
-                        <select onchange="updateRole('${u}', this.value)" ${isAdminAccount ? 'disabled' : ''} class="text-[10px] p-1 h-8 ${isAdminAccount ? 'opacity-50 cursor-not-allowed' : ''}">
-
-                            <option value="admin" ${USERS[u].rol==='admin'?'selected':''}>Admin</option>
-
-                            <option value="editor" ${USERS[u].rol==='editor'?'selected':''}>Editor</option>
-
-                            <option value="lector" ${USERS[u].rol==='lector'?'selected':''}>Lector</option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-            `}).join('');
-
-
-
-            const cont = document.getElementById('mgmt-mats-container');
-
-            cont.innerHTML = ["fatima.flores", "jorge.flores"].map(u => `
-
-                <div class="glass p-8 rounded-[2.5rem]">
-
-                    <h4 class="font-bold mb-4">${USERS[u].name}</h4>
-
-                    <div class="flex gap-2 mb-4">
-
-                        <input type="text" id="in-${u}" placeholder="Materia">
-
-                        <button onclick="addMat('${u}')" class="bg-indigo-600 text-white px-4 rounded-xl font-bold">+</button>
-
-                    </div>
-
-                    <div class="flex flex-wrap gap-2">${USERS[u].mats.map(m => `<span class="bg-indigo-100 dark:bg-white/10 p-2 rounded-lg text-[10px] font-bold">${m} <button onclick="remMat('${u}','${m}')" class="text-red-500">✕</button></span>`).join('')}</div>
-
-                </div>
-
-            `).join('');
-
-            setLang(localStorage.getItem('lang') || 'es');
-
-        }
-
-
-
-        function updateRole(u, r) { if(u !== 'admin.notas') { USERS[u].rol = r; save(); } }
-
-        function updatePass(u, p) { USERS[u].pass = p; save(); }
-
-
-
-        function addUser() {
-
-            const id = document.getElementById('new-u-id').value.toLowerCase();
-
-            const ps = document.getElementById('new-u-pass').value;
-
-            const rl = document.getElementById('new-u-role').value;
-
-            const ac = document.getElementById('new-u-access').value;
-
-            if(id && ps) { USERS[id] = { pass: ps, rol: rl, name: id, access: ac, mats: [] }; save(); renderMgmt(); }
-
-        }
-
-
-
-        function deleteUser(u) { if(u !== 'admin.notas') { delete USERS[u]; save(); renderMgmt(); } }
-
-        function addMat(u) { const v = document.getElementById(`in-${u}`).value; if(v){ USERS[u].mats.push(v); save(); renderMgmt(); } }
-
-        function remMat(u, m) { USERS[u].mats = USERS[u].mats.filter(i => i !== m); save(); renderMgmt(); }
-
-
-
-        function login() {
-
-            const u = document.getElementById('user-in').value.toLowerCase();
-
-            const p = document.getElementById('pass-in').value;
-
-            if(USERS[u] && USERS[u].pass === p) {
-
-                userAct = USERS[u];
-
-                localStorage.setItem('session', u);
-
-                initSys();
-
-            } else { document.getElementById('err').innerText = "Error"; }
-
-        }
-
-
-
-        function initSys() {
-
+        function iniciarApp() {
             document.getElementById('login-sec').classList.add('hidden');
-
             document.getElementById('sys-sec').classList.remove('hidden');
+            document.getElementById('welcome-msg').innerText = `Hola, ${userAct.name}`;
 
-            document.getElementById('logout-btn').classList.remove('hidden');
-
-            document.getElementById('profile-btn').classList.remove('hidden');
-
-            if(userAct.rol === 'admin' || userAct.access === 'both') {
-
-                document.getElementById('dual-header').classList.remove('hidden');
-
-                if(userAct.rol === 'admin') document.getElementById('mgmt-btn').classList.remove('hidden');
-
-            } else { viewGroup(userAct.access); }
-
+            if (userAct.rol === 'admin') {
+                document.getElementById('selector-estudiantes').classList.remove('hidden');
+            } else {
+                cargarTabla(userAct.access);
+            }
         }
 
-
-
-        function viewGroup(uKey) {
-
-            currentTarget = uKey;
-
+        async function cargarTabla(estId) {
+            currentTarget = estId;
+            const res = await fetch(`api.php?action=get_notas&estudiante=${estId}`);
+            const notas = await res.json();
+            
             const body = document.getElementById('table-body');
-
-            body.innerHTML = USERS[uKey].mats.map(m => `
-
-                <tr data-m="${m}">
-
-                    <td class="p-6 font-bold text-indigo-600">${m}</td>
-
-                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="coti" onkeypress="return isNum(event)">-</td>
-
-                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="inte" onkeypress="return isNum(event)">-</td>
-
-                    <td class="p-6 editable-cell" contenteditable="${userAct.rol!=='lector'}" data-c="exam" onkeypress="return isNum(event)">-</td>
-
-                    <td class="p-6 text-right font-black text-2xl text-indigo-600">0.0</td>
-
-                </tr>
-
-            `).join('');
-
-
-
-            document.querySelectorAll('.editable-cell').forEach(td => {
-
-                td.onblur = (e) => {
-
-                    let v = e.target.innerText.replace(/[^0-9.]/g, '');
-
-                    db.ref(`v12/notas/${currentTarget}/${e.target.parentElement.dataset.m}/${e.target.dataset.c}`).set(v);
-
-                };
-
-            });
-
-            sync();
-
+            body.innerHTML = notas.map(n => {
+                const prom = ((parseFloat(n.coti) + parseFloat(n.inte) + parseFloat(n.exam)) / 3).toFixed(1);
+                const readonly = (userAct.rol === 'lector') ? 'readonly' : '';
+                
+                return `
+                <tr>
+                    <td class="p-6 font-bold text-indigo-600">${n.materia}</td>
+                    <td class="p-6"><input type="number" value="${n.coti}" ${readonly} onchange="actualizar('${n.materia}', 'coti', this.value)"></td>
+                    <td class="p-6"><input type="number" value="${n.inte}" ${readonly} onchange="actualizar('${n.materia}', 'inte', this.value)"></td>
+                    <td class="p-6"><input type="number" value="${n.exam}" ${readonly} onchange="actualizar('${n.materia}', 'exam', this.value)"></td>
+                    <td class="p-6 text-right font-black text-2xl text-indigo-500">${prom}</td>
+                </tr>`;
+            }).join('');
         }
 
+        async function actualizar(materia, columna, valor) {
+            const fd = new FormData();
+            fd.append('estudiante', currentTarget);
+            fd.append('materia', materia);
+            fd.append('columna', columna);
+            fd.append('valor', valor);
 
-
-        function isNum(e) { return (e.which != 46 || e.target.innerText.indexOf('.') != -1) && (e.which < 48 || e.which > 57) ? false : true; }
-
-        function sync() {
-
-            db.ref(`v12/notas/${currentTarget}`).on('value', snap => {
-
-                const data = snap.val() || {};
-
-                document.querySelectorAll('#table-body tr').forEach(row => {
-
-                    const m = row.dataset.m;
-
-                    if(data[m]) {
-
-                        row.cells[1].innerText = data[m].coti || "-";
-
-                        row.cells[2].innerText = data[m].inte || "-";
-
-                        row.cells[3].innerText = data[m].exam || "-";
-
-                        const f = (parseFloat(data[m].coti||0)+parseFloat(data[m].inte||0)+parseFloat(data[m].exam||0))/3;
-
-                        row.cells[4].innerText = f.toFixed(1);
-
-                    }
-
-                });
-
-            });
-
+            await fetch('api.php?action=update_nota', { method: 'POST', body: fd });
+            cargarTabla(currentTarget); // Recargar para ver el promedio nuevo
         }
 
-
-
-        function logout() { localStorage.removeItem('session'); location.reload(); }
-
-        function setTheme(t) { t === 'dark' ? document.body.classList.add('dark-mode') : document.body.classList.remove('dark-mode'); localStorage.setItem('theme', t); }
-
-        function setLang(l) { 
-
-            document.querySelectorAll('.lang').forEach(el => el.innerText = el.getAttribute(`data-${l}`)); 
-
-            localStorage.setItem('lang', l); 
-
+        function logout() {
+            localStorage.clear();
+            location.reload();
         }
-
-
 
         window.onload = () => {
-
-            const t = localStorage.getItem('theme') || 'light';
-
-            const l = localStorage.getItem('lang') || 'es';
-
-            setTheme(t); setLang(l);
-
-            const s = localStorage.getItem('session');
-
-            if(s && USERS[s]) { userAct = USERS[s]; initSys(); }
-
+            const s = localStorage.getItem('session_notas');
+            if (s) { userAct = JSON.parse(s); iniciarApp(); }
         };
-
     </script>
-
 </body>
-
 </html>
