@@ -1,35 +1,28 @@
 <?php
 require 'config.php';
 
-if (!isset($_SESSION['user'])) exit;
-
 $action = $_GET['action'] ?? '';
 
-if ($action == 'get_grades') {
-    $student = $_GET['student'];
-    // Obtener materias y unirlas con sus notas
-    $stmt = $pdo->prepare("SELECT s.name as subject_name, IFNULL(g.coti, 0) as coti, IFNULL(g.inte, 0) as inte, IFNULL(g.exam, 0) as exam 
-                           FROM subjects s 
-                           LEFT JOIN grades g ON s.name = g.subject_name AND g.student_key = ?
-                           WHERE s.student_key = ?");
-    $stmt->execute([$student, $student]);
+// Obtener notas de un estudiante
+if ($action == 'get_notas') {
+    $estudiante = $_GET['estudiante'];
+    $stmt = $pdo->prepare("SELECT * FROM materias WHERE estudiante_id = ? ORDER BY nombre_materia ASC");
+    $stmt->execute([$estudiante]);
     echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
 }
 
-if ($action == 'save_grade') {
-    $student = $_POST['student'];
-    $subject = $_POST['subject'];
-    $column  = $_POST['column']; // coti, inte o exam
-    $value   = $_POST['value'];
+// Actualizar una nota específica
+if ($action == 'update_nota') {
+    $est_id = $_POST['estudiante'];
+    $materia = $_POST['materia'];
+    $columna = $_POST['columna']; // coti, inte o exam
+    $valor = $_POST['valor'];
 
-    // Insertar o actualizar nota (Upsert)
-    $sql = "INSERT INTO grades (student_key, subject_name, $column) VALUES (?, ?, ?)
-            ON DUPLICATE KEY UPDATE $column = ?";
-    $pdo->prepare($sql)->execute([$student, $subject, $value, $value]);
-}
+    // Validar columna para seguridad
+    if (!in_array($columna, ['coti', 'inte', 'exam'])) exit;
 
-if ($action == 'change_pass') {
-    $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
-    $stmt->execute([$_POST['password'], $_SESSION['user']['id']]);
+    $sql = "UPDATE materias SET $columna = ? WHERE estudiante_id = ? AND nombre_materia = ?";
+    $pdo->prepare($sql)->execute([$valor, $est_id, $materia]);
+    echo json_encode(['status' => 'ok']);
 }
 ?>
