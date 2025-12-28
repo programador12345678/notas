@@ -1,0 +1,28 @@
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'editor', 'lector') DEFAULT 'lector',
+    full_name VARCHAR(100),
+    access_to VARCHAR(50) DEFAULT 'none' -- 'fatima.flores', 'jorge.flores', 'both', 'all'
+);
+
+CREATE TABLE subjects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_key VARCHAR(50), -- 'fatima.flores' o 'jorge.flores'
+    name VARCHAR(100)
+);
+
+CREATE TABLE grades (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_key VARCHAR(50),
+    subject_name VARCHAR(100),
+    coti DECIMAL(4,2) DEFAULT 0,
+    inte DECIMAL(4,2) DEFAULT 0,
+    exam DECIMAL(4,2) DEFAULT 0,
+    UNIQUE KEY(student_key, subject_name)
+);
+
+-- Usuario administrador inicial (Password: Admin2026.)
+INSERT INTO users (username, password, role, full_name, access_to) 
+VALUES ('admin.notas', 'Admin2026.', 'admin', 'Administrador', 'all');
